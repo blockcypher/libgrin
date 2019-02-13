@@ -1,0 +1,8 @@
+[false, {
+    "last_confirmed_height": 10632,
+    "total": 5107636000000,
+    "amount_awaiting_confirmation": 7636000000,
+    "amount_immature": 0,
+    "amount_currently_spendable": 5100000000000,
+    "amount_locked": 17644000000
+}]

@@ -1,0 +1,137 @@
+{
+    "header": {
+        "hash": "0822cd711993d0f9a3ffdb4e755defdd4a40aa25ce72f8053fa330247a36f687",
+        "version": 1,
+        "height": 16111,
+        "previous": "06ed10daa0d496dc51620fe291571c63b422d1666711092d112f36caf8668ae4",
+        "prev_root": "097fb2172d106fc07a5729b20203d68c900691c94bd9ba32f4d22d3f3899b024",
+        "timestamp": "2018-10-29T09:07:47+00:00",
+        "output_root": "ff3d97eb5b4499aecf5eb060ac179007f63b663b14fdebe0d3257cf7eb795541",
+        "range_proof_root": "3ee1570e57ae4c52819e81d6202637fcb5c0f3891115189c3f87163d66283f50",
+        "kernel_root": "f7eb0b2fe9eae73fe79faf6eb0d24d0e22c314b98dd4b01dff92bcf743c7961b",
+        "nonce": 17151511369323518523,
+        "edge_bits": 29,
+        "cuckoo_solution": [
+            1082561,
+            1342425,
+            1463059,
+            4779168,
+            59554860,
+            71423838,
+            75025676,
+            91206636,
+            119468747,
+            150934176,
+            153688676,
+            161782349,
+            188658892,
+            195060419,
+            202993161,
+            205459112,
+            236122103,
+            275832771,
+            284421772,
+            284899531,
+            292165863,
+            295260720,
+            329508343,
+            332497027,
+            339650916,
+            339880679,
+            371746644,
+            401851149,
+            411587959,
+            415958075,
+            421911181,
+            429865492,
+            439038985,
+            449265593,
+            449717074,
+            468332171,
+            475499650,
+            485533144,
+            504230583,
+            508992086,
+            521732972,
+            531862256
+        ],
+        "total_difficulty": 673463518,
+        "scaling_difficulty": 2791,
+        "total_kernel_offset": "9dc76158fb56e063f531faccd1846d6546e480c14767149d155c56f2de8617cc"
+    },
+    "inputs": [
+        "08ac5011cebb6b04dd8f6989aed9b74c73e266d3e2c3b9dc2ae390f37bdf2174ec",
+        "09d5048cce16c2198a8107efdafa22cc8b91c61c2e0f1b7ed1722b34d40a8b6c30",
+        "08518e92556770d1f412762ffb901c16b22141ed100456d8032c25c1c7c401bfad",
+        "08a5efba0d56156b44433cb0e23dcbb8bdd46d483e411367a72a8e437c0e6bcffe",
+        "089e29b78e4d4997c20d648ca2589c54ae6b9e6860c51d032c86160d2e262fec9b"
+    ],
+    "outputs": [{
+            "output_type": "Transaction",
+            "commit": "09c6923c9e7723ef0a405c464f7824834a692d0bc9eb4c44972fc4ccd5dfd49e73",
+            "spent": true,
+            "proof": null,
+            "proof_hash": "751171ef74978b399488193cd666fe4f942cb67d5ea71106392b8f15fa87084b",
+            "block_height": null,
+            "merkle_proof": null
+        },
+        {
+            "output_type": "Transaction",
+            "commit": "09227da8d0bcbb010a67cc41e4003401cdd976c3184a9888ab259a29fe932b8919",
+            "spent": true,
+            "proof": null,
+            "proof_hash": "910678d41e21302fcac8788c13a33e72e6032c1acf1c3c83bb046ecd9bbe9f84",
+            "block_height": null,
+            "merkle_proof": null
+        },
+        {
+            "output_type": "Transaction",
+            "commit": "0833027a21e85d680b5eb01bd81484f8209a7dd503098bcc5cf4c84c7c9430a97c",
+            "spent": true,
+            "proof": null,
+            "proof_hash": "46d3ba815eb5aa133fe4c7b90d19f8bee9e80ba1d77cbc9dba4d94a79a2fc5c4",
+            "block_height": null,
+            "merkle_proof": null
+        },
+        {
+            "output_type": "Coinbase",
+            "commit": "086196dbe03f514656a37b964c49c0c38a175716f1371f146f7ee814fbb7e4101f",
+            "spent": false,
+            "proof": null,
+            "proof_hash": "118beb84ee0a3339d62dfa9e99d8c217b3f7f9c6257f6feb246d74e8b7fbf3d8",
+            "block_height": 16111,
+            "merkle_proof": "000000000000c14b00000000000000076280e31ae238d37783d68c85d08e281ba96e84f61e30a1bc04be81a10765e84471b34a5ee1453e88849229d7afbe790ed63c378b5c04f1eaa2cbb64ae606a443b67cec733abd14bb4338e1e66cf44f30ed1f93e475ed2a03de669afcbd249bfb75596abdeae0c3eb6764659776ed3c8ddace2c386f91064391aae86978d5682db86be0577c8ef5cffd33d355cb487bcdd122288aac46ba789fbb1627c1022eb9b8d1436ce52db7735bfcb864556957a524ca4dd83d4342f482b8d7a084a6eccf26d090e1109cc3f3376f2a2d798d86fd7e67ca7bdc892ad91866e4b16afc9ff6"
+        },
+        {
+            "output_type": "Transaction",
+            "commit": "097958bda75ddd0a2e12b5add343b632fa326f1eafd799f4626040e0ded2becc11",
+            "spent": true,
+            "proof": null,
+            "proof_hash": "147a361c70b63ccf4f46ebc374ac8ea5aaddfec3c40663f84921170ff4b7e91c",
+            "block_height": null,
+            "merkle_proof": null
+        }
+    ],
+    "kernels": [{
+            "features": "DEFAULT_KERNEL",
+            "fee": 7000000,
+            "lock_height": 16109,
+            "excess": "087709cf515836a3c6b38e10b69a2f1dba995387aed887fe57a5a82319b29f6bc0",
+            "excess_sig": "39a50030898aa1b2260e9110786034580e68b4a2e40bfc957d0036ead0a6a4ace364b36c7a65daad6f7812d86fb21cb34e1365f5959359b4e08fa19287f7bde2"
+        },
+        {
+            "features": "COINBASE_KERNEL",
+            "fee": 0,
+            "lock_height": 16111,
+            "excess": "09e54765e97e06234e0b5fa127ffb38848e6082f1fedb58ef341c344b46ef0100f",
+            "excess_sig": "a4a302247386acdaa22ad49fd6dcb3caaaae2f27c56f2bf6523a12d716088da17f799849d355ecb0530d33858b80720bef977c28ebd22440acbc304063f7bd0e"
+        },
+        {
+            "features": "DEFAULT_KERNEL",
+            "fee": 6000000,
+            "lock_height": 16110,
+            "excess": "09ecf0017ea6ddb656efd84ef007fcae3913e6ac806cdeaf042962504aa73eb46f",
+            "excess_sig": "124a971d484c5098cf0fc3ef84e761066c3bb0c3a21367ad649d4117b7239c48951943c8c07d5d67eb4403aeef4f3e0026e38d9cab10484c6f9ac88205f788aa"
+        }
+    ]
+}

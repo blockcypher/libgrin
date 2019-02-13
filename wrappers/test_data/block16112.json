@@ -1,0 +1,109 @@
+{
+    "header": {
+        "hash": "044753a1faf8c6b5e01ba4a244cdc9f2d83587ce19b02e9d53a9aa9623708e37",
+        "version": 1,
+        "height": 16112,
+        "previous": "0822cd711993d0f9a3ffdb4e755defdd4a40aa25ce72f8053fa330247a36f687",
+        "prev_root": "28615650ccd264ba0f2af2c24c67ea06c5eff2601c231bbc2d8703bd3b82d8f8",
+        "timestamp": "2018-10-29T09:08:29+00:00",
+        "output_root": "10157790f5620c530ba97fd7f62ada5c94ac4d77de8127c695aebfb252d871ce",
+        "range_proof_root": "a5c9b50a7118635ffcd40e510cb6c8baa138b65e5835537cb9ddfb2593c3c4ff",
+        "kernel_root": "aadc80b003c3f7fa4722acb7553ba9fb7c4328bde2ef561564451647700f5eea",
+        "nonce": 8263282065068624989,
+        "edge_bits": 30,
+        "cuckoo_solution": [
+            33164714,
+            73583020,
+            85757108,
+            100158597,
+            220146521,
+            239524306,
+            262423453,
+            286504495,
+            289339933,
+            300421279,
+            321706750,
+            339575466,
+            392165980,
+            458055981,
+            480749649,
+            504624440,
+            549896817,
+            584232117,
+            619047304,
+            620296819,
+            631337401,
+            642287915,
+            642972973,
+            676870177,
+            684000723,
+            707016458,
+            750923514,
+            772626526,
+            788596653,
+            788823991,
+            789399028,
+            798213057,
+            814933078,
+            831149421,
+            843714151,
+            855145218,
+            855896725,
+            867248283,
+            884064090,
+            898676895,
+            979705133,
+            1042810721
+        ],
+        "total_difficulty": 673514854,
+        "scaling_difficulty": 2799,
+        "total_kernel_offset": "11589fc33b6e67a4614ddc7eb48a1fdbdb961c936bd2b6d8f14e3539c4022404"
+    },
+    "inputs": [
+        "09c6923c9e7723ef0a405c464f7824834a692d0bc9eb4c44972fc4ccd5dfd49e73",
+        "097958bda75ddd0a2e12b5add343b632fa326f1eafd799f4626040e0ded2becc11"
+    ],
+    "outputs": [{
+            "output_type": "Transaction",
+            "commit": "096703a271495526c5368afbfec00ea6d08b46908f526a824fbc75046619d6db66",
+            "spent": true,
+            "proof": null,
+            "proof_hash": "3279f615ae5ea05b67235a0eec1b56833493a7f66789f61a2047ca4152fc8b40",
+            "block_height": null,
+            "merkle_proof": null
+        },
+        {
+            "output_type": "Transaction",
+            "commit": "08146c2edbc70160bd898e103c1735177d11d26aede15fb82df54282d828308299",
+            "spent": true,
+            "proof": null,
+            "proof_hash": "cde9ea2f09c8b9ed3b32d71f1bac33d1c3c714ad414ffade661e4b48a687accc",
+            "block_height": null,
+            "merkle_proof": null
+        },
+        {
+            "output_type": "Coinbase",
+            "commit": "09bfa48c2635c0877873483adff48cf9c5ab54e13f35d102ddb32bd890dd1d5d6e",
+            "spent": false,
+            "proof": null,
+            "proof_hash": "d532d8aee2aeef97d1695e59056378be64867d1d04d0ef13c59637e0dab3e119",
+            "block_height": 16112,
+            "merkle_proof": "000000000000c14f0000000000000006928c343cc30b40ec5ada0b065540586c7a7301eb4b3d1dc0dfe02282d6dc2b4d5bbdd3c0673b52880aefaa8436d26f2ad99cbf8d94318ac4b2d603d6e610b37275596abdeae0c3eb6764659776ed3c8ddace2c386f91064391aae86978d5682db86be0577c8ef5cffd33d355cb487bcdd122288aac46ba789fbb1627c1022eb9b8d1436ce52db7735bfcb864556957a524ca4dd83d4342f482b8d7a084a6eccf26d090e1109cc3f3376f2a2d798d86fd7e67ca7bdc892ad91866e4b16afc9ff6"
+        }
+    ],
+    "kernels": [{
+            "features": "COINBASE_KERNEL",
+            "fee": 0,
+            "lock_height": 16112,
+            "excess": "0999a8ad355f46864b4489a780e0318c200e3a40128eb434f23156825b7179fbb6",
+            "excess_sig": "3569292e4fdbebe4bcd5544ba90e3bcdaa52d40d097ef71d5240088da6cde0cc7b30c82ee5e254c2186b331296e4447564edd967b49c1c474440e8627f7c7569"
+        },
+        {
+            "features": "DEFAULT_KERNEL",
+            "fee": 7000000,
+            "lock_height": 16111,
+            "excess": "08a1b0dbc98ff94373829c5c939230821d60338daec5e6edffebc94729aaeb3c99",
+            "excess_sig": "a86ffe344a929be9fbc368eac3ae5974f7587551f73825fa62e56236da738422ac5fee5c9d4f15925eb414a831ceaacceba150da07343048d4c87ade19926167"
+        }
+    ]
+}
