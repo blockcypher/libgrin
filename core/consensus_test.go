@@ -56,5 +56,43 @@ func TestGraphWeight(t *testing.T) {
 	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 31), uint64(0))
 	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 32), uint64(0))
 	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 33), uint64(1024*32))
+}
 
+func TestSecondaryPoWRatio(t *testing.T) {
+	// Tests for mainnet chain type.
+	assert.Equal(t, SecondaryPoWRatio(1), uint64(90))
+	assert.Equal(t, SecondaryPoWRatio(89), uint64(90))
+	assert.Equal(t, SecondaryPoWRatio(90), uint64(90))
+	assert.Equal(t, SecondaryPoWRatio(91), uint64(90))
+	assert.Equal(t, SecondaryPoWRatio(179), uint64(90))
+	assert.Equal(t, SecondaryPoWRatio(180), uint64(90))
+	assert.Equal(t, SecondaryPoWRatio(181), uint64(90))
+
+	oneWeek := uint64(60 * 24 * 7)
+	assert.Equal(t, SecondaryPoWRatio(oneWeek-1), uint64(90))
+	assert.Equal(t, SecondaryPoWRatio(oneWeek), uint64(90))
+	assert.Equal(t, SecondaryPoWRatio(oneWeek+1), uint64(90))
+
+	twoWeeks := oneWeek * 2
+	assert.Equal(t, SecondaryPoWRatio(twoWeeks-1), uint64(89))
+	assert.Equal(t, SecondaryPoWRatio(twoWeeks), uint64(89))
+	assert.Equal(t, SecondaryPoWRatio(twoWeeks+1), uint64(89))
+
+	t4ForkHeight := uint64(6400)
+	assert.Equal(t, SecondaryPoWRatio(t4ForkHeight-1), uint64(85))
+	assert.Equal(t, SecondaryPoWRatio(t4ForkHeight), uint64(85))
+	assert.Equal(t, SecondaryPoWRatio(t4ForkHeight+1), uint64(85))
+
+	oneYear := oneWeek * 52
+	assert.Equal(t, SecondaryPoWRatio(oneYear), uint64(45))
+
+	ninetyOneWeeks := oneWeek * 91
+	assert.Equal(t, SecondaryPoWRatio(ninetyOneWeeks-1), uint64(12))
+	assert.Equal(t, SecondaryPoWRatio(ninetyOneWeeks), uint64(12))
+	assert.Equal(t, SecondaryPoWRatio(ninetyOneWeeks+1), uint64(12))
+
+	twoYears := oneYear * 2
+	assert.Equal(t, SecondaryPoWRatio(twoYears-1), uint64(1))
+	assert.Equal(t, SecondaryPoWRatio(twoYears), uint64(0))
+	assert.Equal(t, SecondaryPoWRatio(twoYears+1), uint64(0))
 }
