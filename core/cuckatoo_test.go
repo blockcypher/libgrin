@@ -41,7 +41,7 @@ var v1_31 = []uint64{
 }
 
 func TestValidate29Vectors(t *testing.T) {
-	ctx := newCuckatooImpl(29, 42, 10)
+	ctx := newCuckatooImpl(Mainnet, 29, 42, 10)
 	nonce := uint32(20)
 	ctx.SetHeaderNonce(make([]uint8, 80), &nonce)
 	proof := new(Proof)
@@ -49,7 +49,7 @@ func TestValidate29Vectors(t *testing.T) {
 }
 
 func TestValidate31Vectors(t *testing.T) {
-	ctx := newCuckatooImpl(31, 42, 10)
+	ctx := newCuckatooImpl(Mainnet, 31, 42, 10)
 	nonce := uint32(99)
 	ctx.SetHeaderNonce(make([]uint8, 80), &nonce)
 	proof := new(Proof)
@@ -58,7 +58,7 @@ func TestValidate31Vectors(t *testing.T) {
 
 func TestValidateFail(t *testing.T) {
 	proof := new(Proof)
-	ctx := newCuckatooImpl(29, 42, 10)
+	ctx := newCuckatooImpl(Mainnet, 29, 42, 10)
 	header := make([]uint8, 80)
 	header[0] = uint8(1)
 	nonce := uint32(20)
@@ -72,8 +72,8 @@ func TestValidateFail(t *testing.T) {
 	assert.NotNil(t, ctx.Verify(proof.new(badProof)))
 }
 
-func newCuckatooImpl(edgeBits uint8, proofSize int, maxSols uint32) CuckatooContext {
+func newCuckatooImpl(chainType ChainType, edgeBits uint8, proofSize int, maxSols uint32) CuckatooContext {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, proofSize)
-	return CuckatooContext{params}
+	return CuckatooContext{chainType, params}
 }
