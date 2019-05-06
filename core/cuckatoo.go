@@ -17,15 +17,16 @@ package core
 import "errors"
 
 // NewCuckatooCtx instantiates a new CuckatooContext as a PowContext
-func NewCuckatooCtx(edgeBits uint8, proofSize int, maxSols uint32) *CuckatooContext {
+func NewCuckatooCtx(chainType ChainType, edgeBits uint8, proofSize int, maxSols uint32) *CuckatooContext {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, proofSize)
-	return &CuckatooContext{params}
+	return &CuckatooContext{chainType, params}
 }
 
 // CuckatooContext is a Cuckatoo solver context.
 type CuckatooContext struct {
-	params CuckooParams
+	chainType ChainType
+	params    CuckooParams
 }
 
 // SetHeaderNonce sets the header nonce.
@@ -40,13 +41,15 @@ func (c *CuckatooContext) sipnode(edge, uorv uint64) uint64 {
 
 // Verify verifies the Cuckatoo context.
 func (c *CuckatooContext) Verify(proof Proof) error {
-	proofSize := proof.proofSize()
+	if proof.proofSize() != proofSize(c.chainType) {
+		return errors.New("wrong cycle length")
+	}
 	nonces := proof.Nonces
 	uvs := make([]uint64, 2*proof.proofSize())
 	xor0 := (uint64(c.params.proofSize) / 2) & 1
 	xor1 := xor0
 
-	for n := 0; n < proofSize; n++ {
+	for n := 0; n < proof.proofSize(); n++ {
 		if nonces[n] > c.params.edgeMask {
 			return errors.New("edge too big")
 		}

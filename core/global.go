@@ -85,18 +85,18 @@ func createPoWContext(chainType ChainType, height uint64, edgeBits uint8, proofS
 	case Mainnet:
 		// Mainnet has Cuckaroo29 for AR and Cuckatoo30+ for AF
 		if edgeBits == 29 {
-			return NewCuckarooCtx(edgeBits, proofSize)
+			return NewCuckarooCtx(chainType, edgeBits, proofSize)
 		}
-		return NewCuckatooCtx(edgeBits, proofSize, maxSols)
+		return NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
 	case Floonet:
 		// Same for Floonet
 		if edgeBits == 29 {
-			return NewCuckarooCtx(edgeBits, proofSize)
+			return NewCuckarooCtx(chainType, edgeBits, proofSize)
 		}
-		return NewCuckatooCtx(edgeBits, proofSize, maxSols)
+		return NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
 	default:
 		// Everything else is Cuckatoo only
-		return NewCuckatooCtx(edgeBits, proofSize, maxSols)
+		return NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
 	}
 }
 

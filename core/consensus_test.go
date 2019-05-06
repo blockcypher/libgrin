@@ -15,6 +15,7 @@
 package core
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -78,7 +79,8 @@ func TestSecondaryPoWRatio(t *testing.T) {
 	assert.Equal(t, SecondaryPoWRatio(twoWeeks), uint64(89))
 	assert.Equal(t, SecondaryPoWRatio(twoWeeks+1), uint64(89))
 
-	t4ForkHeight := uint64(6400)
+	t4ForkHeight := uint64(64000)
+	fmt.Println(SecondaryPoWRatio(t4ForkHeight - 1))
 	assert.Equal(t, SecondaryPoWRatio(t4ForkHeight-1), uint64(85))
 	assert.Equal(t, SecondaryPoWRatio(t4ForkHeight), uint64(85))
 	assert.Equal(t, SecondaryPoWRatio(t4ForkHeight+1), uint64(85))

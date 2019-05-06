@@ -21,15 +21,16 @@ import (
 // https://github.com/mimblewimble/grin/blob/master/core/src/pow/cuckaroo.rs
 
 // NewCuckarooCtx instantiates a new CuckarooContext as a PowContext
-func NewCuckarooCtx(edgeBits uint8, proofSize int) *CuckarooContext {
+func NewCuckarooCtx(chainType ChainType, edgeBits uint8, proofSize int) *CuckarooContext {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, proofSize)
-	return &CuckarooContext{params}
+	return &CuckarooContext{chainType, params}
 }
 
 // CuckarooContext is a Cuckatoo cycle context. Only includes the verifier for now.
 type CuckarooContext struct {
-	params CuckooParams
+	chainType ChainType
+	params    CuckooParams
 }
 
 // SetHeaderNonce sets the header nonce.
@@ -39,12 +40,14 @@ func (c *CuckarooContext) SetHeaderNonce(header []uint8, nonce *uint32) {
 
 // Verify verifies the Cuckatoo context.
 func (c *CuckarooContext) Verify(proof Proof) error {
-	proofSize := proof.proofSize()
+	if proof.proofSize() != proofSize(c.chainType) {
+		return errors.New("wrong cycle length")
+	}
 	nonces := proof.Nonces
 	uvs := make([]uint64, 2*proof.proofSize())
 	var xor0, xor1 uint64
 
-	for n := 0; n < proofSize; n++ {
+	for n := 0; n < proof.proofSize(); n++ {
 		if nonces[n] > c.params.edgeMask {
 			return errors.New("edge too big")
 		}
