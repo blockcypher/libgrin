@@ -21,7 +21,7 @@ Currently, it contains the basic consensus parameters and proof of work verifica
 
 ```bash
 cd $GOPATH/src/github.com/blockcypher/libgrin
-go get . && go build
+go get .
 ```
 
 - libgrin (and utilities) will now be installed in ```$GOPATH/bin```.  If you did
