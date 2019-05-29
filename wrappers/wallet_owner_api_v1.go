@@ -1,4 +1,4 @@
-// Copyright 2018 BlockCypher
+// Copyright 2019 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,13 +20,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/blockcypher/libgrin/wallet"
-
+	"github.com/blockcypher/libgrin/libwallet"
 	log "github.com/sirupsen/logrus"
 )
 
 // IssueSendTx issues a send transaction
-func IssueSendTx(ip string, method PayoutMethodType, amount uint64) (*wallet.Slate, error) {
+func IssueSendTx(ip string, method PayoutMethodType, amount uint64) (*libwallet.Slate, error) {
 	// Wallet Owner IP is binded to localhost
 	url := "http://127.0.0.1:3420/v1/wallet/owner/issue_send_tx"
 	dest := "file"
@@ -43,7 +42,7 @@ func IssueSendTx(ip string, method PayoutMethodType, amount uint64) (*wallet.Sla
 		"amount": amount,
 		"dest":   dest,
 	}).Info("GRINAPI: Sending amount")
-	sendParams := wallet.SendTXArgs{
+	sendParams := libwallet.SendTXArgs{
 		Amount:                    amount,
 		MinimumConfirmations:      1,
 		Method:                    method.methodTypeToString(),
@@ -71,7 +70,7 @@ func IssueSendTx(ip string, method PayoutMethodType, amount uint64) (*wallet.Sla
 		return nil, errors.New(responseString)
 	}
 	// Unmarshalling to slate
-	var slate wallet.Slate
+	var slate libwallet.Slate
 	if err := json.Unmarshal(response, &slate); err != nil {
 		// If we could not unmarshal here the transaction is still sent so do not return error
 		log.WithFields(log.Fields{
@@ -154,7 +153,7 @@ func GetAmountCurrentlySpendable(refresh bool) (uint64, error) {
 }
 
 // PostTransaction Post a final slate to the Grin Node
-func PostTransaction(slate *wallet.Slate) error {
+func PostTransaction(slate *libwallet.Slate) error {
 	log.WithFields(log.Fields{
 		"txid":   slate.ID,
 		"amount": slate.Amount,
@@ -178,7 +177,7 @@ func PostTransaction(slate *wallet.Slate) error {
 }
 
 // FinalizeTransaction finalize a transaction
-func FinalizeTransaction(slate *wallet.Slate) (*wallet.Slate, error) {
+func FinalizeTransaction(slate *libwallet.Slate) (*libwallet.Slate, error) {
 	log.WithFields(log.Fields{
 		"txid":   slate.ID,
 		"amount": slate.Amount,
@@ -189,7 +188,7 @@ func FinalizeTransaction(slate *wallet.Slate) (*wallet.Slate, error) {
 	if err != nil {
 		return nil, err
 	}
-	var finalizedSlate wallet.Slate
+	var finalizedSlate libwallet.Slate
 	if err := json.Unmarshal(response, &finalizedSlate); err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -200,8 +199,8 @@ func FinalizeTransaction(slate *wallet.Slate) (*wallet.Slate, error) {
 }
 
 // FinalizeTransactionString same as above but with a json string
-func FinalizeTransactionString(slateString string) (*wallet.Slate, error) {
-	var slate wallet.Slate
+func FinalizeTransactionString(slateString string) (*libwallet.Slate, error) {
+	var slate libwallet.Slate
 	if err := json.Unmarshal([]byte(slateString), &slate); err != nil {
 		// If we could not unmarshal here the transaction is still sent so do not return error
 		log.WithFields(log.Fields{
@@ -219,7 +218,7 @@ func FinalizeTransactionString(slateString string) (*wallet.Slate, error) {
 	if err != nil {
 		return nil, err
 	}
-	var finalizedSlate wallet.Slate
+	var finalizedSlate libwallet.Slate
 	if err := json.Unmarshal(response, &finalizedSlate); err != nil {
 		// If we could not unmarshal here the transaction is still sent so do not return error
 		log.WithFields(log.Fields{
