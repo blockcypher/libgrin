@@ -1,8 +1,8 @@
 # libgrin
 
-[![Build Status](https://travis-ci.org/blockcypher/libgrin.png?branch=master)](https://travis-ci.org/blockcypher/libgrin)
+[![Build Status](https://dev.azure.com/blockcypher/libgrin/_apis/build/status/blockcypher.libgrin?branchName=master)](https://dev.azure.com/blockcypher/libgrin/_build/latest?definitionId=1&branchName=master)
 [![ISC License](http://img.shields.io/badge/license-apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/blockcypher/libgrin)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/blockcypher/libgrin)
 
 libgrin is a golang Grin library for building Grin applications.
 Currently, it contains the basic consensus parameters and proof of work verification code. The wrapper package is an example of wrappers around the Grin node, wallet and owner APIs using libgrin.
