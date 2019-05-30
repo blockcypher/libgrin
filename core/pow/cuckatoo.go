@@ -14,19 +14,23 @@
 
 package pow
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/blockcypher/libgrin/core/consensus"
+)
 
 // NewCuckatooCtx instantiates a new CuckatooContext as a PowContext
-func NewCuckatooCtx(edgeBits uint8, proofSize, expectedProofSize int, maxSols uint32) *CuckatooContext {
+func NewCuckatooCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int, maxSols uint32) *CuckatooContext {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, proofSize)
-	return &CuckatooContext{expectedProofSize, params}
+	return &CuckatooContext{chainType, params}
 }
 
 // CuckatooContext is a Cuckatoo solver context.
 type CuckatooContext struct {
-	expectedProofSize int
-	params            CuckooParams
+	chainType consensus.ChainType
+	params    CuckooParams
 }
 
 // SetHeaderNonce sets the header nonce.
@@ -41,7 +45,7 @@ func (c *CuckatooContext) sipnode(edge, uorv uint64) uint64 {
 
 // Verify verifies the Cuckatoo context.
 func (c *CuckatooContext) Verify(proof Proof) error {
-	if proof.proofSize() != c.expectedProofSize {
+	if proof.proofSize() != consensus.ChainTypeProofSize(c.chainType) {
 		return errors.New("wrong cycle length")
 	}
 	nonces := proof.Nonces
