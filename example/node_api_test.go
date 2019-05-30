@@ -17,7 +17,6 @@ package example
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -42,8 +41,11 @@ func startTestGrinAPIServer(addr string) *http.Server {
 		Addr:    addr,
 		Handler: router,
 	}
-	fmt.Println("HERE")
-	go log.Fatal(srv.ListenAndServe())
+	go func() {
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.Fatalf("ListenAndServe(): %s", err)
+		}
+	}()
 	return srv
 }
 
@@ -128,13 +130,11 @@ func nextAPI(increment int) (grinAPI, string) {
 func TestGetBlockReward(t *testing.T) {
 	grinAPI, addr := nextAPI(1)
 	srv := startTestGrinAPIServer(addr)
-	fmt.Println("HERE3")
 	var blockHash = "0822cd711993d0f9a3ffdb4e755defdd4a40aa25ce72f8053fa330247a36f687"
 	blockReward, err := grinAPI.GetBlockReward(blockHash)
 	assert.NoError(t, err)
 	var expectedBlockReward uint64 = 60013000000
 	assert.Equal(t, expectedBlockReward, blockReward)
-	fmt.Println("HERE2")
 	srv.Shutdown(context.TODO())
 }
 
@@ -221,20 +221,6 @@ func TestGetStatusUnreachable(t *testing.T) {
 	status, err := grinAPI.GetStatus()
 	assert.Error(t, err)
 	assert.Nil(t, status)
-}
-
-func TestGetTargetDifficultyAndHashrates(t *testing.T) {
-	grinAPI, addr := nextAPI(8)
-	srv := startTestGrinAPIServer(addr)
-	status, err := grinAPI.GetStatus()
-	assert.NoError(t, err)
-	td, _, h, err := grinAPI.GetTargetDifficultyAndHashrates(status)
-	assert.NoError(t, err)
-	expectedTD := uint64(51336)
-	assert.Equal(t, expectedTD, td)
-	expectedHashrate := 11.29795498392283
-	assert.Equal(t, expectedHashrate, h)
-	srv.Shutdown(context.TODO())
 }
 
 func TestGetTargetDifficultyAndHashratesMissingLastBlock(t *testing.T) {
