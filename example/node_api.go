@@ -18,7 +18,7 @@ import (
 	"fmt"
 
 	"github.com/blockcypher/libgrin/api"
-	"github.com/blockcypher/libgrin/core"
+	"github.com/blockcypher/libgrin/core/consensus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -39,7 +39,7 @@ func (grinAPI *grinAPI) GetBlockReward(blockHash string) (uint64, error) {
 	for _, v := range block.Kernels {
 		totalFee += v.Fee
 	}
-	blockRewardWithFee := core.Reward + totalFee
+	blockRewardWithFee := consensus.Reward + totalFee
 	return blockRewardWithFee, nil
 }
 
@@ -119,10 +119,10 @@ func (grinAPI *grinAPI) GetTargetDifficultyAndHashrates(status *api.Status) (uin
 func (grinAPI *grinAPI) computePrimarySecondaryNetworkHashrates(endHeight uint64) (float64, float64, error) {
 	var blocks []api.BlockPrintable
 	var startHeight uint64
-	if endHeight < core.DifficultyAdjustWindow {
+	if endHeight < consensus.DifficultyAdjustWindow {
 		startHeight = 0
 	}
-	startHeight = endHeight - core.DifficultyAdjustWindow
+	startHeight = endHeight - consensus.DifficultyAdjustWindow
 	for height := startHeight; height <= endHeight; height++ {
 		block, err := grinAPI.GetBlockByHeight(height)
 		if err != nil {
@@ -137,10 +137,10 @@ func (grinAPI *grinAPI) computePrimarySecondaryNetworkHashrates(endHeight uint64
 	}
 	var primaryHashrate float64
 	var secondaryHashrate float64
-	if hashrate, ok := hashrates[core.DefaultMinEdgeBits]; ok {
+	if hashrate, ok := hashrates[consensus.DefaultMinEdgeBits]; ok {
 		primaryHashrate = hashrate
 	}
-	if hashrate, ok := hashrates[core.SecondPoWEdgeBits]; ok {
+	if hashrate, ok := hashrates[consensus.SecondPoWEdgeBits]; ok {
 		secondaryHashrate = hashrate
 	}
 	return primaryHashrate, secondaryHashrate, nil
@@ -165,23 +165,23 @@ func estimateAllHashrates(blocks []api.BlockPrintable) (map[uint8]float64, error
 	var countPrimary int
 	for _, block := range blocks {
 		counts[block.Header.EdgeBits]++
-		if block.Header.EdgeBits != core.SecondPoWEdgeBits {
+		if block.Header.EdgeBits != consensus.SecondPoWEdgeBits {
 			countPrimary++
 		}
 	}
 	// ratios
-	q := float64(core.SecondaryPoWRatio(height)) / 100.0
+	q := float64(consensus.SecondaryPoWRatio(height)) / 100.0
 	r := 1.0 - q
 
 	// Calculate the GPS
 	gpsMap := make(map[uint8]float64)
 	for edgeBits, count := range counts {
 		var gps float64
-		if edgeBits == core.SecondPoWEdgeBits {
+		if edgeBits == consensus.SecondPoWEdgeBits {
 			gps = float64(42*float64(difficulty)*q) / float64(secondaryScaling) / 60
 		} else {
 			countRatio := float64(count) / float64(countPrimary)
-			gps = 42 * float64(difficulty) * r * countRatio / float64(core.GraphWeight(core.Mainnet, 0, edgeBits)) / 60
+			gps = 42 * float64(difficulty) * r * countRatio / float64(consensus.GraphWeight(consensus.Mainnet, 0, edgeBits)) / 60
 		}
 		gpsMap[edgeBits] = gps
 	}
