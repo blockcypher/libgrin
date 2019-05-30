@@ -16,6 +16,7 @@ package pow
 import (
 	"testing"
 
+	"github.com/blockcypher/libgrin/core/consensus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -53,7 +54,7 @@ var v2_19Sol = []uint64{
 
 func TestCuckaroo19Vectors(t *testing.T) {
 	proof := new(Proof)
-	ctx := newCuckarooImpl(Mainnet, 19, 42)
+	ctx := newCuckarooImpl(consensus.Mainnet, 19, 42)
 	ctx.params.siphashKeys = v1_19Hash
 	assert.Nil(t, ctx.Verify(proof.new(v1_19Sol)))
 	ctx.params.siphashKeys = v2_19Hash
@@ -61,7 +62,7 @@ func TestCuckaroo19Vectors(t *testing.T) {
 	assert.NotNil(t, ctx.Verify(proof.new(v1_19Sol)))
 }
 
-func newCuckarooImpl(chainType ChainType, edgeBits uint8, proofSize int) *CuckarooContext {
+func newCuckarooImpl(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckarooContext {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, proofSize)
 	return &CuckarooContext{chainType, params}
