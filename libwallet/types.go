@@ -26,7 +26,7 @@ import (
 // root private key is known.
 type OutputData struct {
 	// Root key_id that the key for this output is derived from
-	rootKeyID keychain.Identifier `json:"root_key_id"`
+	RootKeyID keychain.Identifier `json:"root_key_id"`
 	// Derived key for this output
 	KeyID keychain.Identifier `json:"key_id"`
 	// How many derivations down from the root key

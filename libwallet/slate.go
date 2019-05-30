@@ -85,8 +85,6 @@ type VersionCompatInfo struct {
 	Version uint16 `json:"version"`
 	/// Original version this slate was converted from
 	OrigVersion uint16 `json:"orig_version"`
-	/// Minimum version this slate is compatible with
-	MinCompatVersion uint16 `json:"min_compat_version"`
 }
 
 // ParticipantMessages is an helper just to facilitate serialization

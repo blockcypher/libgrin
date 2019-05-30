@@ -14,7 +14,12 @@
 
 package libwallet
 
-// Send TX API Args
+import (
+	"github.com/blockcypher/libgrin/core"
+	"github.com/blockcypher/libgrin/keychain"
+)
+
+// SendTXArgs Send TX API Args
 // TODO: This is here to ensure the legacy V1 API remains intact
 // remove this when v1 api is removed
 type SendTXArgs struct {
@@ -99,4 +104,64 @@ type InitTxSendArgs struct {
 	PostTx bool `json:"post_tx"`
 	// Whether to use dandelion when posting. If false, skip the dandelion relay
 	Fluff bool `json:"fluff"`
+}
+
+// V2 Issue Invoice Tx Args
+type IssueInvoiceTxArgs struct {
+	// The human readable account name to which the received funds should be added
+	// overriding whatever the active account is as set via the
+	// [`set_active_account`](../grin_wallet_api/owner/struct.Owner.html#method.set_active_account) method.
+	DestAcctName *string `json:"dest_acct_name"`
+	// The invoice amount in nanogrins. (`1 G = 1_000_000_000nG`)
+	Amount uint64 `json:"amount"`
+	// Optional message, that will be signed
+	Message *string `json:"message"`
+	// Optionally set the output target slate version (acceptable
+	// down to the minimum slate version compatible with the current. If `None` the slate
+	// is generated with the latest version.
+	TargetSlateVersion *uint16 `json:"target_slate_version"`
+}
+
+// Fees in block to use for coinbase amount calculation
+type BlockFees struct {
+	// fees
+	Fees uint64 `json:"fees"`
+	// height
+	Height uint64 `json:"height"`
+	// key id
+	KeyID *keychain.Identifier `json:"key_id"`
+}
+
+// Response to build a coinbase output.
+type CbData struct {
+	// Output
+	Output core.Output `json:"output"`
+	// Kernel
+	Kernel core.TxKernel `json:"kernel"`
+	// Key Id
+	KeyID *keychain.Identifier `json:"key_id"`
+}
+
+// Map Outputdata to commits
+type OutputCommitMapping struct {
+	// Output Data
+	Output OutputData `json:"output"`
+	// The commit
+	Commit string `json:"commit"`
+}
+
+// Node height result
+type NodeHeightResult struct {
+	// Last known height
+	Height uint64 `json:"height"`
+	// Whether this height was updated from the node
+	UpdatedFromNode bool `json:"updated_from_node"`
+}
+
+// Version request result
+type VersionInfo struct {
+	// API version
+	ForeignAPIVersion uint16 `json:"foreign_api_version"`
+	// Slate version
+	SupportedSlateVersions []SlateVersion `json:"supported_slate_versions"`
 }
