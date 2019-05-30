@@ -23,7 +23,7 @@ const sipHashBlockMask uint64 = sipHashBlockSize - 1
 // SipHashBlock builds a block of siphash values by repeatedly hashing from the
 // nonce truncated to its closest block start, up to the end of the block.
 // Returns the resulting hash at the nonce's position.
-func SipHashBlock(v [4]uint64, nonce uint64) uint64 {
+func SipHashBlock(v [4]uint64, nonce uint64, rotE uint8) uint64 {
 	// beginning of the block of hashes
 	nonce0 := nonce & ^sipHashBlockMask
 	var nonceHash uint64
@@ -31,7 +31,7 @@ func SipHashBlock(v [4]uint64, nonce uint64) uint64 {
 	s := new(sipHash24)
 	siphash := s.new(v)
 	for n := nonce0; n < nonce0+sipHashBlockSize; n++ {
-		siphash.hash(n)
+		siphash.hash(n, rotE)
 		if n == nonce {
 			nonceHash = siphash.digest()
 		}
@@ -46,10 +46,10 @@ func SipHashBlock(v [4]uint64, nonce uint64) uint64 {
 }
 
 // SipHash24 is an utility function to compute a single siphash 2-4 based on a seed and a nonce.
-func SipHash24(v [4]uint64, nonce uint64) uint64 {
+func SipHash24(v [4]uint64, nonce uint64, rotE uint8) uint64 {
 	s := new(sipHash24)
 	siphash := s.new(v)
-	siphash.hash(nonce)
+	siphash.hash(nonce, rotE)
 	return siphash.digest()
 }
 
@@ -62,16 +62,16 @@ func (s *sipHash24) new(v [4]uint64) sipHash24 {
 }
 
 // One siphash24 hashing, consisting of 2 and then 4 rounds
-func (s *sipHash24) hash(nonce uint64) {
+func (s *sipHash24) hash(nonce uint64, rotE uint8) {
 	s.v3 ^= nonce
-	s.round()
-	s.round()
+	s.round(rotE)
+	s.round(rotE)
 
 	s.v0 ^= nonce
 	s.v2 ^= 0xff
 
 	for i := 0; i < 4; i++ {
-		s.round()
+		s.round(rotE)
 	}
 }
 
@@ -80,7 +80,7 @@ func (s *sipHash24) digest() uint64 {
 	return (s.v0 ^ s.v1) ^ (s.v2 ^ s.v3)
 }
 
-func (s *sipHash24) round() {
+func (s *sipHash24) round(rotE uint8) {
 	s.v0 = s.v0 + s.v1
 	s.v2 = s.v2 + s.v3
 	s.v1 = rotl(s.v1, 13)
@@ -91,13 +91,13 @@ func (s *sipHash24) round() {
 	s.v2 = s.v2 + s.v1
 	s.v0 = s.v0 + s.v3
 	s.v1 = rotl(s.v1, 17)
-	s.v3 = rotl(s.v3, 21)
+	s.v3 = rotl(s.v3, rotE)
 	s.v1 ^= s.v2
 	s.v3 ^= s.v0
 	s.v2 = rotl(s.v2, 32)
 }
 
-func rotl(val uint64, shift uint) uint64 {
+func rotl(val uint64, shift uint8) uint64 {
 	num := (val << shift) | (val >> (64 - shift))
 	return num
 }

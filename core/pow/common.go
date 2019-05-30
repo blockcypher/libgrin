@@ -73,7 +73,7 @@ func (c *CuckooParams) resetHeaderNonce(header []uint8, nonce *uint32) {
 
 // Return siphash masked for type
 func (c *CuckooParams) sipnode(edge, uorv uint64, shift bool) uint64 {
-	hashUint64 := SipHash24(c.siphashKeys, 2*edge+uorv)
+	hashUint64 := SipHash24(c.siphashKeys, 2*edge+uorv, 21)
 	masked := hashUint64 & c.edgeMask
 	if shift {
 		masked <<= 1

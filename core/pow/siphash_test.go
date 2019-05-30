@@ -21,14 +21,14 @@ import (
 )
 
 func TestSipash24(t *testing.T) {
-	assert.Equal(t, SipHash24([4]uint64{1, 2, 3, 4}, 10), uint64(928382149599306901))
-	assert.Equal(t, SipHash24([4]uint64{1, 2, 3, 4}, 111), uint64(10524991083049122233))
-	assert.Equal(t, SipHash24([4]uint64{9, 7, 6, 7}, 12), uint64(1305683875471634734))
-	assert.Equal(t, SipHash24([4]uint64{9, 7, 6, 7}, 10), uint64(11589833042187638814))
+	assert.Equal(t, SipHash24([4]uint64{1, 2, 3, 4}, 10, 21), uint64(928382149599306901))
+	assert.Equal(t, SipHash24([4]uint64{1, 2, 3, 4}, 111, 21), uint64(10524991083049122233))
+	assert.Equal(t, SipHash24([4]uint64{9, 7, 6, 7}, 12, 21), uint64(1305683875471634734))
+	assert.Equal(t, SipHash24([4]uint64{9, 7, 6, 7}, 10, 21), uint64(11589833042187638814))
 }
 
 func TestSiphashBlock(t *testing.T) {
-	assert.Equal(t, SipHashBlock([4]uint64{1, 2, 3, 4}, 10), uint64(1182162244994096396))
-	assert.Equal(t, SipHashBlock([4]uint64{1, 2, 3, 4}, 123), uint64(11303676240481718781))
-	assert.Equal(t, SipHashBlock([4]uint64{9, 7, 6, 7}, 12), uint64(4886136884237259030))
+	assert.Equal(t, SipHashBlock([4]uint64{1, 2, 3, 4}, 10, 21), uint64(1182162244994096396))
+	assert.Equal(t, SipHashBlock([4]uint64{1, 2, 3, 4}, 123, 21), uint64(11303676240481718781))
+	assert.Equal(t, SipHashBlock([4]uint64{9, 7, 6, 7}, 12, 21), uint64(4886136884237259030))
 }

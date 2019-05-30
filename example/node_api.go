@@ -124,7 +124,6 @@ func (grinAPI *grinAPI) computePrimarySecondaryNetworkHashrates(endHeight uint64
 	}
 	startHeight = endHeight - consensus.DifficultyAdjustWindow
 	for height := startHeight; height <= endHeight; height++ {
-		fmt.Println(height)
 		block, err := grinAPI.GetBlockByHeight(height)
 		if err != nil {
 			return 0, 0, err
