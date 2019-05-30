@@ -81,15 +81,17 @@ type Slate struct {
 
 // VersionCompatInfo is the versioning and compatibility info about this slate
 type VersionCompatInfo struct {
-	/// The current version of the slate format
+	// The current version of the slate format
 	Version uint16 `json:"version"`
-	/// Original version this slate was converted from
+	// Original version this slate was converted from
 	OrigVersion uint16 `json:"orig_version"`
+	// The grin block header version this slate is intended for
+	BlockHeaderVersion uint16 `json:"block_header_version"`
 }
 
 // ParticipantMessages is an helper just to facilitate serialization
 type ParticipantMessages struct {
-	/// included messages
+	// included messages
 	Messages []ParticipantMessageData `json:"messages"`
 }
 
