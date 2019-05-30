@@ -1,4 +1,4 @@
-// Copyright 2019 BlockCypher
+// Copyright 2018 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package core
+package consensus
 
 // Define these here, as they should be developer-set, not really tweakable /
 //by users
@@ -80,26 +80,6 @@ func (c ChainType) shortname() string {
 	return shortName
 }
 
-func createPoWContext(chainType ChainType, height uint64, edgeBits uint8, proofSize int, nonces []uint64, maxSols uint32) PowContext {
-	switch chainType {
-	case Mainnet:
-		// Mainnet has Cuckaroo29 for AR and Cuckatoo30+ for AF
-		if edgeBits == 29 {
-			return NewCuckarooCtx(chainType, edgeBits, proofSize)
-		}
-		return NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	case Floonet:
-		// Same for Floonet
-		if edgeBits == 29 {
-			return NewCuckarooCtx(chainType, edgeBits, proofSize)
-		}
-		return NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	default:
-		// Everything else is Cuckatoo only
-		return NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	}
-}
-
 // The minimum acceptable edge_bits
 func minEdgeBits(chainType ChainType) uint8 {
 	switch chainType {
@@ -126,8 +106,8 @@ func baseEdgeBits(chainType ChainType) uint8 {
 	}
 }
 
-// The proofsize
-func proofSize(chainType ChainType) int {
+// ChainTypeProofSize return the proof size based on the proofsize
+func ChainTypeProofSize(chainType ChainType) int {
 	switch chainType {
 	case AutomatedTesting:
 		return AutomatedTestingProofSize

@@ -1,4 +1,4 @@
-// Copyright 2019 BlockCypher
+// Copyright 2018 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,40 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package core
+package pow
 
-import (
-	"errors"
-)
+import "errors"
 
-// https://github.com/mimblewimble/grin/blob/master/core/src/pow/cuckaroo.rs
-
-// NewCuckarooCtx instantiates a new CuckarooContext as a PowContext
-func NewCuckarooCtx(chainType ChainType, edgeBits uint8, proofSize int) *CuckarooContext {
+// NewCuckatooCtx instantiates a new CuckatooContext as a PowContext
+func NewCuckatooCtx(edgeBits uint8, proofSize, expectedProofSize int, maxSols uint32) *CuckatooContext {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, proofSize)
-	return &CuckarooContext{chainType, params}
+	return &CuckatooContext{expectedProofSize, params}
 }
 
-// CuckarooContext is a Cuckatoo cycle context. Only includes the verifier for now.
-type CuckarooContext struct {
-	chainType ChainType
-	params    CuckooParams
+// CuckatooContext is a Cuckatoo solver context.
+type CuckatooContext struct {
+	expectedProofSize int
+	params            CuckooParams
 }
 
 // SetHeaderNonce sets the header nonce.
-func (c *CuckarooContext) SetHeaderNonce(header []uint8, nonce *uint32) {
+func (c *CuckatooContext) SetHeaderNonce(header []uint8, nonce *uint32) {
 	c.params.resetHeaderNonce(header, nonce)
 }
 
+// Return siphash masked for type.
+func (c *CuckatooContext) sipnode(edge, uorv uint64) uint64 {
+	return c.params.sipnode(edge, uorv, false)
+}
+
 // Verify verifies the Cuckatoo context.
-func (c *CuckarooContext) Verify(proof Proof) error {
-	if proof.proofSize() != proofSize(c.chainType) {
+func (c *CuckatooContext) Verify(proof Proof) error {
+	if proof.proofSize() != c.expectedProofSize {
 		return errors.New("wrong cycle length")
 	}
 	nonces := proof.Nonces
 	uvs := make([]uint64, 2*proof.proofSize())
-	var xor0, xor1 uint64
+	xor0 := (uint64(c.params.proofSize) / 2) & 1
+	xor1 := xor0
 
 	for n := 0; n < proof.proofSize(); n++ {
 		if nonces[n] > c.params.edgeMask {
@@ -54,9 +56,8 @@ func (c *CuckarooContext) Verify(proof Proof) error {
 		if n > 0 && nonces[n] <= nonces[n-1] {
 			return errors.New("edge not ascending")
 		}
-		edge := SipHashBlock(c.params.siphashKeys, nonces[n])
-		uvs[2*n] = edge & c.params.edgeMask
-		uvs[2*n+1] = (edge >> 32) & c.params.edgeMask
+		uvs[2*n] = c.sipnode(nonces[n], 0)
+		uvs[2*n+1] = c.sipnode(nonces[n], 1)
 		xor0 ^= uvs[2*n]
 		xor1 ^= uvs[2*n+1]
 	}
@@ -75,7 +76,7 @@ func (c *CuckarooContext) Verify(proof Proof) error {
 			if k == i {
 				break
 			}
-			if uvs[k] == uvs[i] {
+			if uvs[k]>>1 == uvs[i]>>1 {
 				// find other edge endpoint matching one at i
 				if j != i {
 					return errors.New("branch in cycle")
@@ -83,7 +84,7 @@ func (c *CuckarooContext) Verify(proof Proof) error {
 				j = k
 			}
 		}
-		if j == i {
+		if j == i || uvs[j] == uvs[i] {
 			return errors.New("cycle dead ends")
 		}
 		i = j ^ 1
@@ -96,4 +97,5 @@ func (c *CuckarooContext) Verify(proof Proof) error {
 		return nil
 	}
 	return errors.New("cycle too short")
+
 }

@@ -14,11 +14,36 @@
 
 package core
 
+import (
+	"github.com/blockcypher/libgrin/core/consensus"
+	"github.com/blockcypher/libgrin/core/pow"
+)
+
 const maxSols uint32 = 10
+
+func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uint8, proofSize int, nonces []uint64, maxSols uint32) pow.PowContext {
+	switch chainType {
+	case consensus.Mainnet:
+		// Mainnet has Cuckaroo29 for AR and Cuckatoo30+ for AF
+		if edgeBits == 29 {
+			return pow.NewCuckarooCtx(edgeBits, proofSize, consensus.ChainTypeProofSize(chainType))
+		}
+		return pow.NewCuckatooCtx(edgeBits, proofSize, consensus.ChainTypeProofSize(chainType), maxSols)
+	case consensus.Floonet:
+		// Same for Floonet
+		if edgeBits == 29 {
+			return pow.NewCuckarooCtx(edgeBits, proofSize, consensus.ChainTypeProofSize(chainType))
+		}
+		return pow.NewCuckatooCtx(edgeBits, proofSize, consensus.ChainTypeProofSize(chainType), maxSols)
+	default:
+		// Everything else is Cuckatoo only
+		return pow.NewCuckatooCtx(edgeBits, proofSize, consensus.ChainTypeProofSize(chainType), maxSols)
+	}
+}
 
 // VerifySize validates the proof of work of a given header, and that the proof of work
 // satisfies the requirements of the header.
-func VerifySize(chainType ChainType, prePoW []uint8, bh *BlockHeader) error {
+func VerifySize(chainType consensus.ChainType, prePoW []uint8, bh *BlockHeader) error {
 	ctx := createPoWContext(chainType, bh.Height, bh.PoW.EdgeBits(), len(bh.PoW.Proof.Nonces), bh.PoW.Proof.Nonces, maxSols)
 	ctx.SetHeaderNonce(prePoW, nil)
 	if err := ctx.Verify(bh.PoW.Proof); err != nil {

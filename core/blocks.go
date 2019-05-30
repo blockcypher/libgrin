@@ -14,6 +14,8 @@
 
 package core
 
+import "github.com/blockcypher/libgrin/core/pow"
+
 // BlockHeader is a block header, fairly standard compared to other blockchains.
 type BlockHeader struct {
 	// Version of the block
@@ -41,5 +43,5 @@ type BlockHeader struct {
 	// Total size of the kernel MMR after applying this block
 	KernelMmrSize uint64
 	// Proof of work and related
-	PoW ProofOfWork
+	PoW pow.ProofOfWork
 }
