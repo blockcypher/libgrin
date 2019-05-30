@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package wrappers
+package example
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -31,12 +33,18 @@ import (
 var blocks []api.BlockPrintable
 
 // startTestGrinAPIServer starts the test Grin API server
-func startTestGrinAPIServer(addr string) {
+func startTestGrinAPIServer(addr string) *http.Server {
 	router := mux.NewRouter()
 	addBlock()
 	router.HandleFunc("/v1/blocks/{hash}", getBlock).Methods("GET")
 	router.HandleFunc("/v1/status", getStatus).Methods("GET")
-	log.Fatal(http.ListenAndServe(addr, router))
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: router,
+	}
+	fmt.Println("HERE")
+	go log.Fatal(srv.ListenAndServe())
+	return srv
 }
 
 // GetBlock displays a single block
@@ -119,39 +127,45 @@ func nextAPI(increment int) (grinAPI, string) {
 
 func TestGetBlockReward(t *testing.T) {
 	grinAPI, addr := nextAPI(1)
-	go startTestGrinAPIServer(addr)
+	srv := startTestGrinAPIServer(addr)
+	fmt.Println("HERE3")
 	var blockHash = "0822cd711993d0f9a3ffdb4e755defdd4a40aa25ce72f8053fa330247a36f687"
 	blockReward, err := grinAPI.GetBlockReward(blockHash)
 	assert.NoError(t, err)
 	var expectedBlockReward uint64 = 60013000000
 	assert.Equal(t, expectedBlockReward, blockReward)
+	fmt.Println("HERE2")
+	srv.Shutdown(context.TODO())
 }
 
 func TestGetBlockRewardMissing(t *testing.T) {
 	grinAPI, addr := nextAPI(2)
-	go startTestGrinAPIServer(addr)
+	srv := startTestGrinAPIServer(addr)
 	var blockHash = "0822cd711993d0f9a3ffdb4e755defdd4a50aa25ce72f8053fa330247a36f687"
 	blockReward, err := grinAPI.GetBlockReward(blockHash)
 	assert.Error(t, err)
 	assert.Equal(t, uint64(0), blockReward)
+	srv.Shutdown(context.TODO())
 }
 
 func TestGetBlockByHash(t *testing.T) {
 	grinAPI, addr := nextAPI(3)
-	go startTestGrinAPIServer(addr)
+	srv := startTestGrinAPIServer(addr)
 	var blockHash = "0822cd711993d0f9a3ffdb4e755defdd4a40aa25ce72f8053fa330247a36f687"
 	block, err := grinAPI.GetBlockByHash(blockHash)
 	assert.NoError(t, err)
 	assert.Equal(t, blockHash, block.Header.Hash)
+	srv.Shutdown(context.TODO())
 }
 
 func TestGetBlockByHashMissing(t *testing.T) {
 	grinAPI, addr := nextAPI(4)
-	go startTestGrinAPIServer(addr)
+	srv := startTestGrinAPIServer(addr)
 	var blockHash = "0822cd711993d0f9a3ffdb4e755defd84a40aa25ce72f8053fa330247a36f687"
 	block, err := grinAPI.GetBlockByHash(blockHash)
 	assert.Error(t, err)
 	assert.Nil(t, block)
+	srv.Shutdown(context.TODO())
 }
 
 func TestGetBlockByHashUnreachable(t *testing.T) {
@@ -164,19 +178,21 @@ func TestGetBlockByHashUnreachable(t *testing.T) {
 
 func TestGetBlockByHeight(t *testing.T) {
 	grinAPI, addr := nextAPI(5)
-	go startTestGrinAPIServer(addr)
+	srv := startTestGrinAPIServer(addr)
 	var blockHash = "0822cd711993d0f9a3ffdb4e755defdd4a40aa25ce72f8053fa330247a36f687"
 	block, err := grinAPI.GetBlockByHeight(16111)
 	assert.NoError(t, err)
 	assert.Equal(t, blockHash, block.Header.Hash)
+	srv.Shutdown(context.TODO())
 }
 
 func TestGetBlockByHeightMissing(t *testing.T) {
 	grinAPI, addr := nextAPI(6)
-	go startTestGrinAPIServer(addr)
+	srv := startTestGrinAPIServer(addr)
 	block, err := grinAPI.GetBlockByHeight(1619)
 	assert.Error(t, err)
 	assert.Nil(t, block)
+	srv.Shutdown(context.TODO())
 }
 
 func TestGetBlockUnreachable(t *testing.T) {
@@ -188,7 +204,7 @@ func TestGetBlockUnreachable(t *testing.T) {
 
 func TestGetStatus(t *testing.T) {
 	grinAPI, addr := nextAPI(7)
-	go startTestGrinAPIServer(addr)
+	srv := startTestGrinAPIServer(addr)
 	status, err := grinAPI.GetStatus()
 	assert.NoError(t, err)
 	assert.Equal(t, 1, status.ProtocolVersion)
@@ -197,6 +213,7 @@ func TestGetStatus(t *testing.T) {
 	assert.Equal(t, blockHash16112, status.Tip.LastBlockPushed)
 	var blockHash16111 = "0822cd711993d0f9a3ffdb4e755defdd4a40aa25ce72f8053fa330247a36f687"
 	assert.Equal(t, blockHash16111, status.Tip.PrevBlockToLast)
+	srv.Shutdown(context.TODO())
 }
 
 func TestGetStatusUnreachable(t *testing.T) {
@@ -208,7 +225,7 @@ func TestGetStatusUnreachable(t *testing.T) {
 
 func TestGetTargetDifficultyAndHashrates(t *testing.T) {
 	grinAPI, addr := nextAPI(8)
-	go startTestGrinAPIServer(addr)
+	srv := startTestGrinAPIServer(addr)
 	status, err := grinAPI.GetStatus()
 	assert.NoError(t, err)
 	td, _, h, err := grinAPI.GetTargetDifficultyAndHashrates(status)
@@ -217,11 +234,12 @@ func TestGetTargetDifficultyAndHashrates(t *testing.T) {
 	assert.Equal(t, expectedTD, td)
 	expectedHashrate := 11.29795498392283
 	assert.Equal(t, expectedHashrate, h)
+	srv.Shutdown(context.TODO())
 }
 
 func TestGetTargetDifficultyAndHashratesMissingLastBlock(t *testing.T) {
 	grinAPI, addr := nextAPI(9)
-	go startTestGrinAPIServer(addr)
+	srv := startTestGrinAPIServer(addr)
 	status, err := grinAPI.GetStatus()
 	assert.NoError(t, err)
 	// update with fake block hash
@@ -232,11 +250,12 @@ func TestGetTargetDifficultyAndHashratesMissingLastBlock(t *testing.T) {
 	assert.Equal(t, expectedTD, td)
 	expectedHashrate := 0.0
 	assert.Equal(t, expectedHashrate, h)
+	srv.Shutdown(context.TODO())
 }
 
 func TestGetTargetDifficultyAndHashratesMissingPreviousBlock(t *testing.T) {
 	grinAPI, addr := nextAPI(10)
-	go startTestGrinAPIServer(addr)
+	srv := startTestGrinAPIServer(addr)
 	status, err := grinAPI.GetStatus()
 	assert.NoError(t, err)
 	status.Tip.PrevBlockToLast = "0822cd711993d0f9a3ffdb4e755defd84a40aa25ce72f8053fa330247a36f687"
@@ -246,6 +265,7 @@ func TestGetTargetDifficultyAndHashratesMissingPreviousBlock(t *testing.T) {
 	assert.Equal(t, expectedTD, td)
 	expectedHashrate := 0.0
 	assert.Equal(t, expectedHashrate, h)
+	srv.Shutdown(context.TODO())
 }
 
 func TestGetTargetDifficultyAndHashratesUnreachable(t *testing.T) {
