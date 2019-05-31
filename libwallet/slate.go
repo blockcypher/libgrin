@@ -15,12 +15,13 @@
 package libwallet
 
 import (
-	"fmt"
-	"strings"
+	"encoding/json"
+	"errors"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/blockcypher/libgrin/core"
+	"github.com/blockcypher/libgrin/libwallet/slateversions"
 )
 
 // ParticipantData is a public data for each participant in the slate
@@ -28,15 +29,15 @@ type ParticipantData struct {
 	// Id of participant in the transaction. (For now, 0=sender, 1=rec)
 	ID uint64 `json:"id"`
 	// Public key corresponding to private blinding factor
-	PublicBlindExcess JSONableSlice `json:"public_blind_excess"`
+	PublicBlindExcess string `json:"public_blind_excess"`
 	// Public key corresponding to private nonce
-	PublicNonce JSONableSlice `json:"public_nonce"`
+	PublicNonce string `json:"public_nonce"`
 	// Public partial signature
-	PartSig *JSONableSlice `json:"part_sig"`
+	PartSig *string `json:"part_sig"`
 	// A message for other participants
 	Message *string `json:"message"`
 	// Signature, created with private key corresponding to 'public_blind_excess'
-	MessageSig JSONableSlice `json:"message_sig"`
+	MessageSig string `json:"message_sig"`
 }
 
 // ParticipantMessageData is the public message data (for serializing and storage)
@@ -44,11 +45,11 @@ type ParticipantMessageData struct {
 	// id of the particpant in the tx
 	ID uint64 `json:"id"`
 	// Public key
-	PublicKey JSONableSlice `json:"public_key"`
+	PublicKey string `json:"public_key"`
 	// Message,
 	Message *string `json:"message"`
 	// Signature
-	MessageSig *JSONableSlice `json:"message_sig"`
+	MessageSig *string `json:"message_sig"`
 }
 
 // A Slate is passed around to all parties to build up all of the public
@@ -95,17 +96,50 @@ type ParticipantMessages struct {
 	Messages []ParticipantMessageData `json:"messages"`
 }
 
-// TODO Replace this by Signature and public key
-// JSONableSlice is a slice that is not represented as a base58 when serialized
-type JSONableSlice []uint8
-
-// MarshalJSON is the marshal function for such type
-func (u JSONableSlice) MarshalJSON() ([]byte, error) {
-	var result string
-	if u == nil {
-		result = "null"
-	} else {
-		result = strings.Join(strings.Fields(fmt.Sprintf("%d", u)), ",")
+func parseSlateVersion(slateBytes []byte) (uint16, error) {
+	var version uint16
+	slate := make(map[string]interface{})
+	err := json.Unmarshal(slateBytes, &slate)
+	if err != nil {
+		return 0, err
 	}
-	return []byte(result), nil
+	if versionCompatInfo, ok := slate["version_info"].(VersionCompatInfo); !ok {
+		return versionCompatInfo.Version, nil
+	}
+	if _, ok := slate["version"].(uint16); !ok {
+		return 1, nil
+	}
+	return version, nil
+}
+
+func DeserializeUpgrade(slateBytes []byte) (*Slate, error) {
+	// check version
+	version, err := parseSlateVersion(slateBytes)
+	if err != nil {
+		return nil, errors.New("Can't parse slate version")
+	}
+
+	switch version {
+	case 2:
+		var slate Slate
+		if err := json.Unmarshal(slateBytes, &slate); err != nil {
+			return nil, err
+		}
+		return &slate, nil
+	case 1:
+		var v1 slateversions.SlateV1
+		if err := json.Unmarshal(slateBytes, &v1); err != nil {
+			return nil, err
+		}
+		v1.OrigVersion = 1
+		return nil, errors.New("Can't parse slate version")
+	case 0:
+		var v0 slateversions.SlateV0
+		if err := json.Unmarshal(slateBytes, &v0); err != nil {
+			return nil, err
+		}
+		return nil, errors.New("Can't parse slate version")
+	default:
+		return nil, errors.New("Can't parse slate version")
+	}
 }

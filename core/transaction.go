@@ -14,50 +14,57 @@
 
 package core
 
-// Transaction represents a transaction
-type Transaction struct {
-	// The kernel "offset" k2
-	// excess is k1G after splitting the key k = k1 + k2
-	Offset JSONableSlice `json:"offset"`
-	// The transaction body - inputs/outputs/kernels
-	Body TransactionBody `json:"body"`
+import (
+	"bytes"
+	"encoding/json"
+)
+
+// KernelFeatures is an enum of various supported kernels "features".
+type KernelFeatures int
+
+const (
+	// PlainKernel kernel (the default for Grin txs).
+	PlainKernel KernelFeatures = iota
+	// CoinbaseKernel is a coinbase kernel.
+	CoinbaseKernel
+	// HeightLockedKernel is a kernel with an explicit lock height.
+	HeightLockedKernel
+)
+
+func (s KernelFeatures) String() string {
+	return toStringKernelFeatures[s]
 }
 
-// TransactionBody is a common abstraction for transaction and block
-type TransactionBody struct {
-	// List of inputs spent by the transaction.
-	Inputs []Input `json:"inputs"`
-	// List of outputs the transaction produces.
-	Outputs []Output `json:"outputs"`
-	// List of kernels that make up this transaction (usually a single kernel).
-	Kernels []TxKernel `json:"kernels"`
+var toStringKernelFeatures = map[KernelFeatures]string{
+	PlainKernel:        "Plain",
+	CoinbaseKernel:     "Coinbase",
+	HeightLockedKernel: "HeightLocked",
 }
 
-// Input is a transaction input.
-//
-// Primarily a reference to an output being spent by the transaction.
-type Input struct {
-	// The features of the output being spent.
-	// We will check maturity for coinbase output.
-	Features string `json:"features"`
-	// The commit referencing the output being spent.
-	Commit JSONableSlice `json:"commit"`
+var toIDKernelFeatures = map[string]KernelFeatures{
+	"Plain":        PlainKernel,
+	"Coinbase":     CoinbaseKernel,
+	"HeightLocked": HeightLockedKernel,
 }
 
-// Output for a transaction, defining the new ownership of coins that are being
-// transferred. The commitment is a blinded value for the output while the
-// range proof guarantees the commitment includes a positive value without
-// overflow and the ownership of the private key. The switch commitment hash
-// provides future-proofing against quantum-based attacks, as well as providing
-// wallet implementations with a way to identify their outputs for wallet
-// reconstruction.
-type Output struct {
-	// Options for an output's structure or use
-	Features string `json:"features"`
-	// The homomorphic commitment representing the output amount
-	Commit JSONableSlice `json:"commit"`
-	// A proof that the commitment is in the right range
-	Proof JSONableSlice `json:"proof"`
+// MarshalJSON marshals the enum as a quoted json string
+func (s KernelFeatures) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(toStringKernelFeatures[s])
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON unmarshals a quoted json string to the enum value
+func (s *KernelFeatures) UnmarshalJSON(b []byte) error {
+	var j string
+	err := json.Unmarshal(b, &j)
+	if err != nil {
+		return err
+	}
+	// Note that if the string cannot be found then it will be set to the zero value, 'Created' in this case.
+	*s = toIDKernelFeatures[j]
+	return nil
 }
 
 // TxKernel is a proof that a transaction sums to zero. Includes both the transaction's
@@ -67,7 +74,7 @@ type Output struct {
 // signature validation.
 type TxKernel struct {
 	// Options for a kernel's structure or use
-	Features string `json:"features"`
+	Features KernelFeatures `json:"features"`
 	// Fee originally included in the transaction this proof is for.
 	Fee uint64 `json:"fee"`
 	// This kernel is not valid earlier than lock_height blocks
@@ -80,4 +87,106 @@ type TxKernel struct {
 	// The signature proving the excess is a valid public key, which signs
 	// the transaction fee.
 	ExcessSig JSONableSlice `json:"excess_sig"`
+}
+
+// TransactionBody is a common abstraction for transaction and block
+type TransactionBody struct {
+	// List of inputs spent by the transaction.
+	Inputs []Input `json:"inputs"`
+	// List of outputs the transaction produces.
+	Outputs []Output `json:"outputs"`
+	// List of kernels that make up this transaction (usually a single kernel).
+	Kernels []TxKernel `json:"kernels"`
+}
+
+// Transaction represents a transaction
+type Transaction struct {
+	// The kernel "offset" k2
+	// excess is k1G after splitting the key k = k1 + k2
+	Offset JSONableSlice `json:"offset"`
+	// The transaction body - inputs/outputs/kernels
+	Body TransactionBody `json:"body"`
+}
+
+// Input is a transaction input.
+//
+// Primarily a reference to an output being spent by the transaction.
+type Input struct {
+	// The features of the output being spent.
+	// We will check maturity for coinbase output.
+	Features OutputFeatures `json:"features"`
+	// The commit referencing the output being spent.
+	Commit JSONableSlice `json:"commit"`
+}
+
+// OutputFeatures is an enum of various supported outputs "features".
+type OutputFeatures int
+
+const (
+	// PlainOutput output (the default for Grin txs).
+	PlainOutput OutputFeatures = iota
+	// CoinbaseOutput is a coinbase output.
+	CoinbaseOutput
+)
+
+func (s OutputFeatures) String() string {
+	return toStringOutputFeatures[s]
+}
+
+var toStringOutputFeatures = map[OutputFeatures]string{
+	PlainOutput:    "Plain",
+	CoinbaseOutput: "Coinbase",
+}
+
+var toIDOutputFeatures = map[string]OutputFeatures{
+	"Plain":    PlainOutput,
+	"Coinbase": CoinbaseOutput,
+}
+
+// MarshalJSON marshals the enum as a quoted json string
+func (s OutputFeatures) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(toStringOutputFeatures[s])
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON unmarshals a quoted json string to the enum value
+func (s *OutputFeatures) UnmarshalJSON(b []byte) error {
+	var j string
+	err := json.Unmarshal(b, &j)
+	if err != nil {
+		return err
+	}
+	// Note that if the string cannot be found then it will be set to the zero value, 'Created' in this case.
+	*s = toIDOutputFeatures[j]
+	return nil
+}
+
+// Output for a transaction, defining the new ownership of coins that are being
+// transferred. The commitment is a blinded value for the output while the
+// range proof guarantees the commitment includes a positive value without
+// overflow and the ownership of the private key. The switch commitment hash
+// provides future-proofing against quantum-based attacks, as well as providing
+// wallet implementations with a way to identify their outputs for wallet
+// reconstruction.
+type Output struct {
+	// Options for an output's structure or use
+	Features OutputFeatures `json:"features"`
+	// The homomorphic commitment representing the output amount
+	Commit JSONableSlice `json:"commit"`
+	// A proof that the commitment is in the right range
+	Proof JSONableSlice `json:"proof"`
+}
+
+// An OutputIdentifier can be build from either an input _or_ an output and
+// contains everything we need to uniquely identify an output being spent.
+// Needed because it is not sufficient to pass a commitment around.
+type OutputIdentifier struct {
+	// Output features (coinbase vs. regular transaction output)
+	// We need to include this when hashing to ensure coinbase maturity can be
+	// enforced.
+	Features OutputFeatures `json:"features"`
+	// Output commitment
+	Commit JSONableSlice `json:"commit"`
 }

@@ -17,6 +17,7 @@ package libwallet
 import (
 	"github.com/blockcypher/libgrin/core"
 	"github.com/blockcypher/libgrin/keychain"
+	"github.com/blockcypher/libgrin/libwallet/slateversions"
 )
 
 // SendTXArgs Send TX API Args
@@ -106,7 +107,7 @@ type InitTxSendArgs struct {
 	Fluff bool `json:"fluff"`
 }
 
-// V2 Issue Invoice Tx Args
+// IssueInvoiceTxArgs are the v2 Issue Invoice Tx Args
 type IssueInvoiceTxArgs struct {
 	// The human readable account name to which the received funds should be added
 	// overriding whatever the active account is as set via the
@@ -122,7 +123,7 @@ type IssueInvoiceTxArgs struct {
 	TargetSlateVersion *uint16 `json:"target_slate_version"`
 }
 
-// Fees in block to use for coinbase amount calculation
+// BlockFees are the fees in block to use for coinbase amount calculation
 type BlockFees struct {
 	// fees
 	Fees uint64 `json:"fees"`
@@ -132,7 +133,7 @@ type BlockFees struct {
 	KeyID *keychain.Identifier `json:"key_id"`
 }
 
-// Response to build a coinbase output.
+// CbData is the response to build a coinbase output.
 type CbData struct {
 	// Output
 	Output core.Output `json:"output"`
@@ -142,7 +143,7 @@ type CbData struct {
 	KeyID *keychain.Identifier `json:"key_id"`
 }
 
-// Map Outputdata to commits
+// OutputCommitMapping is the map Outputdata to commits
 type OutputCommitMapping struct {
 	// Output Data
 	Output OutputData `json:"output"`
@@ -150,7 +151,7 @@ type OutputCommitMapping struct {
 	Commit string `json:"commit"`
 }
 
-// Node height result
+// NodeHeightResult is the node height result
 type NodeHeightResult struct {
 	// Last known height
 	Height uint64 `json:"height"`
@@ -158,10 +159,10 @@ type NodeHeightResult struct {
 	UpdatedFromNode bool `json:"updated_from_node"`
 }
 
-// Version request result
+// VersionInfo is the version request result
 type VersionInfo struct {
 	// API version
 	ForeignAPIVersion uint16 `json:"foreign_api_version"`
 	// Slate version
-	SupportedSlateVersions []SlateVersion `json:"supported_slate_versions"`
+	SupportedSlateVersions []slateversions.SlateVersion `json:"supported_slate_versions"`
 }

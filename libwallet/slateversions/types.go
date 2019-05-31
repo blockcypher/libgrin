@@ -12,18 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package libwallet
+package slateversions
+
+import (
+	"fmt"
+	"strings"
+)
 
 // CurrentSlateVersion is The most recent version of the slate
 const CurrentSlateVersion uint16 = 2
 
+// SlateVersion represents the slate version
 type SlateVersion int
 
 const (
-	// V0
+	// V0 (first version)
 	V0 SlateVersion = iota
-	// V1
+	// V1 (like V0 but with version field)
 	V1
 	// V2 (most current)
 	V2
 )
+
+// JSONableSlice is a slice that is not represented as a base58 when serialized
+type JSONableSlice []uint8
+
+// MarshalJSON is the marshal function for such type
+func (u JSONableSlice) MarshalJSON() ([]byte, error) {
+	var result string
+	if u == nil {
+		result = "null"
+	} else {
+		result = strings.Join(strings.Fields(fmt.Sprintf("%d", u)), ",")
+	}
+	return []byte(result), nil
+}
