@@ -54,7 +54,7 @@ func (c *CuckarooContext) Verify(proof Proof) error {
 			return errors.New("edge too big")
 		}
 		if n > 0 && nonces[n] <= nonces[n-1] {
-			return errors.New("edge not ascending")
+			return errors.New("edges not ascending")
 		}
 		// 21 is standard siphash rotation constant
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21)

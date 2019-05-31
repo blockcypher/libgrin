@@ -54,13 +54,13 @@ func (c *CuckaroodContext) Verify(proof Proof) error {
 	for n := 0; n < proof.proofSize(); n++ {
 		dir := uint(nonces[n] & 1)
 		if ndir[dir] >= uint64(proof.proofSize())/2 {
-			return errors.New("edge not balanced")
+			return errors.New("edges not balanced")
 		}
 		if nonces[n] > c.params.edgeMask {
 			return errors.New("edge too big")
 		}
 		if n > 0 && nonces[n] <= nonces[n-1] {
-			return errors.New("edge not ascending")
+			return errors.New("edges not ascending")
 		}
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 25)
 		idx := 4*ndir[dir] + 2*uint64(dir)
@@ -79,7 +79,7 @@ func (c *CuckaroodContext) Verify(proof Proof) error {
 	for {
 		// follow cycle
 		j = i
-		for k := ((i % 4) ^ 2); k <= 2*c.params.proofSize; k += 4 {
+		for k := ((i % 4) ^ 2); k < 2*c.params.proofSize; k += 4 {
 			if uvs[k] == uvs[i] {
 				// find reverse edge endpoint identical to one at i
 				if j != i {

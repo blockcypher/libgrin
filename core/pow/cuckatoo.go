@@ -58,7 +58,7 @@ func (c *CuckatooContext) Verify(proof Proof) error {
 			return errors.New("edge too big")
 		}
 		if n > 0 && nonces[n] <= nonces[n-1] {
-			return errors.New("edge not ascending")
+			return errors.New("edges not ascending")
 		}
 		uvs[2*n] = c.sipnode(nonces[n], 0)
 		uvs[2*n+1] = c.sipnode(nonces[n], 1)
