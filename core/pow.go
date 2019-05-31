@@ -25,20 +25,29 @@ func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uin
 	switch chainType {
 	case consensus.Mainnet:
 		// Mainnet has Cuckaroo29 for AR and Cuckatoo30+ for AF
+		if edgeBits > 29 {
+			return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
+		}
+		if edgeBits == 29 && consensus.ValidHeaderVersion(height, 2) {
+			return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
+		}
 		if edgeBits == 29 {
 			return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
 		}
-		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
 	case consensus.Floonet:
-		// Same for Floonet
+		// Same for Floonet, except hardfork 32 days earlier
+		if edgeBits > 29 {
+			return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
+		}
+		if edgeBits == 29 && consensus.ValidHeaderVersion(height+32*consensus.DayHeight, 2) {
+			return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
+		}
 		if edgeBits == 29 {
 			return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
 		}
-		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	default:
-		// Everything else is Cuckatoo only
-		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
 	}
+	// Everything else is Cuckatoo only
+	return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
 }
 
 // VerifySize validates the proof of work of a given header, and that the proof of work

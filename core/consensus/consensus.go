@@ -121,13 +121,13 @@ const HardForkInterval uint64 = YearHeight / 2
 
 // Check whether the block version is valid at a given height, implements
 // 6 months interval scheduled hard forks for the first 2 years.
-func validHeaderVersion(height uint64, version uint16) bool {
+func ValidHeaderVersion(height uint64, version uint16) bool {
 	// uncomment below as we go from hard fork to hard fork
 	if height < HardForkInterval {
 		return version == 1
-		/* } else if height < 2 * HardForkInterval {
-			return version == 2
-		} else if height < 3 * HardForkInterval {
+	} else if height < 2*HardForkInterval {
+		return version == 2
+		/*} else if height < 3 * HardForkInterval {
 			return version == 3
 		} else if height < 4 * HardForkInterval {
 			return version == 4
