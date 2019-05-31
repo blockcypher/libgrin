@@ -21,7 +21,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/blockcypher/libgrin/libwallet"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -60,20 +59,4 @@ func TestGetAmountCurrentlySpendable(t *testing.T) {
 	amountSpendable, err = GetAmountCurrentlySpendable(false)
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(5100000000000), amountSpendable)
-}
-
-func TestUnmarshallingSlate(t *testing.T) {
-	slateJSON, err := ioutil.ReadFile("test_data/slate.json")
-	assert.NoError(t, err)
-	var slate libwallet.Slate
-	err = json.Unmarshal(slateJSON, &slate)
-	assert.NoError(t, err)
-}
-
-func TestUnmarshallingPartialSlate(t *testing.T) {
-	slateJSON, err := ioutil.ReadFile("test_data/partial_slate1.json")
-	assert.NoError(t, err)
-	var slate libwallet.Slate
-	err = json.Unmarshal(slateJSON, &slate)
-	assert.NoError(t, err)
 }

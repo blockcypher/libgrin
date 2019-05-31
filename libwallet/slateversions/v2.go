@@ -180,15 +180,23 @@ func (v1 *SlateV1) Upgrade() SlateV2 {
 }
 
 func (v1 *ParticipantDataV1) upgrade() ParticipantDataV2 {
-	partSig := hex.EncodeToString(v1.PartSig)
-	messageSig := hex.EncodeToString(v1.MessageSig)
+	var partSig *string
+	if v1.PartSig != nil {
+		hexPartSig := hex.EncodeToString(v1.PartSig)
+		partSig = &hexPartSig
+	}
+	var messageSig *string
+	if v1.MessageSig != nil {
+		hexMessageSig := hex.EncodeToString(v1.MessageSig)
+		messageSig = &hexMessageSig
+	}
 	participantDataV2 := ParticipantDataV2{
 		ID:                v1.ID,
 		PublicBlindExcess: hex.EncodeToString(v1.PublicBlindExcess),
 		PublicNonce:       hex.EncodeToString(v1.PublicNonce),
-		PartSig:           &partSig,
+		PartSig:           partSig,
 		Message:           v1.Message,
-		MessageSig:        &messageSig,
+		MessageSig:        messageSig,
 	}
 	return participantDataV2
 }
