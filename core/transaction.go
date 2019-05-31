@@ -76,17 +76,17 @@ type TxKernel struct {
 	// Options for a kernel's structure or use
 	Features KernelFeatures `json:"features"`
 	// Fee originally included in the transaction this proof is for.
-	Fee uint64 `json:"fee"`
+	Fee uint64 `json:"fee,string"`
 	// This kernel is not valid earlier than lock_height blocks
 	// The max lock_height of all *inputs* to this transaction
-	LockHeight uint64 `json:"lock_height"`
+	LockHeight uint64 `json:"lock_height,string"`
 	// Remainder of the sum of all transaction commitments. If the transaction
 	// is well formed, amounts components should sum to zero and the excess
 	// is hence a valid public key.
-	Excess JSONableSlice `json:"excess"`
+	Excess string `json:"excess"`
 	// The signature proving the excess is a valid public key, which signs
 	// the transaction fee.
-	ExcessSig JSONableSlice `json:"excess_sig"`
+	ExcessSig string `json:"excess_sig"`
 }
 
 // TransactionBody is a common abstraction for transaction and block
@@ -103,7 +103,7 @@ type TransactionBody struct {
 type Transaction struct {
 	// The kernel "offset" k2
 	// excess is k1G after splitting the key k = k1 + k2
-	Offset JSONableSlice `json:"offset"`
+	Offset string `json:"offset"`
 	// The transaction body - inputs/outputs/kernels
 	Body TransactionBody `json:"body"`
 }
@@ -116,7 +116,7 @@ type Input struct {
 	// We will check maturity for coinbase output.
 	Features OutputFeatures `json:"features"`
 	// The commit referencing the output being spent.
-	Commit JSONableSlice `json:"commit"`
+	Commit string `json:"commit"`
 }
 
 // OutputFeatures is an enum of various supported outputs "features".
@@ -174,9 +174,9 @@ type Output struct {
 	// Options for an output's structure or use
 	Features OutputFeatures `json:"features"`
 	// The homomorphic commitment representing the output amount
-	Commit JSONableSlice `json:"commit"`
+	Commit string `json:"commit"`
 	// A proof that the commitment is in the right range
-	Proof JSONableSlice `json:"proof"`
+	Proof string `json:"proof"`
 }
 
 // An OutputIdentifier can be build from either an input _or_ an output and
@@ -188,5 +188,5 @@ type OutputIdentifier struct {
 	// enforced.
 	Features OutputFeatures `json:"features"`
 	// Output commitment
-	Commit JSONableSlice `json:"commit"`
+	Commit string `json:"commit"`
 }

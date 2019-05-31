@@ -27,7 +27,7 @@ import (
 // ParticipantData is a public data for each participant in the slate
 type ParticipantData struct {
 	// Id of participant in the transaction. (For now, 0=sender, 1=rec)
-	ID uint64 `json:"id"`
+	ID uint64 `json:"id,string"`
 	// Public key corresponding to private blinding factor
 	PublicBlindExcess string `json:"public_blind_excess"`
 	// Public key corresponding to private nonce
@@ -37,13 +37,13 @@ type ParticipantData struct {
 	// A message for other participants
 	Message *string `json:"message"`
 	// Signature, created with private key corresponding to 'public_blind_excess'
-	MessageSig string `json:"message_sig"`
+	MessageSig *string `json:"message_sig"`
 }
 
 // ParticipantMessageData is the public message data (for serializing and storage)
 type ParticipantMessageData struct {
 	// id of the particpant in the tx
-	ID uint64 `json:"id"`
+	ID uint64 `json:"id,string"`
 	// Public key
 	PublicKey string `json:"public_key"`
 	// Message,
@@ -67,13 +67,13 @@ type Slate struct {
 	// inputs, outputs, kernels, kernel offset
 	Transaction core.Transaction `json:"tx"`
 	// base amount (excluding fee)
-	Amount uint64 `json:"amount"`
+	Amount uint64 `json:"amount,string"`
 	// fee amount
-	Fee uint64 `json:"fee"`
+	Fee uint64 `json:"fee,string"`
 	// Block height for the transaction
-	Height uint64 `json:"height"`
+	Height uint64 `json:"height,string"`
 	// Lock height
-	LockHeight uint64 `json:"lock_height"`
+	LockHeight uint64 `json:"lock_height,string"`
 	// Participant data, each participant in the transaction will
 	// insert their public data here. For now, 0 is sender and 1
 	// is receiver, though this will change for multi-party
@@ -88,12 +88,6 @@ type VersionCompatInfo struct {
 	OrigVersion uint16 `json:"orig_version"`
 	// The grin block header version this slate is intended for
 	BlockHeaderVersion uint16 `json:"block_header_version"`
-}
-
-// ParticipantMessages is an helper just to facilitate serialization
-type ParticipantMessages struct {
-	// included messages
-	Messages []ParticipantMessageData `json:"messages"`
 }
 
 func parseSlateVersion(slateBytes []byte) (uint16, error) {
@@ -131,15 +125,54 @@ func DeserializeUpgrade(slateBytes []byte) (*Slate, error) {
 		if err := json.Unmarshal(slateBytes, &v1); err != nil {
 			return nil, err
 		}
-		v1.OrigVersion = 1
-		return nil, errors.New("Can't parse slate version")
+		v1.SetOrigVersion(1)
+		v2 := v1.Upgrade()
+		slate := slateV2ToSlate(v2)
+		return &slate, nil
 	case 0:
 		var v0 slateversions.SlateV0
 		if err := json.Unmarshal(slateBytes, &v0); err != nil {
 			return nil, err
 		}
-		return nil, errors.New("Can't parse slate version")
+		v1 := v0.Upgrade()
+		v1.SetOrigVersion(1)
+		v2 := v1.Upgrade()
+		slate := slateV2ToSlate(v2)
+		return &slate, nil
 	default:
 		return nil, errors.New("Can't parse slate version")
 	}
+}
+
+func slateV2ToSlate(v2 slateversions.SlateV2) Slate {
+	var slate Slate
+	slate.VersionInfo = VersionCompatInfo(v2.VersionInfo)
+	slate.NumParticipants = v2.NumParticipants
+	slate.ID = v2.ID
+	var inputs []core.Input
+	for i := range v2.Transaction.Body.Inputs {
+		inputs = append(inputs, core.Input(v2.Transaction.Body.Inputs[i]))
+	}
+	var outputs []core.Output
+	for i := range v2.Transaction.Body.Outputs {
+		outputs = append(outputs, core.Output(v2.Transaction.Body.Outputs[i]))
+	}
+	var kernels []core.TxKernel
+	for i := range v2.Transaction.Body.Kernels {
+		kernels = append(kernels, core.TxKernel(v2.Transaction.Body.Kernels[i]))
+	}
+	slate.Transaction.Body.Inputs = inputs
+	slate.Transaction.Body.Outputs = outputs
+	slate.Transaction.Body.Kernels = kernels
+	slate.Transaction.Offset = v2.Transaction.Offset
+	slate.Amount = v2.Amount
+	slate.Fee = v2.Fee
+	slate.Height = v2.Height
+	slate.LockHeight = v2.LockHeight
+	var participantData []ParticipantData
+	for i := range v2.ParticipantData {
+		participantData = append(participantData, ParticipantData(v2.ParticipantData[i]))
+	}
+	slate.ParticipantData = participantData
+	return slate
 }

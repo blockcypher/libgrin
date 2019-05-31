@@ -88,11 +88,11 @@ type ParticipantDataV2 struct {
 	// Public key corresponding to private nonce
 	PublicNonce string `json:"public_nonce"`
 	// Public partial signature
-	PartSig string `json:"part_sig"`
+	PartSig *string `json:"part_sig"`
 	// A message for other participants
 	Message *string `json:"message"`
 	// Signature, created with private key corresponding to 'public_blind_excess'
-	MessageSig string `json:"message_sig"`
+	MessageSig *string `json:"message_sig"`
 }
 
 // TransactionV2 is a v1 transaction
@@ -180,13 +180,15 @@ func (v1 *SlateV1) Upgrade() SlateV2 {
 }
 
 func (v1 *ParticipantDataV1) upgrade() ParticipantDataV2 {
+	partSig := hex.EncodeToString(v1.PartSig)
+	messageSig := hex.EncodeToString(v1.MessageSig)
 	participantDataV2 := ParticipantDataV2{
 		ID:                v1.ID,
 		PublicBlindExcess: hex.EncodeToString(v1.PublicBlindExcess),
 		PublicNonce:       hex.EncodeToString(v1.PublicNonce),
-		PartSig:           hex.EncodeToString(v1.PartSig),
+		PartSig:           &partSig,
 		Message:           v1.Message,
-		MessageSig:        hex.EncodeToString(v1.MessageSig),
+		MessageSig:        &messageSig,
 	}
 	return participantDataV2
 }

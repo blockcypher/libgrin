@@ -105,6 +105,12 @@ const (
 	TxSentCancelled
 )
 
+// ParticipantMessages is an helper just to facilitate serialization
+type ParticipantMessages struct {
+	// included messages
+	Messages []ParticipantMessageData `json:"messages"`
+}
+
 // TxLogEntry is an optional transaction information, recorded when an event
 // happens to add or remove funds from a wallet. One Transaction log entry maps
 // to one or many outputs
