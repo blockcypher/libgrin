@@ -56,13 +56,13 @@ type SlateV2 struct {
 	// inputs, outputs, kernels, kernel offset
 	Transaction TransactionV2 `json:"tx"`
 	// base amount (excluding fee)
-	Amount uint64 `json:"amount"`
+	Amount uint64 `json:"amount,string"`
 	// fee amount
-	Fee uint64 `json:"fee"`
+	Fee uint64 `json:"fee,string"`
 	// Block height for the transaction
-	Height uint64 `json:"height"`
+	Height uint64 `json:"height,string"`
 	// Lock height
-	LockHeight uint64 `json:"lock_height"`
+	LockHeight uint64 `json:"lock_height,string"`
 	// Participant data, each participant in the transaction will
 	// insert their public data here. For now, 0 is sender and 1
 	// is receiver, though this will change for multi-party
@@ -82,7 +82,7 @@ type VersionCompatInfoV2 struct {
 // ParticipantDataV2 is the participant data slate version 0
 type ParticipantDataV2 struct {
 	// Id of participant in the transaction. (For now, 0=sender, 1=rec)
-	ID uint64 `json:"id"`
+	ID uint64 `json:"id,string"`
 	// Public key corresponding to private blinding factor
 	PublicBlindExcess string `json:"public_blind_excess"`
 	// Public key corresponding to private nonce
@@ -138,10 +138,10 @@ type TxKernelV2 struct {
 	// Options for a kernel's structure or use
 	Features core.KernelFeatures `json:"features"`
 	// Fee originally included in the transaction this proof is for.
-	Fee uint64 `json:"fee"`
+	Fee uint64 `json:"fee,string"`
 	// This kernel is not valid earlier than lock_height blocks
 	// The max lock_height of all *inputs* to this transaction
-	LockHeight uint64 `json:"lock_height"`
+	LockHeight uint64 `json:"lock_height,string"`
 	// Remainder of the sum of all transaction commitments. If the transaction
 	// is well formed, amounts components should sum to zero and the excess
 	// is hence a valid public key.
