@@ -195,11 +195,11 @@ func (v0 *TransactionBodyV0) upgrade() TransactionBodyV1 {
 }
 
 func (v0 *InputV0) upgrade() InputV1 {
-	InputV1 := InputV1{
+	inputV1 := InputV1{
 		Features: v0.Features,
 		Commit:   v0.Commit,
 	}
-	return InputV1
+	return inputV1
 }
 
 func (v0 *OutputV0) upgrade() OutputV1 {
@@ -220,4 +220,92 @@ func (v0 *TxKernelV0) upgrade() TxKernelV1 {
 		ExcessSig:  v0.ExcessSig,
 	}
 	return txKernelV1
+}
+
+// Downgrade V1 to V0
+func (v1 *SlateV1) Downgrade() SlateV0 {
+	var participantDataV0 []ParticipantDataV0
+	for i := range v1.ParticipantData {
+		participantDataV0 = append(participantDataV0, v1.ParticipantData[i].downgrade())
+	}
+	slateV0 := SlateV0{
+		NumParticipants: v1.NumParticipants,
+		ID:              v1.ID,
+		Transaction:     v1.Transaction.downgrade(),
+		Amount:          v1.Amount,
+		Fee:             v1.Fee,
+		Height:          v1.Height,
+		LockHeight:      v1.LockHeight,
+		ParticipantData: participantDataV0,
+	}
+	return slateV0
+}
+
+func (v1 *ParticipantDataV1) downgrade() ParticipantDataV0 {
+	participantDataV0 := ParticipantDataV0{
+		ID:                v1.ID,
+		PublicBlindExcess: v1.PublicBlindExcess,
+		PublicNonce:       v1.PublicNonce,
+		PartSig:           v1.PartSig,
+		Message:           v1.Message,
+		MessageSig:        v1.MessageSig,
+	}
+	return participantDataV0
+}
+
+func (v1 *TransactionV1) downgrade() TransactionV0 {
+	transactionV0 := TransactionV0{
+		Offset: v1.Offset,
+		Body:   v1.Body.downgrade(),
+	}
+	return transactionV0
+}
+
+func (v1 *TransactionBodyV1) downgrade() TransactionBodyV0 {
+	var inputsV0 []InputV0
+	var outputV0 []OutputV0
+	var kernelsV0 []TxKernelV0
+	for i := range v1.Inputs {
+		inputsV0 = append(inputsV0, v1.Inputs[i].downgrade())
+	}
+	for i := range v1.Outputs {
+		outputV0 = append(outputV0, v1.Outputs[i].downgrade())
+	}
+	for i := range v1.Kernels {
+		kernelsV0 = append(kernelsV0, v1.Kernels[i].downgrade())
+	}
+	transactionBodyV0 := TransactionBodyV0{
+		Inputs:  inputsV0,
+		Outputs: outputV0,
+		Kernels: kernelsV0,
+	}
+	return transactionBodyV0
+}
+
+func (v1 *InputV1) downgrade() InputV0 {
+	inputV0 := InputV0{
+		Features: v1.Features,
+		Commit:   v1.Commit,
+	}
+	return inputV0
+}
+
+func (v1 *OutputV1) downgrade() OutputV0 {
+	outputV0 := OutputV0{
+		Features: v1.Features,
+		Commit:   v1.Commit,
+		Proof:    v1.Proof,
+	}
+	return outputV0
+}
+
+func (v1 *TxKernelV1) downgrade() TxKernelV0 {
+	txKernelV0 := TxKernelV0{
+		Features:   v1.Features,
+		Fee:        v1.Fee,
+		LockHeight: v1.LockHeight,
+		Excess:     v1.Excess,
+		ExcessSig:  v1.ExcessSig,
+	}
+	return txKernelV0
 }

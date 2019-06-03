@@ -257,3 +257,110 @@ func (v1 *TxKernelV1) upgrade() TxKernelV2 {
 	}
 	return txKernelV2
 }
+
+// Downgrade V2 to V1
+func (v2 *SlateV2) Downgrade() SlateV1 {
+	var participantDataV1 []ParticipantDataV1
+	for i := range v2.ParticipantData {
+		participantDataV1 = append(participantDataV1, v2.ParticipantData[i].downgrade())
+	}
+	slateV1 := SlateV1{
+		NumParticipants: v2.NumParticipants,
+		ID:              v2.ID,
+		Transaction:     v2.Transaction.downgrade(),
+		Amount:          v2.Amount,
+		Fee:             v2.Fee,
+		Height:          v2.Height,
+		LockHeight:      v2.LockHeight,
+		ParticipantData: participantDataV1,
+		Version:         1,
+		origVersion:     2,
+	}
+	return slateV1
+}
+
+func (v2 *ParticipantDataV2) downgrade() ParticipantDataV1 {
+	publicBlindExcess, _ := hex.DecodeString(v2.PublicBlindExcess)
+	publicNonce, _ := hex.DecodeString(v2.PublicNonce)
+	var partSig JSONableSlice
+	if v2.PartSig != nil {
+		partSig, _ = hex.DecodeString(*v2.PartSig)
+	}
+	var messageSig JSONableSlice
+	if v2.MessageSig != nil {
+		messageSig, _ = hex.DecodeString(*v2.MessageSig)
+	}
+	participantDataV1 := ParticipantDataV1{
+		ID:                v2.ID,
+		PublicBlindExcess: publicBlindExcess,
+		PublicNonce:       publicNonce,
+		PartSig:           partSig,
+		Message:           v2.Message,
+		MessageSig:        messageSig,
+	}
+	return participantDataV1
+}
+
+func (v2 *TransactionV2) downgrade() TransactionV1 {
+	offset, _ := hex.DecodeString(v2.Offset)
+	transactionV1 := TransactionV1{
+		Offset: offset,
+		Body:   v2.Body.downgrade(),
+	}
+	return transactionV1
+}
+
+func (v2 *TransactionBodyV2) downgrade() TransactionBodyV1 {
+	var inputsV1 []InputV1
+	var outputV1 []OutputV1
+	var kernelsV1 []TxKernelV1
+	for i := range v2.Inputs {
+		inputsV1 = append(inputsV1, v2.Inputs[i].downgrade())
+	}
+	for i := range v2.Outputs {
+		outputV1 = append(outputV1, v2.Outputs[i].downgrade())
+	}
+	for i := range v2.Kernels {
+		kernelsV1 = append(kernelsV1, v2.Kernels[i].downgrade())
+	}
+	transactionBodyV1 := TransactionBodyV1{
+		Inputs:  inputsV1,
+		Outputs: outputV1,
+		Kernels: kernelsV1,
+	}
+	return transactionBodyV1
+}
+
+func (v2 *InputV2) downgrade() InputV1 {
+	commit, _ := hex.DecodeString(v2.Commit)
+
+	inputV1 := InputV1{
+		Features: v2.Features,
+		Commit:   commit,
+	}
+	return inputV1
+}
+
+func (v2 *OutputV2) downgrade() OutputV1 {
+	commit, _ := hex.DecodeString(v2.Commit)
+	proof, _ := hex.DecodeString(v2.Proof)
+	outputV1 := OutputV1{
+		Features: v2.Features,
+		Commit:   commit,
+		Proof:    proof,
+	}
+	return outputV1
+}
+
+func (v2 *TxKernelV2) downgrade() TxKernelV1 {
+	excess, _ := hex.DecodeString(v2.Excess)
+	excessSig, _ := hex.DecodeString(v2.ExcessSig)
+	txKernelV1 := TxKernelV1{
+		Features:   v2.Features,
+		Fee:        v2.Fee,
+		LockHeight: v2.LockHeight,
+		Excess:     excess,
+		ExcessSig:  excessSig,
+	}
+	return txKernelV1
+}
