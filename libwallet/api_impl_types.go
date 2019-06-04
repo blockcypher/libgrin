@@ -49,9 +49,9 @@ type InitTxArgs struct {
 	// The human readable account name from which to draw outputs
 	// for the transaction, overriding whatever the active account is as set via the
 	// [`set_active_account`](../grin_wallet_api/owner/struct.Owner.html#method.set_active_account) method.
-	SrcAcctName *string `json:"src_acct_name"`
+	SrcAcctName *string `json:"src_acct_name,string"`
 	// The amount to send, in nanogrins. (`1 G = 1_000_000_000nG`)
-	Amount uint64 `json:"amount"`
+	Amount uint64 `json:"amount,string"`
 	// The minimum number of confirmations an output
 	// should have in order to be included in the transaction.
 	MinimumConfirmations uint64 `json:"minimum_confirmations"`
@@ -114,7 +114,7 @@ type IssueInvoiceTxArgs struct {
 	// [`set_active_account`](../grin_wallet_api/owner/struct.Owner.html#method.set_active_account) method.
 	DestAcctName *string `json:"dest_acct_name"`
 	// The invoice amount in nanogrins. (`1 G = 1_000_000_000nG`)
-	Amount uint64 `json:"amount"`
+	Amount uint64 `json:"amount,string"`
 	// Optional message, that will be signed
 	Message *string `json:"message"`
 	// Optionally set the output target slate version (acceptable
@@ -126,9 +126,9 @@ type IssueInvoiceTxArgs struct {
 // BlockFees are the fees in block to use for coinbase amount calculation
 type BlockFees struct {
 	// fees
-	Fees uint64 `json:"fees"`
+	Fees uint64 `json:"fees,string"`
 	// height
-	Height uint64 `json:"height"`
+	Height uint64 `json:"height,string"`
 	// key id
 	KeyID *keychain.Identifier `json:"key_id"`
 }
@@ -154,7 +154,7 @@ type OutputCommitMapping struct {
 // NodeHeightResult is the node height result
 type NodeHeightResult struct {
 	// Last known height
-	Height uint64 `json:"height"`
+	Height uint64 `json:"height,string"`
 	// Whether this height was updated from the node
 	UpdatedFromNode bool `json:"updated_from_node"`
 }

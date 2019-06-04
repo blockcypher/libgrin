@@ -35,15 +35,15 @@ type OutputData struct {
 	Commit *string `json:"commit"`
 	// PMMR Index, used on restore in case of duplicate wallets using the same
 	// key_id (2 wallets using same seed, for instance
-	MMRIndex *uint64 `json:"mmr_index"`
+	MMRIndex *uint64 `json:"mmr_index,string"`
 	// Value of the output, necessary to rebuild the commitment
-	Value uint64 `json:"value"`
+	Value uint64 `json:"value,string"`
 	// Current status of the output
 	Status OutputStatus `json:"status"`
 	// Height of the output
-	Height uint64 `json:"height"`
+	Height uint64 `json:"height,string"`
 	// Height we are locked until
-	LockHeight uint64 `json:"lock_height"`
+	LockHeight uint64 `json:"lock_height,string"`
 	// Is this a coinbase output? Is it subject to coinbase locktime?
 	IsCoinbase bool `json:"is_coinbase"`
 	// Optional corresponding internal entry in tx entry log
@@ -71,21 +71,21 @@ const (
 // wallet info can add more fields here over time as needed
 type WalletInfo struct {
 	// height from which info was taken
-	LastConfirmedHeight uint64 `json:"last_confirmed_height"`
+	LastConfirmedHeight uint64 `json:"last_confirmed_height,string"`
 	// Minimum number of confirmations for an output to be treated as "spendable".
-	MinimumConfirmations uint64 `json:"minimum_confirmations"`
+	MinimumConfirmations uint64 `json:"minimum_confirmations,string"`
 	// total amount in the wallet
 	Total uint64 `json:"total"`
 	// amount awaiting finalization
-	AmountAwaitingFinalization uint64 `json:"amount_awaiting_finalization"`
+	AmountAwaitingFinalization uint64 `json:"amount_awaiting_finalization,string"`
 	// amount awaiting confirmation
-	AmountAwaitingConfirmation uint64 `json:"amount_awaiting_confirmation"`
+	AmountAwaitingConfirmation uint64 `json:"amount_awaiting_confirmation,string"`
 	// coinbases waiting for lock height
-	AmountImmature uint64 `json:"amount_immature"`
+	AmountImmature uint64 `json:"amount_immature,string"`
 	// amount currently spendable
-	AmountCurrentlySpendable uint64 `json:"amount_currently_spendable"`
+	AmountCurrentlySpendable uint64 `json:"amount_currently_spendable,string"`
 	// amount locked via previous transactions
-	AmountLocked uint64 `json:"amount_locked"`
+	AmountLocked uint64 `json:"amount_locked,string"`
 }
 
 // TxLogEntryType represent the type of transactions that can be contained
@@ -138,11 +138,11 @@ type TxLogEntry struct {
 	// number of outputs involved in TX
 	NumOutputs uint `json:"num_outputs"`
 	// Amount credited via this transaction
-	AmountCredited uint64 `json:"amount_credited"`
+	AmountCredited uint64 `json:"amount_credited,string"`
 	// Amount debited via this transaction
-	AmountDebited uint64 `json:"amount_debited"`
+	AmountDebited uint64 `json:"amount_debited,string"`
 	// Fee
-	Fee *uint64 `json:"fee"`
+	Fee *uint64 `json:"fee,string"`
 	// Message data, stored as json
 	Messages *ParticipantMessages `json:"messages"`
 	// Location of the store transaction, (reference or resending)
