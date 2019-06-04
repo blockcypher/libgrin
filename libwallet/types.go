@@ -75,7 +75,7 @@ type WalletInfo struct {
 	// Minimum number of confirmations for an output to be treated as "spendable".
 	MinimumConfirmations uint64 `json:"minimum_confirmations,string"`
 	// total amount in the wallet
-	Total uint64 `json:"total"`
+	Total uint64 `json:"total,string"`
 	// amount awaiting finalization
 	AmountAwaitingFinalization uint64 `json:"amount_awaiting_finalization,string"`
 	// amount awaiting confirmation
