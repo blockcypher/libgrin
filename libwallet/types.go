@@ -15,6 +15,8 @@
 package libwallet
 
 import (
+	"bytes"
+	"encoding/json"
 	"time"
 
 	"github.com/blockcypher/libgrin/keychain"
@@ -57,15 +59,53 @@ type OutputData struct {
 type OutputStatus int
 
 const (
-	// Unconfirmed
+	// Unconfirmed output
 	Unconfirmed OutputStatus = iota
-	// Unspent
+	// Unspent output
 	Unspent
-	// Locked
+	// Locked output
 	Locked
-	// Spent
+	// Spent output
 	Spent
 )
+
+func (s OutputStatus) String() string {
+	return toStringOutputStatus[s]
+}
+
+var toStringOutputStatus = map[OutputStatus]string{
+	Unconfirmed: "Unconfirmed",
+	Unspent:     "Unspent",
+	Locked:      "Locked",
+	Spent:       "Spent",
+}
+
+var toIDOutputStatus = map[string]OutputStatus{
+	"Unconfirmed": Unconfirmed,
+	"Unspent":     Unspent,
+	"Locked":      Locked,
+	"Spent":       Spent,
+}
+
+// MarshalJSON marshals the enum as a quoted json string
+func (s OutputStatus) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(toStringOutputStatus[s])
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON unmarshals a quoted json string to the enum value
+func (s *OutputStatus) UnmarshalJSON(b []byte) error {
+	var j string
+	err := json.Unmarshal(b, &j)
+	if err != nil {
+		return err
+	}
+	// Note that if the string cannot be found then it will be set to the zero value, 'Created' in this case.
+	*s = toIDOutputStatus[j]
+	return nil
+}
 
 // WalletInfo is a contained wallet info struct, so automated tests can parse
 // wallet info can add more fields here over time as needed
@@ -93,17 +133,57 @@ type WalletInfo struct {
 type TxLogEntryType int
 
 const (
-	// A coinbase transaction becomes confirmed
+	// ConfirmedCoinbase is a coinbase transaction becomes confirmed
 	ConfirmedCoinbase TxLogEntryType = iota
-	// Outputs created when a transaction is received
+	// TxReceived are outputs created when a transaction is received
 	TxReceived
-	// Inputs locked + change outputs when a transaction is created
+	// TxSent are inputs locked + change outputs when a transaction is created
 	TxSent
-	// Received transaction that was rolled back by user
+	// TxReceivedCancelled is a received transaction that was rolled back by user
 	TxReceivedCancelled
-	// Sent transaction that was rolled back by user
+	// TxSentCancelled is a sent transaction that was rolled back by user
 	TxSentCancelled
 )
+
+func (s TxLogEntryType) String() string {
+	return toStringTxLogEntryType[s]
+}
+
+var toStringTxLogEntryType = map[TxLogEntryType]string{
+	ConfirmedCoinbase:   "ConfirmedCoinbase",
+	TxReceived:          "TxReceived",
+	TxSent:              "TxSent",
+	TxReceivedCancelled: "TxReceivedCancelled",
+	TxSentCancelled:     "TxSentCancelled",
+}
+
+var toIDTxLogEntryType = map[string]TxLogEntryType{
+	"ConfirmedCoinbase":   ConfirmedCoinbase,
+	"TxReceived":          TxReceived,
+	"TxSent":              TxSent,
+	"TxReceivedCancelled": TxReceivedCancelled,
+	"TxSentCancelled":     TxSentCancelled,
+}
+
+// MarshalJSON marshals the enum as a quoted json string
+func (s TxLogEntryType) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(toStringTxLogEntryType[s])
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON unmarshals a quoted json string to the enum value
+func (s *TxLogEntryType) UnmarshalJSON(b []byte) error {
+	var j string
+	err := json.Unmarshal(b, &j)
+	if err != nil {
+		return err
+	}
+	// Note that if the string cannot be found then it will be set to the zero value, 'Created' in this case.
+	*s = toIDTxLogEntryType[j]
+	return nil
+}
 
 // ParticipantMessages is an helper just to facilitate serialization
 type ParticipantMessages struct {
@@ -116,7 +196,7 @@ type ParticipantMessages struct {
 // to one or many outputs
 type TxLogEntry struct {
 	// BIP32 account path used for creating this tx
-	ParentKeyID keychain.Identifier `json:"parent_key_id"`
+	ParentKeyID keychain.Identifier `json:"parent_key_id,string"`
 	// Local id for this transaction (distinct from a slate transaction id)
 	ID uint32 `json:"id"`
 	// Slate transaction this entry is associated with, if any

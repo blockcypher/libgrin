@@ -110,7 +110,7 @@ func DeserializeUpgrade(slateBytes []byte) (*Slate, error) {
 	// check version
 	version, err := parseSlateVersion(slateBytes)
 	if err != nil {
-		return nil, errors.New("Can't parse slate version")
+		return nil, errors.New("can't parse slate version")
 	}
 
 	switch version {
@@ -140,7 +140,7 @@ func DeserializeUpgrade(slateBytes []byte) (*Slate, error) {
 		slate := slateV2ToSlate(v2)
 		return &slate, nil
 	default:
-		return nil, errors.New("Can't parse slate version")
+		return nil, errors.New("can't parse slate version")
 	}
 }
 
