@@ -43,9 +43,7 @@ func (i *Identifier) UnmarshalJSON(b []byte) error {
 	if len(identifierBytes) != 17 {
 		return errors.New("wrong identifier length")
 	}
-	for k := 0; k < int(IdentifierSize); k++ {
-		i[k] = identifierBytes[k]
-	}
+	copy(i[:], identifierBytes)
 	return nil
 }
 
