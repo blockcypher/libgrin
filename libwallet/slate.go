@@ -106,41 +106,42 @@ func parseSlateVersion(slateBytes []byte) (uint16, error) {
 	return version, nil
 }
 
-func DeserializeUpgrade(slateBytes []byte) (*Slate, error) {
+func DeserializeUpgrade(slateBytes []byte, slate *Slate) error {
 	// check version
 	version, err := parseSlateVersion(slateBytes)
 	if err != nil {
-		return nil, errors.New("can't parse slate version")
+		return errors.New("can't parse slate version")
 	}
 
 	switch version {
 	case 2:
-		var slate Slate
 		if err := json.Unmarshal(slateBytes, &slate); err != nil {
-			return nil, err
+			return err
 		}
-		return &slate, nil
+		return nil
 	case 1:
 		var v1 slateversions.SlateV1
 		if err := json.Unmarshal(slateBytes, &v1); err != nil {
-			return nil, err
+			return err
 		}
 		v1.SetOrigVersion(1)
 		v2 := v1.Upgrade()
-		slate := slateV2ToSlate(v2)
-		return &slate, nil
+		slateV2 := slateV2ToSlate(v2)
+		slate = &slateV2
+		return nil
 	case 0:
 		var v0 slateversions.SlateV0
 		if err := json.Unmarshal(slateBytes, &v0); err != nil {
-			return nil, err
+			return err
 		}
 		v1 := v0.Upgrade()
 		v1.SetOrigVersion(1)
 		v2 := v1.Upgrade()
-		slate := slateV2ToSlate(v2)
-		return &slate, nil
+		slateV2 := slateV2ToSlate(v2)
+		slate = &slateV2
+		return nil
 	default:
-		return nil, errors.New("can't parse slate version")
+		return errors.New("can't parse slate version")
 	}
 }
 
