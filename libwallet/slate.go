@@ -106,7 +106,7 @@ func parseSlateVersion(slateBytes []byte) (uint16, error) {
 	return version, nil
 }
 
-func DeserializeUpgrade(slateBytes []byte, slate *Slate) error {
+func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
 	// check version
 	version, err := parseSlateVersion(slateBytes)
 	if err != nil {
