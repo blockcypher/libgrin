@@ -17,10 +17,12 @@ package libwallet
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/blockcypher/libgrin/core"
 	"github.com/blockcypher/libgrin/libwallet/slateversions"
 	"github.com/google/uuid"
+	"github.com/mitchellh/mapstructure"
 )
 
 // ParticipantData is a public data for each participant in the slate
@@ -92,14 +94,18 @@ type VersionCompatInfo struct {
 func parseSlateVersion(slateBytes []byte) (uint16, error) {
 	var version uint16
 	slate := make(map[string]interface{})
-	err := json.Unmarshal(slateBytes, &slate)
-	if err != nil {
+	if err := json.Unmarshal(slateBytes, &slate); err != nil {
 		return 0, err
 	}
-	if versionCompatInfo, ok := slate["version_info"].(VersionCompatInfo); !ok {
-		return versionCompatInfo.Version, nil
+	// First check for version info
+	if _, ok := slate["version_info"]; ok {
+		var versionCompatInfo VersionCompatInfo
+		if err := mapstructure.Decode(slate["version_info"], &versionCompatInfo); err == nil {
+			return versionCompatInfo.Version, nil
+		}
 	}
-	if _, ok := slate["version"].(uint16); !ok {
+
+	if _, ok := slate["version"].(float64); ok {
 		return 1, nil
 	}
 	return version, nil
@@ -108,6 +114,7 @@ func parseSlateVersion(slateBytes []byte) (uint16, error) {
 func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
 	// check version
 	version, err := parseSlateVersion(slateBytes)
+	fmt.Println(version)
 	if err != nil {
 		return errors.New("can't parse slate version")
 	}
@@ -126,7 +133,7 @@ func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
 		v1.SetOrigVersion(1)
 		v2 := v1.Upgrade()
 		slateV2 := slateV2ToSlate(v2)
-		slate = &slateV2
+		*slate = slateV2
 		return nil
 	case 0:
 		var v0 slateversions.SlateV0
@@ -137,7 +144,7 @@ func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
 		v1.SetOrigVersion(1)
 		v2 := v1.Upgrade()
 		slateV2 := slateV2ToSlate(v2)
-		slate = &slateV2
+		*slate = slateV2
 		return nil
 	default:
 		return errors.New("can't parse slate version")
