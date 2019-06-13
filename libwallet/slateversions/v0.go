@@ -16,7 +16,7 @@ package slateversions
 
 import (
 	"github.com/blockcypher/libgrin/core"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 // SlateV0 represents a slate version 0

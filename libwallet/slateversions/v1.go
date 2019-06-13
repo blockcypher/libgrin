@@ -16,7 +16,7 @@ package slateversions
 
 import (
 	"github.com/blockcypher/libgrin/core"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 //! Contains V1 of the slate (grin 1.0.1, 1.0.2)

@@ -18,7 +18,7 @@ import (
 	"encoding/hex"
 
 	"github.com/blockcypher/libgrin/core"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
 //! Contains V2 of the slate (grin-wallet 1.1.0)

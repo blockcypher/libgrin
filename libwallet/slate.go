@@ -18,10 +18,9 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/blockcypher/libgrin/core"
 	"github.com/blockcypher/libgrin/libwallet/slateversions"
+	"github.com/google/uuid"
 )
 
 // ParticipantData is a public data for each participant in the slate
