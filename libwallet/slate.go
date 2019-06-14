@@ -139,7 +139,7 @@ func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
 			return err
 		}
 		v1 := v0.Upgrade()
-		v1.SetOrigVersion(1)
+		v1.SetOrigVersion(0)
 		v2 := v1.Upgrade()
 		slateV2 := slateV2ToSlate(v2)
 		*slate = slateV2
