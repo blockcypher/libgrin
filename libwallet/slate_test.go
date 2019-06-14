@@ -68,3 +68,29 @@ func TestUnmarshalUpgradeV0(t *testing.T) {
 	slateV2.VersionInfo.OrigVersion = 2
 	assert.Exactly(t, slateV2Reference, slateV2)
 }
+
+func TestMarshal(t *testing.T) {
+	slateV2JSON, _ := ioutil.ReadFile("slateversions/test_data/v2_raw.slate")
+	var slateV2 libwallet.Slate
+	err := libwallet.UnmarshalUpgrade(slateV2JSON, &slateV2)
+	assert.Nil(t, err)
+
+	// First test that if we put nothing it serialize as a Slate V2
+	serializedSlateV2, err := libwallet.Marshal(slateV2)
+	assert.Nil(t, err)
+	assert.Equal(t, slateV2JSON, serializedSlateV2)
+
+	// Then test that it does serialize correctly with V1
+	slateV2.VersionInfo.OrigVersion = 1
+	serializedSlateV1, err := libwallet.Marshal(slateV2)
+	assert.Nil(t, err)
+	slateV1Ref, _ := ioutil.ReadFile("slateversions/test_data/v1_raw.slate")
+	assert.Equal(t, slateV1Ref, serializedSlateV1)
+
+	// Then test that it does serialize correctly with V1
+	slateV2.VersionInfo.OrigVersion = 0
+	serializedSlateV0, err := libwallet.Marshal(slateV2)
+	assert.Nil(t, err)
+	slateV0Ref, _ := ioutil.ReadFile("slateversions/test_data/v0_raw.slate")
+	assert.Equal(t, slateV0Ref, serializedSlateV0)
+}

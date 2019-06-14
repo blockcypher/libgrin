@@ -17,7 +17,6 @@ package libwallet
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/blockcypher/libgrin/core"
 	"github.com/blockcypher/libgrin/libwallet/slateversions"
@@ -114,7 +113,6 @@ func parseSlateVersion(slateBytes []byte) (uint16, error) {
 func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
 	// check version
 	version, err := parseSlateVersion(slateBytes)
-	fmt.Println(version)
 	if err != nil {
 		return errors.New("can't parse slate version")
 	}
@@ -151,6 +149,36 @@ func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
 	}
 }
 
+// Marshal the slate to version indicated in orig version
+func Marshal(slate Slate) ([]byte, error) {
+	v2 := slateToSlateV2(slate)
+	switch slate.VersionInfo.OrigVersion {
+	case 2:
+		bytes, err := json.Marshal(v2)
+		if err != nil {
+			return nil, err
+		}
+		return bytes, nil
+	case 1:
+		v1 := v2.Downgrade()
+		bytes, err := json.Marshal(v1)
+		if err != nil {
+			return nil, err
+		}
+		return bytes, nil
+	case 0:
+		v1 := v2.Downgrade()
+		v0 := v1.Downgrade()
+		bytes, err := json.Marshal(v0)
+		if err != nil {
+			return nil, err
+		}
+		return bytes, nil
+	default:
+		return nil, errors.New("unknown slate version " + string(slate.VersionInfo.OrigVersion))
+	}
+}
+
 func slateV2ToSlate(v2 slateversions.SlateV2) Slate {
 	var slate Slate
 	slate.VersionInfo = VersionCompatInfo(v2.VersionInfo)
@@ -182,4 +210,37 @@ func slateV2ToSlate(v2 slateversions.SlateV2) Slate {
 	}
 	slate.ParticipantData = participantData
 	return slate
+}
+
+func slateToSlateV2(slate Slate) slateversions.SlateV2 {
+	var slateV2 slateversions.SlateV2
+	slateV2.VersionInfo = slateversions.VersionCompatInfoV2(slate.VersionInfo)
+	slateV2.NumParticipants = slate.NumParticipants
+	slateV2.ID = slate.ID
+	var inputs []slateversions.InputV2
+	for i := range slate.Transaction.Body.Inputs {
+		inputs = append(inputs, slateversions.InputV2(slate.Transaction.Body.Inputs[i]))
+	}
+	var outputs []slateversions.OutputV2
+	for i := range slate.Transaction.Body.Outputs {
+		outputs = append(outputs, slateversions.OutputV2(slate.Transaction.Body.Outputs[i]))
+	}
+	var kernels []slateversions.TxKernelV2
+	for i := range slate.Transaction.Body.Kernels {
+		kernels = append(kernels, slateversions.TxKernelV2(slate.Transaction.Body.Kernels[i]))
+	}
+	slateV2.Transaction.Body.Inputs = inputs
+	slateV2.Transaction.Body.Outputs = outputs
+	slateV2.Transaction.Body.Kernels = kernels
+	slateV2.Transaction.Offset = slate.Transaction.Offset
+	slateV2.Amount = slate.Amount
+	slateV2.Fee = slate.Fee
+	slateV2.Height = slate.Height
+	slateV2.LockHeight = slate.LockHeight
+	var participantData []slateversions.ParticipantDataV2
+	for i := range slate.ParticipantData {
+		participantData = append(participantData, slateversions.ParticipantDataV2(slate.ParticipantData[i]))
+	}
+	slateV2.ParticipantData = participantData
+	return slateV2
 }
