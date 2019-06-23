@@ -119,22 +119,33 @@ const MaxBlockWeight int = 40000
 // HardForkInterval every 6 months.
 const HardForkInterval uint64 = YearHeight / 2
 
+// FloonetFirstHardFork is the Floonet first hard fork height, set to happen around 2019-06-23
+const FloonetFirstHardFork uint64 = 185040
+
 // Check whether the block version is valid at a given height, implements
 // 6 months interval scheduled hard forks for the first 2 years.
-func ValidHeaderVersion(height uint64, version uint16) bool {
-	// uncomment below as we go from hard fork to hard fork
-	if height < HardForkInterval {
-		return version == 1
-	} else if height < 2*HardForkInterval {
-		return version == 2
-		/*} else if height < 3 * HardForkInterval {
-			return version == 3
-		} else if height < 4 * HardForkInterval {
-			return version == 4
-		} else if height >= 5 * HardForkInterval {
-			return version > 4 */
+func ValidHeaderVersion(chainType ChainType, height uint64, version uint16) bool {
+	switch chainType {
+	case Floonet:
+		if height < FloonetFirstHardFork {
+			return version == 1
+			// add branches one by one as we go from hard fork to hard fork
+			// } else if height < FLOONET_SECOND_HARD_FORK {
+		} else if height < 2*HardForkInterval {
+			return version == 2
+		} else {
+			return false
+		}
+	// everything else just like mainnet
+	default:
+		if height < HardForkInterval {
+			return version == 1
+		} else if height < 2*HardForkInterval {
+			return version == 2
+		} else {
+			return false
+		}
 	}
-	return false
 }
 
 // DifficultyAdjustWindow is the number of blocks used to calculate difficulty adjustments

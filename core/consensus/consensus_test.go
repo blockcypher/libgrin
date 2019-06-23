@@ -98,16 +98,16 @@ func TestSecondaryPoWRatio(t *testing.T) {
 }
 
 func TestValidHeaderVersion(t *testing.T) {
-	assert.True(t, ValidHeaderVersion(YearHeight/2, 2))
-	assert.False(t, ValidHeaderVersion(YearHeight/2, 1))
-	assert.False(t, ValidHeaderVersion(YearHeight, 1))
-	assert.True(t, ValidHeaderVersion(YearHeight/2+1, 2))
-	assert.True(t, ValidHeaderVersion(YearHeight/2-1, 1))
+	assert.True(t, ValidHeaderVersion(Mainnet, YearHeight/2, 2))
+	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight/2, 1))
+	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight, 1))
+	assert.True(t, ValidHeaderVersion(Mainnet, YearHeight/2+1, 2))
+	assert.True(t, ValidHeaderVersion(Mainnet, YearHeight/2-1, 1))
 	// v3 not active yet
-	assert.False(t, ValidHeaderVersion(YearHeight, 3))
-	assert.False(t, ValidHeaderVersion(YearHeight, 2))
-	assert.False(t, ValidHeaderVersion(YearHeight, 1))
-	assert.False(t, ValidHeaderVersion(YearHeight*3/2, 2))
-	assert.True(t, !ValidHeaderVersion(YearHeight+1, 2))
+	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight, 3))
+	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight, 2))
+	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight, 1))
+	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight*3/2, 2))
+	assert.True(t, !ValidHeaderVersion(Mainnet, YearHeight+1, 2))
 
 }

@@ -26,14 +26,13 @@ func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uin
 	// Mainnet has Cuckaroo29 for AR and Cuckatoo30+ for AF
 	case consensus.Mainnet <= chainType && edgeBits > 29:
 		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	case consensus.Mainnet <= chainType && edgeBits == 29 && consensus.ValidHeaderVersion(height, 2):
+	case consensus.Mainnet <= chainType && edgeBits == 29 && consensus.ValidHeaderVersion(chainType, height, 2):
 		return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
 	case consensus.Mainnet <= chainType && edgeBits == 29:
 		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
-		// Same for Floonet, except hardfork 32 days earlier
 	case consensus.Floonet <= chainType && edgeBits > 29:
 		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	case consensus.Floonet <= chainType && edgeBits == 29 && consensus.ValidHeaderVersion(height+32*consensus.DayHeight, 2):
+	case consensus.Floonet <= chainType && edgeBits == 29 && consensus.ValidHeaderVersion(chainType, height, 2):
 		return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
 	case consensus.Floonet <= chainType && edgeBits == 29:
 		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
