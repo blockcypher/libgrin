@@ -123,59 +123,8 @@ func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
 			return err
 		}
 		return nil
-	case 1:
-		var v1 slateversions.SlateV1
-		if err := json.Unmarshal(slateBytes, &v1); err != nil {
-			return err
-		}
-		v1.SetOrigVersion(1)
-		v2 := v1.Upgrade()
-		slateV2 := slateV2ToSlate(v2)
-		*slate = slateV2
-		return nil
-	case 0:
-		var v0 slateversions.SlateV0
-		if err := json.Unmarshal(slateBytes, &v0); err != nil {
-			return err
-		}
-		v1 := v0.Upgrade()
-		v1.SetOrigVersion(0)
-		v2 := v1.Upgrade()
-		slateV2 := slateV2ToSlate(v2)
-		*slate = slateV2
-		return nil
 	default:
 		return errors.New("can't parse slate version")
-	}
-}
-
-// Marshal the slate to version indicated in orig version
-func Marshal(slate Slate) ([]byte, error) {
-	v2 := slateToSlateV2(slate)
-	switch slate.VersionInfo.OrigVersion {
-	case 2:
-		bytes, err := json.Marshal(v2)
-		if err != nil {
-			return nil, err
-		}
-		return bytes, nil
-	case 1:
-		v1 := v2.Downgrade()
-		bytes, err := json.Marshal(v1)
-		if err != nil {
-			return nil, err
-		}
-		return bytes, nil
-	case 0:
-		v1 := v2.Downgrade()
-		v0 := v1.Downgrade()
-		bytes, err := json.Marshal(v0)
-		if err != nil {
-			return nil, err
-		}
-		return bytes, nil
-	default:
-		return nil, errors.New("unknown slate version " + string(slate.VersionInfo.OrigVersion))
 	}
 }
 
