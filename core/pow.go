@@ -1,4 +1,4 @@
-// Copyright 2018 BlockCypher
+// Copyright 2019 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,37 @@
 
 package core
 
+import (
+	"github.com/blockcypher/libgrin/core/consensus"
+	"github.com/blockcypher/libgrin/core/pow"
+)
+
 const maxSols uint32 = 10
+
+func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uint8, proofSize int, nonces []uint64, maxSols uint32) pow.PowContext {
+	switch {
+	// Mainnet has Cuckaroo29 for AR and Cuckatoo30+ for AF
+	case consensus.Mainnet <= chainType && edgeBits > 29:
+		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
+	case consensus.Mainnet <= chainType && edgeBits == 29 && consensus.ValidHeaderVersion(chainType, height, 2):
+		return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
+	case consensus.Mainnet <= chainType && edgeBits == 29:
+		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
+	case consensus.Floonet <= chainType && edgeBits > 29:
+		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
+	case consensus.Floonet <= chainType && edgeBits == 29 && consensus.ValidHeaderVersion(chainType, height, 2):
+		return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
+	case consensus.Floonet <= chainType && edgeBits == 29:
+		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
+	default:
+		// Everything else is Cuckatoo only
+		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
+	}
+}
 
 // VerifySize validates the proof of work of a given header, and that the proof of work
 // satisfies the requirements of the header.
-func VerifySize(chainType ChainType, prePoW []uint8, bh *BlockHeader) error {
+func VerifySize(chainType consensus.ChainType, prePoW []uint8, bh *BlockHeader) error {
 	ctx := createPoWContext(chainType, bh.Height, bh.PoW.EdgeBits(), len(bh.PoW.Proof.Nonces), bh.PoW.Proof.Nonces, maxSols)
 	ctx.SetHeaderNonce(prePoW, nil)
 	if err := ctx.Verify(bh.PoW.Proof); err != nil {

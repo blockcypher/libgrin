@@ -1,4 +1,4 @@
-// Copyright 2018 BlockCypher
+// Copyright 2019 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 // limitations under the License.
 
 package core
+
+import "github.com/blockcypher/libgrin/core/pow"
 
 // BlockHeader is a block header, fairly standard compared to other blockchains.
 type BlockHeader struct {
@@ -41,5 +43,5 @@ type BlockHeader struct {
 	// Total size of the kernel MMR after applying this block
 	KernelMmrSize uint64
 	// Proof of work and related
-	PoW ProofOfWork
+	PoW pow.ProofOfWork
 }

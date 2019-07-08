@@ -1,4 +1,4 @@
-// Copyright 2018 BlockCypher
+// Copyright 2019 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ import (
 	"encoding/binary"
 	"testing"
 
+	"github.com/blockcypher/libgrin/core/pow"
+
+	"github.com/blockcypher/libgrin/core/consensus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +30,7 @@ func TestVerifySize(t *testing.T) {
 	bh.PoW.Nonce = 28143
 	bh.PoW.Proof.EdgeBits = 15
 	bh.PoW.Proof.Nonces = []uint64{749, 873, 927, 1637, 2687, 3668, 4346, 5192, 5787, 6055, 6270, 7064, 7140, 7474, 7805, 9017, 9095, 9492, 10634, 11708, 11785, 11799, 12362, 12498, 12667, 13680, 13941, 15360, 17955, 18519, 18691, 20589, 22113, 23605, 24538, 24871, 24945, 25137, 27372, 29195, 31787, 32687}
-	assert.Nil(t, VerifySize(Mainnet, prePoW, bh))
+	assert.Nil(t, VerifySize(consensus.Mainnet, prePoW, bh))
 }
 
 func TestVerifySize2(t *testing.T) {
@@ -56,7 +59,7 @@ func TestVerifySize2(t *testing.T) {
 		424071479, 431735335, 462433478, 476234373, 512600249, 513776715, 514612369, 518186065,
 		526136923, 533118850,
 	}
-	assert.Nil(t, VerifySize(Mainnet, prePoW, bh))
+	assert.Nil(t, VerifySize(consensus.Mainnet, prePoW, bh))
 }
 
 func TestVerifySizeWithoutNonceInPrePow(t *testing.T) {
@@ -70,5 +73,63 @@ func TestVerifySizeWithoutNonceInPrePow(t *testing.T) {
 	bh.PoW.Proof.EdgeBits = 29
 	bh.PoW.Proof.Nonces = []uint64{
 		4950556, 10444042, 26994871, 63816933, 64006601, 70454862, 74408437, 101859857, 103156578, 103619764, 110918645, 112676394, 156469828, 164995210, 177571941, 197003830, 206258400, 232973126, 235492427, 243875402, 250871506, 261431148, 294643091, 315606197, 320713204, 328097841, 331983190, 340029134, 341429798, 349593608, 352254617, 363452582, 376534642, 385998553, 399426703, 399588750, 417560407, 418344217, 464144305, 478639713, 500541067, 511159362}
-	assert.Nil(t, VerifySize(Mainnet, prePoW, bh))
+	assert.Nil(t, VerifySize(consensus.Mainnet, prePoW, bh))
+}
+
+// Check that we create the appropriate PoW context
+func TestMainnetContext(t *testing.T) {
+	var zero []uint64
+
+	// One block before hf
+	ctx := createPoWContext(consensus.Mainnet, consensus.YearHeight/2-1, 29, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckarooContext{}, ctx)
+	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight/2-1, 31, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckatooContext{}, ctx)
+
+	// Hard fork height
+	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight/2, 29, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
+	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight/2, 31, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckatooContext{}, ctx)
+
+	// After hard fork
+	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight/2+1, 29, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
+	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight/2+1, 31, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckatooContext{}, ctx)
+
+	// One day before second hf
+	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight-1, 29, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
+	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight-1, 31, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckatooContext{}, ctx)
+}
+
+func TestFloonetContext(t *testing.T) {
+	var zero []uint64
+
+	// One block before hf
+	ctx := createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork-1, 29, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckarooContext{}, ctx)
+	ctx = createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork-1, 31, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckatooContext{}, ctx)
+
+	// Hard fork height
+	ctx = createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork, 29, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
+	ctx = createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork, 31, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckatooContext{}, ctx)
+
+	// After hard fork
+	ctx = createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork+1, 29, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
+	ctx = createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork+1, 31, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckatooContext{}, ctx)
+
+	// One day before second hf
+	floonetSecondHFBlock := consensus.YearHeight - 32*consensus.DayHeight
+	ctx = createPoWContext(consensus.Floonet, floonetSecondHFBlock-1, 29, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
+	ctx = createPoWContext(consensus.Floonet, floonetSecondHFBlock-1, 31, 42, zero, maxSols)
+	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 }

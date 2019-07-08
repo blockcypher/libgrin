@@ -4,8 +4,8 @@
 [![ISC License](http://img.shields.io/badge/license-apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/blockcypher/libgrin)
 
-libgrin is a golang Grin library for building Grin applications.
-Currently, it contains the basic consensus parameters and proof of work verification code. The wrapper package is an example of wrappers around the Grin node, wallet and owner APIs using libgrin.
+libgrin is a golang Grin library for building [Grin](https://github.com/mimblewimble/grin) applications.
+Currently, it contains the basic consensus parameters,  chain and slate structures and proof of work verification code. The example package contains example of wrappers around the Grin node, wallet and owner APIs using libgrin.
 
 ## Requirements
 
@@ -38,8 +38,9 @@ is used for this project.
 Any contribution is more than welcome. Currently libgrin has:
 
 - Minimal core package
+- PoW verification
 - Minimal api types
-- Minimal wallet types
+- Minimal libwallet
 
 Missing parts:
 
