@@ -47,7 +47,7 @@ func (grinAPI *grinAPI) GetBlockReward(blockHash string) (uint64, error) {
 func (grinAPI *grinAPI) GetBlockByHash(blockHash string) (*api.BlockPrintable, error) {
 	var block api.BlockPrintable
 	url := "http://" + grinAPI.GrinServerAPI + "/v1/blocks/" + blockHash
-	if err := GetJSON(url, &block); err != nil {
+	if err := getJSON(url, &block); err != nil {
 		return nil, err
 	}
 	// Since we create an empty struct above we should handle the case where
@@ -63,7 +63,7 @@ func (grinAPI *grinAPI) GetBlockByHash(blockHash string) (*api.BlockPrintable, e
 func (grinAPI *grinAPI) GetBlockByHeight(height uint64) (*api.BlockPrintable, error) {
 	var block api.BlockPrintable
 	url := fmt.Sprintf("http://%s/v1/blocks/%d", grinAPI.GrinServerAPI, height)
-	if err := GetJSON(url, &block); err != nil {
+	if err := getJSON(url, &block); err != nil {
 		return nil, err
 	}
 	// Since we create an empty struct above we should handle the case where
@@ -79,7 +79,7 @@ func (grinAPI *grinAPI) GetBlockByHeight(height uint64) (*api.BlockPrintable, er
 func (grinAPI *grinAPI) GetStatus() (*api.Status, error) {
 	var status api.Status
 	url := "http://" + grinAPI.GrinServerAPI + "/v1/status"
-	if err := GetJSON(url, &status); err != nil {
+	if err := getJSON(url, &status); err != nil {
 		return nil, err
 	}
 	return &status, nil
