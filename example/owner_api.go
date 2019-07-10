@@ -351,7 +351,7 @@ func CancelTx(txID *uint32, txSlateID *uuid.UUID) error {
 	return nil
 }
 
-// NodeHeight retrieves the last known height known by the
+// NodeHeight retrieves the last known height known by the node.
 func NodeHeight() (*libwallet.NodeHeightResult, error) {
 	client := RPCHTTPClient{URL: url}
 	envl, err := client.Request("node_height", nil)
