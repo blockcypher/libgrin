@@ -12,31 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package walletapi_test
+package example_test
 
 import (
 	"encoding/json"
 	"fmt"
 	"testing"
 
-	"github.com/blockcypher/libgrin/walletapi"
+	"github.com/blockcypher/libgrin/example"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEnvelope(t *testing.T) {
-	requestBody, err := json.Marshal(walletapi.Envelope{
+	requestBody, err := json.Marshal(example.Envelope{
 		Method: "test",
 		Params: nil,
 	})
 	assert.Nil(t, err)
 
-	var envl walletapi.Envelope
+	var envl example.Envelope
 	err = json.Unmarshal(requestBody, &envl)
 	fmt.Println(envl)
 	assert.Nil(t, err)
-	assert.Equal(t, walletapi.JSONRPCID("1"), envl.ID)
+	assert.Equal(t, example.JSONRPCID("1"), envl.ID)
 	assert.Equal(t, "test", envl.Method)
-	assert.Equal(t, walletapi.JSONRPCV2Version("2.0"), envl.Version)
+	assert.Equal(t, example.JSONRPCV2Version("2.0"), envl.Version)
 	assert.Nil(t, envl.Params)
 }
 

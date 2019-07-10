@@ -5,7 +5,7 @@
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/blockcypher/libgrin)
 
 libgrin is a golang Grin library for building [Grin](https://github.com/mimblewimble/grin) applications.
-Currently, it contains the basic consensus parameters,  chain and slate structures and proof of work verification code. The example package contains example of wrappers around the Grin node, wallet and owner APIs using libgrin.
+Currently, it contains the basic consensus parameters, chain, slate structures and proof of work verification code. The `example` package contains examples of wrappers around the Grin node API and the wallet owner API using libgrin.
 
 ## Requirements
 
@@ -17,16 +17,15 @@ Currently, it contains the basic consensus parameters,  chain and slate structur
 
 - Install Go according to the installation instructions [here](http://golang.org/doc/install).
 
-- Run the following commands to obtain libgrin, all dependencies, and install it:
+- Run the following commands to obtain libgrin, all dependencies, and build it:
 
 ```bash
 cd $GOPATH/src/github.com/blockcypher/libgrin
-go get .
+go get ./...
+go build ./...
 ```
 
-- libgrin (and utilities) will now be installed in ```$GOPATH/bin```.  If you did
-  not already add the bin directory to your system path during Go installation,
-  we recommend you do so now.
+- libgrin (and utilities) is now built and can be used in your program.
 
 ## Issue Tracker
 
@@ -37,18 +36,19 @@ is used for this project.
 
 Any contribution is more than welcome. Currently libgrin has:
 
-- Minimal core package
-- PoW verification
-- Minimal api types
+- Minimal API types.
+- Minimal Core package which includes PoW verification.
+- Example package containing wrappers around Node API and wallet owner API.
+- Minimal keychain types
 - Minimal libwallet
 
 Missing parts:
 
-- Wallet
-- Keychain
+- Complete wallet
+- Complete keychain
 - All the rest
 
-This project tries to follow as much as possible the [official Grin project code structure](https://github.com/mimblewimble/grin).
+This project tries to follow as much as possible the official [Grin node code structure](https://github.com/mimblewimble/grin) and [Grin-Wallet code structure](https://github.com/mimblewimble/grin-wallet).
 
 ## License
 
