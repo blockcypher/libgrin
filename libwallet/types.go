@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/blockcypher/libgrin/core"
 	"github.com/blockcypher/libgrin/keychain"
 	"github.com/google/uuid"
 )
@@ -37,15 +38,15 @@ type OutputData struct {
 	Commit *string `json:"commit"`
 	// PMMR Index, used on restore in case of duplicate wallets using the same
 	// key_id (2 wallets using same seed, for instance
-	MMRIndex *uint64 `json:"mmr_index,string"`
+	MMRIndex *core.Uint64 `json:"mmr_index"`
 	// Value of the output, necessary to rebuild the commitment
-	Value uint64 `json:"value,string"`
+	Value core.Uint64 `json:"value"`
 	// Current status of the output
 	Status OutputStatus `json:"status"`
 	// Height of the output
-	Height uint64 `json:"height,string"`
+	Height core.Uint64 `json:"height"`
 	// Height we are locked until
-	LockHeight uint64 `json:"lock_height,string"`
+	LockHeight core.Uint64 `json:"lock_height"`
 	// Is this a coinbase output? Is it subject to coinbase locktime?
 	IsCoinbase bool `json:"is_coinbase"`
 	// Optional corresponding internal entry in tx entry log
@@ -111,21 +112,21 @@ func (s *OutputStatus) UnmarshalJSON(b []byte) error {
 // wallet info can add more fields here over time as needed
 type WalletInfo struct {
 	// height from which info was taken
-	LastConfirmedHeight uint64 `json:"last_confirmed_height,string"`
+	LastConfirmedHeight core.Uint64 `json:"last_confirmed_height"`
 	// Minimum number of confirmations for an output to be treated as "spendable".
-	MinimumConfirmations uint64 `json:"minimum_confirmations,string"`
+	MinimumConfirmations core.Uint64 `json:"minimum_confirmations"`
 	// total amount in the wallet
-	Total uint64 `json:"total,string"`
+	Total core.Uint64 `json:"total"`
 	// amount awaiting finalization
-	AmountAwaitingFinalization uint64 `json:"amount_awaiting_finalization,string"`
+	AmountAwaitingFinalization core.Uint64 `json:"amount_awaiting_finalization"`
 	// amount awaiting confirmation
-	AmountAwaitingConfirmation uint64 `json:"amount_awaiting_confirmation,string"`
+	AmountAwaitingConfirmation core.Uint64 `json:"amount_awaiting_confirmation"`
 	// coinbases waiting for lock height
-	AmountImmature uint64 `json:"amount_immature,string"`
+	AmountImmature core.Uint64 `json:"amount_immature"`
 	// amount currently spendable
-	AmountCurrentlySpendable uint64 `json:"amount_currently_spendable,string"`
+	AmountCurrentlySpendable core.Uint64 `json:"amount_currently_spendable"`
 	// amount locked via previous transactions
-	AmountLocked uint64 `json:"amount_locked,string"`
+	AmountLocked core.Uint64 `json:"amount_locked"`
 }
 
 // TxLogEntryType represent the type of transactions that can be contained
@@ -196,7 +197,7 @@ type ParticipantMessages struct {
 // to one or many outputs
 type TxLogEntry struct {
 	// BIP32 account path used for creating this tx
-	ParentKeyID keychain.Identifier `json:"parent_key_id,string"`
+	ParentKeyID keychain.Identifier `json:"parent_key_id"`
 	// Local id for this transaction (distinct from a slate transaction id)
 	ID uint32 `json:"id"`
 	// Slate transaction this entry is associated with, if any
@@ -218,11 +219,11 @@ type TxLogEntry struct {
 	// number of outputs involved in TX
 	NumOutputs uint `json:"num_outputs"`
 	// Amount credited via this transaction
-	AmountCredited uint64 `json:"amount_credited,string"`
+	AmountCredited core.Uint64 `json:"amount_credited"`
 	// Amount debited via this transaction
-	AmountDebited uint64 `json:"amount_debited,string"`
+	AmountDebited core.Uint64 `json:"amount_debited"`
 	// Fee
-	Fee *uint64 `json:"fee,string"`
+	Fee *core.Uint64 `json:"fee"`
 	// Message data, stored as json
 	Messages *ParticipantMessages `json:"messages"`
 	// Location of the store transaction, (reference or resending)
