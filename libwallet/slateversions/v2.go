@@ -54,13 +54,13 @@ type SlateV2 struct {
 	// inputs, outputs, kernels, kernel offset
 	Transaction TransactionV2 `json:"tx"`
 	// base amount (excluding fee)
-	Amount uint64 `json:"amount,string"`
+	Amount core.Uint64 `json:"amount"`
 	// fee amount
-	Fee uint64 `json:"fee,string"`
+	Fee core.Uint64 `json:"fee"`
 	// Block height for the transaction
-	Height uint64 `json:"height,string"`
+	Height core.Uint64 `json:"height"`
 	// Lock height
-	LockHeight uint64 `json:"lock_height,string"`
+	LockHeight core.Uint64 `json:"lock_height"`
 	// Participant data, each participant in the transaction will
 	// insert their public data here. For now, 0 is sender and 1
 	// is receiver, though this will change for multi-party
@@ -80,7 +80,7 @@ type VersionCompatInfoV2 struct {
 // ParticipantDataV2 is the participant data slate version 0
 type ParticipantDataV2 struct {
 	// Id of participant in the transaction. (For now, 0=sender, 1=rec)
-	ID uint64 `json:"id,string"`
+	ID core.Uint64 `json:"id"`
 	// Public key corresponding to private blinding factor
 	PublicBlindExcess string `json:"public_blind_excess"`
 	// Public key corresponding to private nonce
@@ -93,7 +93,7 @@ type ParticipantDataV2 struct {
 	MessageSig *string `json:"message_sig"`
 }
 
-// TransactionV2 is a v1 transaction
+// TransactionV2 is a v2 transaction
 type TransactionV2 struct {
 	/// The kernel "offset" k2
 	/// excess is k1G after splitting the key k = k1 + k2
@@ -102,7 +102,7 @@ type TransactionV2 struct {
 	Body TransactionBodyV2 `json:"body"`
 }
 
-// TransactionBodyV2 represent a v1 transaction body
+// TransactionBodyV2 represent a v2 transaction body
 type TransactionBodyV2 struct {
 	// List of inputs spent by the transaction.
 	Inputs []InputV2 `json:"inputs"`
@@ -112,7 +112,7 @@ type TransactionBodyV2 struct {
 	Kernels []TxKernelV2 `json:"kernels"`
 }
 
-// InputV2 is a v1 input
+// InputV2 is a v2 input
 type InputV2 struct {
 	// The features of the output being spent.
 	// We will check maturity for coinbase output.
@@ -121,7 +121,7 @@ type InputV2 struct {
 	Commit string `json:"commit"`
 }
 
-// OutputV2 is a v1 output
+// OutputV2 is a v2 output
 type OutputV2 struct {
 	// Options for an output's structure or use
 	Features core.OutputFeatures `json:"features"`
@@ -131,15 +131,15 @@ type OutputV2 struct {
 	Proof string `json:"proof"`
 }
 
-// TxKernelV2 is a v1 tx kernel
+// TxKernelV2 is a v2 tx kernel
 type TxKernelV2 struct {
 	// Options for a kernel's structure or use
 	Features core.KernelFeatures `json:"features"`
 	// Fee originally included in the transaction this proof is for.
-	Fee uint64 `json:"fee,string"`
+	Fee core.Uint64 `json:"fee"`
 	// This kernel is not valid earlier than lock_height blocks
 	// The max lock_height of all *inputs* to this transaction
-	LockHeight uint64 `json:"lock_height,string"`
+	LockHeight core.Uint64 `json:"lock_height"`
 	// Remainder of the sum of all transaction commitments. If the transaction
 	// is well formed, amounts components should sum to zero and the excess
 	// is hence a valid public key.

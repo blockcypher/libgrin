@@ -24,28 +24,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUnmarshalUpgradeV2(t *testing.T) {
+func TestUnmarshalV2(t *testing.T) {
 	slateV2JSON, _ := ioutil.ReadFile("slateversions/test_data/v2.slate")
 	var slateV2 libwallet.Slate
-	err := libwallet.UnmarshalUpgrade(slateV2JSON, &slateV2)
+	err := json.Unmarshal(slateV2JSON, &slateV2)
 	assert.Nil(t, err)
-
-	// Compare with a direct unmarshal
-	slateV2JSONReference, _ := ioutil.ReadFile("slateversions/test_data/v2.slate")
-	var slateV2Reference libwallet.Slate
-	assert.Nil(t, json.Unmarshal(slateV2JSONReference, &slateV2Reference))
-	assert.Exactly(t, slateV2Reference, slateV2)
-
 }
 
-func TestMarshal(t *testing.T) {
+func TestMarshalV2(t *testing.T) {
 	slateV2JSON, _ := ioutil.ReadFile("slateversions/test_data/v2_raw.slate")
 	var slateV2 libwallet.Slate
-	err := libwallet.UnmarshalUpgrade(slateV2JSON, &slateV2)
+	err := json.Unmarshal(slateV2JSON, &slateV2)
 	assert.Nil(t, err)
 
-	// First test that if we put nothing it serialize as a Slate V2
 	serializedSlateV2, err := json.Marshal(slateV2)
-	assert.Nil(t, err)
 	assert.Equal(t, slateV2JSON, serializedSlateV2)
 }

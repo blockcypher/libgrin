@@ -27,7 +27,7 @@ import (
 // ParticipantData is a public data for each participant in the slate
 type ParticipantData struct {
 	// Id of participant in the transaction. (For now, 0=sender, 1=rec)
-	ID uint64 `json:"id,string"`
+	ID core.Uint64 `json:"id"`
 	// Public key corresponding to private blinding factor
 	PublicBlindExcess string `json:"public_blind_excess"`
 	// Public key corresponding to private nonce
@@ -43,7 +43,7 @@ type ParticipantData struct {
 // ParticipantMessageData is the public message data (for serializing and storage)
 type ParticipantMessageData struct {
 	// id of the particpant in the tx
-	ID uint64 `json:"id,string"`
+	ID core.Uint64 `json:"id"`
 	// Public key
 	PublicKey string `json:"public_key"`
 	// Message,
@@ -67,13 +67,13 @@ type Slate struct {
 	// inputs, outputs, kernels, kernel offset
 	Transaction core.Transaction `json:"tx"`
 	// base amount (excluding fee)
-	Amount uint64 `json:"amount,string"`
+	Amount core.Uint64 `json:"amount"`
 	// fee amount
-	Fee uint64 `json:"fee,string"`
+	Fee core.Uint64 `json:"fee"`
 	// Block height for the transaction
-	Height uint64 `json:"height,string"`
+	Height core.Uint64 `json:"height"`
 	// Lock height
-	LockHeight uint64 `json:"lock_height,string"`
+	LockHeight core.Uint64 `json:"lock_height"`
 	// Participant data, each participant in the transaction will
 	// insert their public data here. For now, 0 is sender and 1
 	// is receiver, though this will change for multi-party

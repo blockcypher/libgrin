@@ -17,7 +17,41 @@ package core
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"strconv"
 )
+
+// Uint64 is an uint64 that can be unmarshal from a string or uint64 is
+// marshal to a string
+type Uint64 uint64
+
+// MarshalJSON marshals the Uint64 as a quoted uint64 string
+func (u Uint64) MarshalJSON() ([]byte, error) {
+	str := strconv.FormatUint(uint64(u), 10)
+	bytes, err := json.Marshal(str)
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
+}
+
+// UnmarshalJSON unmarshals a quoted an uint64 or a string to an uint64 value
+func (u *Uint64) UnmarshalJSON(bs []byte) error {
+	var i uint64
+	if err := json.Unmarshal(bs, &i); err == nil {
+		*u = Uint64(i)
+		return nil
+	}
+	var s string
+	if err := json.Unmarshal(bs, &s); err != nil {
+		return errors.New("expected a string or an integer")
+	}
+	if err := json.Unmarshal([]byte(s), &i); err != nil {
+		return err
+	}
+	*u = Uint64(i)
+	return nil
+}
 
 // KernelFeatures is an enum of various supported kernels "features".
 type KernelFeatures int
@@ -76,10 +110,10 @@ type TxKernel struct {
 	// Options for a kernel's structure or use
 	Features KernelFeatures `json:"features"`
 	// Fee originally included in the transaction this proof is for.
-	Fee uint64 `json:"fee,string"`
+	Fee Uint64 `json:"fee"`
 	// This kernel is not valid earlier than lock_height blocks
 	// The max lock_height of all *inputs* to this transaction
-	LockHeight uint64 `json:"lock_height,string"`
+	LockHeight Uint64 `json:"lock_height"`
 	// Remainder of the sum of all transaction commitments. If the transaction
 	// is well formed, amounts components should sum to zero and the excess
 	// is hence a valid public key.
