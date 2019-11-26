@@ -183,7 +183,7 @@ func GraphWeight(chainType ChainType, height uint64, edgeBits uint8) uint64 {
 	if edgeBits == 31 && height >= expiryHeight {
 		xprEdgeBits = saturatingSubUint64(xprEdgeBits, 1+(height-expiryHeight)/WeekHeight)
 	}
-	return (2 << uint64(edgeBits-baseEdgeBits(chainType))) * xprEdgeBits
+	return (uint64(2) << uint64(edgeBits-baseEdgeBits(chainType))) * xprEdgeBits
 }
 
 // MinDifficulty is the minimum difficulty, enforced in diff retargetting
