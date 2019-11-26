@@ -1,4 +1,4 @@
-// Copyright 2018 BlockCypher
+// Copyright 2019 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -122,17 +122,22 @@ const HardForkInterval uint64 = YearHeight / 2
 // FloonetFirstHardFork is the Floonet first hard fork height, set to happen around 2019-06-23
 const FloonetFirstHardFork uint64 = 185040
 
-// Check whether the block version is valid at a given height, implements
+// FloonetSecondHardFork is the Floonet second hard fork height, set to happen around 2019-12-19
+const FloonetSecondHardFork uint64 = 298080
+
+// ValidHeaderVersion checks whether the block version is valid at a given height, implements
 // 6 months interval scheduled hard forks for the first 2 years.
 func ValidHeaderVersion(chainType ChainType, height uint64, version uint16) bool {
 	switch chainType {
 	case Floonet:
 		if height < FloonetFirstHardFork {
 			return version == 1
-			// add branches one by one as we go from hard fork to hard fork
-			// } else if height < FLOONET_SECOND_HARD_FORK {
-		} else if height < 2*HardForkInterval {
+		} else if height < FloonetSecondHardFork {
 			return version == 2
+			// add branches one by one as we go from hard fork to hard fork
+			// } else if height < FloonetThirdHardFork {
+		} else if height < 3*HardForkInterval {
+			return version == 3
 		} else {
 			return false
 		}
@@ -142,6 +147,11 @@ func ValidHeaderVersion(chainType ChainType, height uint64, version uint16) bool
 			return version == 1
 		} else if height < 2*HardForkInterval {
 			return version == 2
+		} else if height < 3*HardForkInterval {
+			return version == 3
+			// uncomment branches one by one as we go from hard fork to hard fork
+			/*} } else if height < 4 * HardForkInterval {
+			return version == 4*/
 		} else {
 			return false
 		}

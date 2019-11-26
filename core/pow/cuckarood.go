@@ -1,4 +1,4 @@
-// Copyright 2018 BlockCypher
+// Copyright 2019 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ func (c *CuckaroodContext) Verify(proof Proof) error {
 		if n > 0 && nonces[n] <= nonces[n-1] {
 			return errors.New("edges not ascending")
 		}
-		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 25)
+		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 25, false)
 		idx := 4*ndir[dir] + 2*uint64(dir)
 		uvs[idx] = edge & nodemask
 		uvs[idx+1] = (edge >> 32) & nodemask

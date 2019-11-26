@@ -20,34 +20,37 @@ import (
 	"github.com/blockcypher/libgrin/core/consensus"
 )
 
-// https://github.com/mimblewimble/grin/blob/master/core/src/pow/cuckaroo.rs
-
-// NewCuckarooCtx instantiates a new CuckarooContext as a PowContext
-func NewCuckarooCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckarooContext {
+// NewCuckaroomCtx instantiates a new CuckaroomContext as a PowContext. Note that this can't
+/// be moved in the PoWContext trait as this particular trait needs to be
+/// convertible to an object trait.
+func NewCuckaroomCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroomContext {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, proofSize)
-	return &CuckarooContext{chainType, params}
+	return &CuckaroomContext{chainType, params}
 }
 
-// CuckarooContext is a Cuckatoo cycle context. Only includes the verifier for now.
-type CuckarooContext struct {
+// CuckaroomContext is a Cuckaroom cycle context. Only includes the verifier for now.
+type CuckaroomContext struct {
 	chainType consensus.ChainType
 	params    CuckooParams
 }
 
 // SetHeaderNonce sets the header nonce.
-func (c *CuckarooContext) SetHeaderNonce(header []uint8, nonce *uint32) {
+func (c *CuckaroomContext) SetHeaderNonce(header []uint8, nonce *uint32) {
 	c.params.resetHeaderNonce(header, nonce)
 }
 
-// Verify verifies the Cuckatoo context.
-func (c *CuckarooContext) Verify(proof Proof) error {
+// Verify verifies the Cuckaroom context.
+func (c *CuckaroomContext) Verify(proof Proof) error {
 	if proof.proofSize() != consensus.ChainTypeProofSize(c.chainType) {
 		return errors.New("wrong cycle length")
 	}
 	nonces := proof.Nonces
-	uvs := make([]uint64, 2*proof.proofSize())
-	var xor0, xor1 uint64
+	from := make([]uint32, proof.proofSize())
+	to := make([]uint32, proof.proofSize())
+	var xorFrom uint32 = 0
+	var xorTo uint32 = 0
+	nodemask := c.params.edgeMask >> 1
 
 	for n := 0; n < proof.proofSize(); n++ {
 		if nonces[n] > c.params.edgeMask {
@@ -56,42 +59,35 @@ func (c *CuckarooContext) Verify(proof Proof) error {
 		if n > 0 && nonces[n] <= nonces[n-1] {
 			return errors.New("edges not ascending")
 		}
-		// 21 is standard siphash rotation constant
-		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, false)
-		uvs[2*n] = edge & c.params.edgeMask
-		uvs[2*n+1] = (edge >> 32) & c.params.edgeMask
-		xor0 ^= uvs[2*n]
-		xor1 ^= uvs[2*n+1]
+		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, true)
+		from[n] = uint32(edge & nodemask)
+		xorFrom ^= from[n]
+		to[n] = uint32((edge >> 32) & nodemask)
+		xorTo ^= to[n]
 	}
-
-	if xor0|xor1 != 0 {
+	if xorFrom != xorTo {
 		return errors.New("endpoints don't match up")
 	}
-
-	var i, j, n int
+	visited := make([]bool, proof.proofSize())
+	n := 0
+	i := 0
 	for {
 		// follow cycle
-		j = i
-		k := j
-		for {
-			k = (k + 2) % (2 * c.params.proofSize)
-			if k == i {
-				break
-			}
-			if uvs[k] == uvs[i] {
-				// find other edge endpoint matching one at i
-				if j != i {
-					return errors.New("branch in cycle")
-				}
-				j = k
+		if visited[i] {
+			return errors.New("branch in cycle")
+		}
+		visited[i] = true
+		nexti := 0
+		for from[nexti] != to[i] {
+			nexti++
+			if nexti == proof.proofSize() {
+				return errors.New("cycle dead ends")
 			}
 		}
-		if j == i {
-			return errors.New("cycle dead ends")
-		}
-		i = j ^ 1
+		i = nexti
 		n++
 		if i == 0 {
+			// must cycle back to start or find branch
 			break
 		}
 	}

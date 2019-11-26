@@ -1,4 +1,4 @@
-// Copyright 2018 BlockCypher
+// Copyright 2019 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,26 +23,32 @@ const sipHashBlockMask uint64 = sipHashBlockSize - 1
 // SipHashBlock builds a block of siphash values by repeatedly hashing from the
 // nonce truncated to its closest block start, up to the end of the block.
 // Returns the resulting hash at the nonce's position.
-func SipHashBlock(v [4]uint64, nonce uint64, rotE uint8) uint64 {
+func SipHashBlock(v [4]uint64, nonce uint64, rotE uint8, xorAll bool) uint64 {
 	// beginning of the block of hashes
 	nonce0 := nonce & ^sipHashBlockMask
-	var nonceHash uint64
+	nonceI := nonce & sipHashBlockMask
+	nonceHash := make([]uint64, sipHashBlockSize)
 	// repeated hashing over the whole block
 	s := new(sipHash24)
 	siphash := s.new(v)
-	for n := nonce0; n < nonce0+sipHashBlockSize; n++ {
-		siphash.hash(n, rotE)
-		if n == nonce {
-			nonceHash = siphash.digest()
-		}
+	var i uint64
+	for i = 0; i < sipHashBlockSize; i++ {
+		siphash.hash(nonce0+i, rotE)
+		nonceHash[i] = siphash.digest()
+	}
+	// xor the hash at nonce_i < SIPHASH_BLOCK_MASK with some or all later hashes to force hashing the whole block
+	var xor uint64 = nonceHash[nonceI]
+	var xorFrom uint64
+	if xorAll || nonceI == sipHashBlockMask {
+		xorFrom = nonceI + 1
+	} else {
+		xorFrom = sipHashBlockMask
 	}
 
-	// xor the nonce with the last hash to force hashing the whole block unless
-	// the nonce is last in the block
-	if nonce == nonce0+sipHashBlockMask {
-		return siphash.digest()
+	for i := xorFrom; i < sipHashBlockSize; i++ {
+		xor ^= nonceHash[i]
 	}
-	return nonceHash ^ siphash.digest()
+	return xor
 }
 
 // SipHash24 is an utility function to compute a single siphash 2-4 based on a seed and a nonce.
