@@ -15,6 +15,9 @@
 package core
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/blockcypher/libgrin/core/consensus"
 	"github.com/blockcypher/libgrin/core/pow"
 )
@@ -51,6 +54,7 @@ func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uin
 func VerifySize(chainType consensus.ChainType, prePoW []uint8, bh *BlockHeader) error {
 	ctx := createPoWContext(chainType, bh.Height, bh.PoW.EdgeBits(), len(bh.PoW.Proof.Nonces), bh.PoW.Proof.Nonces, maxSols)
 	ctx.SetHeaderNonce(prePoW, nil)
+	fmt.Println(reflect.TypeOf(ctx).String())
 	if err := ctx.Verify(bh.PoW.Proof); err != nil {
 		return err
 	}

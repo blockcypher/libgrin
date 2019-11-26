@@ -31,7 +31,7 @@ func TestVerifySize(t *testing.T) {
 	bh.PoW.Nonce = 28143
 	bh.PoW.Proof.EdgeBits = 15
 	bh.PoW.Proof.Nonces = []uint64{749, 873, 927, 1637, 2687, 3668, 4346, 5192, 5787, 6055, 6270, 7064, 7140, 7474, 7805, 9017, 9095, 9492, 10634, 11708, 11785, 11799, 12362, 12498, 12667, 13680, 13941, 15360, 17955, 18519, 18691, 20589, 22113, 23605, 24538, 24871, 24945, 25137, 27372, 29195, 31787, 32687}
-	assert.Nil(t, VerifySize(consensus.Mainnet, prePoW, bh))
+	assert.Nil(t, VerifySize(consensus.UserTesting, prePoW, bh))
 }
 
 func TestVerifySize2(t *testing.T) {
