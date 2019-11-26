@@ -179,9 +179,8 @@ const ARScaleDampFactor uint64 = 13
 // This can wait until end of 2019 at latest
 func GraphWeight(chainType ChainType, height uint64, edgeBits uint8) uint64 {
 	xprEdgeBits := uint64(edgeBits)
-	bitsOverMin := saturatingSubUint8(edgeBits, minEdgeBits(chainType))
-	expiryHeight := (1 << bitsOverMin) * YearHeight
-	if height >= expiryHeight {
+	expiryHeight := YearHeight
+	if edgeBits == 31 && height >= expiryHeight {
 		xprEdgeBits = saturatingSubUint64(xprEdgeBits, 1+(height-expiryHeight)/WeekHeight)
 	}
 	return (2 << uint64(edgeBits-baseEdgeBits(chainType))) * xprEdgeBits

@@ -38,24 +38,24 @@ func TestGraphWeight(t *testing.T) {
 
 	// 2 years in, 31 still at 0, 32 starts decreasing
 	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight, 31), uint64(0))
-	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight, 32), uint64(512*31))
+	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight, 32), uint64(512*32))
 	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight, 33), uint64(1024*33))
 
-	// 32 loses one factor per week
-	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+WeekHeight, 32), uint64(512*30))
+	// 32 phaseout on hold
+	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+WeekHeight, 32), uint64(512*32))
 	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+WeekHeight, 31), uint64(0))
-	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+30*WeekHeight, 32), uint64(512))
-	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+31*WeekHeight, 32), uint64(0))
+	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+30*WeekHeight, 32), uint64(512*32))
+	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+31*WeekHeight, 32), uint64(512*32))
 
 	// 3 years in, nothing changes
 	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 31), uint64(0))
-	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 32), uint64(0))
+	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 32), uint64(512*32))
 	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 33), uint64(1024*33))
 
 	// 4 years in, 33 starts starts decreasing
 	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 31), uint64(0))
-	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 32), uint64(0))
-	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 33), uint64(1024*32))
+	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 32), uint64(512*32))
+	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 33), uint64(1024*33))
 }
 
 func TestSecondaryPoWRatio(t *testing.T) {

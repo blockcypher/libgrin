@@ -26,15 +26,19 @@ func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uin
 	// Mainnet has Cuckaroo29 for AR and Cuckatoo30+ for AF
 	case consensus.Mainnet <= chainType && edgeBits > 29:
 		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	case consensus.Mainnet <= chainType && edgeBits == 29 && consensus.ValidHeaderVersion(chainType, height, 2):
+	case consensus.Mainnet <= chainType && consensus.ValidHeaderVersion(chainType, height, 3):
+		return pow.NewCuckaroomCtx(chainType, edgeBits, proofSize)
+	case consensus.Mainnet <= chainType && consensus.ValidHeaderVersion(chainType, height, 2):
 		return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
-	case consensus.Mainnet <= chainType && edgeBits == 29:
+	case consensus.Mainnet <= chainType:
 		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
 	case consensus.Floonet <= chainType && edgeBits > 29:
 		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	case consensus.Floonet <= chainType && edgeBits == 29 && consensus.ValidHeaderVersion(chainType, height, 2):
+	case consensus.Floonet <= chainType && consensus.ValidHeaderVersion(chainType, height, 3):
+		return pow.NewCuckaroomCtx(chainType, edgeBits, proofSize)
+	case consensus.Floonet <= chainType && consensus.ValidHeaderVersion(chainType, height, 2):
 		return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
-	case consensus.Floonet <= chainType && edgeBits == 29:
+	case consensus.Floonet <= chainType:
 		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
 	default:
 		// Everything else is Cuckatoo only
