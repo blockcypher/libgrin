@@ -125,37 +125,31 @@ const FloonetFirstHardFork uint64 = 185040
 // FloonetSecondHardFork is the Floonet second hard fork height, set to happen around 2019-12-19
 const FloonetSecondHardFork uint64 = 298080
 
-// ValidHeaderVersion checks whether the block version is valid at a given height, implements
+// HeaderVersion compute possible block version at a given height, implements
 // 6 months interval scheduled hard forks for the first 2 years.
-func ValidHeaderVersion(chainType ChainType, height uint64, version uint16) bool {
+func HeaderVersion(chainType ChainType, height uint64) uint16 {
+	hfInterval := uint16(1 + height/HardForkInterval)
 	switch chainType {
 	case Floonet:
 		if height < FloonetFirstHardFork {
-			return version == 1
+			return 1
 		} else if height < FloonetSecondHardFork {
-			return version == 2
-			// add branches one by one as we go from hard fork to hard fork
-			// } else if height < FloonetThirdHardFork {
+			return 2
 		} else if height < 3*HardForkInterval {
-			return version == 3
+			return 3
 		} else {
-			return false
+			return hfInterval
 		}
 	// everything else just like mainnet
 	default:
-		if height < HardForkInterval {
-			return version == 1
-		} else if height < 2*HardForkInterval {
-			return version == 2
-		} else if height < 3*HardForkInterval {
-			return version == 3
-			// uncomment branches one by one as we go from hard fork to hard fork
-			/*} } else if height < 4 * HardForkInterval {
-			return version == 4*/
-		} else {
-			return false
-		}
+		return hfInterval
 	}
+}
+
+// ValidHeaderVersion check whether the block version is valid at a given height, implements
+// 6 months interval scheduled hard forks for the first 2 years.
+func ValidHeaderVersion(chainType ChainType, height uint64, version uint16) bool {
+	return height < 3*HardForkInterval && version == HeaderVersion(chainType, height)
 }
 
 // DifficultyAdjustWindow is the number of blocks used to calculate difficulty adjustments
