@@ -1,4 +1,4 @@
-// Copyright 2018 BlockCypher
+// Copyright 2019 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -122,30 +122,34 @@ const HardForkInterval uint64 = YearHeight / 2
 // FloonetFirstHardFork is the Floonet first hard fork height, set to happen around 2019-06-23
 const FloonetFirstHardFork uint64 = 185040
 
-// Check whether the block version is valid at a given height, implements
+// FloonetSecondHardFork is the Floonet second hard fork height, set to happen around 2019-12-19
+const FloonetSecondHardFork uint64 = 298080
+
+// HeaderVersion compute possible block version at a given height, implements
 // 6 months interval scheduled hard forks for the first 2 years.
-func ValidHeaderVersion(chainType ChainType, height uint64, version uint16) bool {
+func HeaderVersion(chainType ChainType, height uint64) uint16 {
+	hfInterval := uint16(1 + height/HardForkInterval)
 	switch chainType {
 	case Floonet:
 		if height < FloonetFirstHardFork {
-			return version == 1
-			// add branches one by one as we go from hard fork to hard fork
-			// } else if height < FLOONET_SECOND_HARD_FORK {
-		} else if height < 2*HardForkInterval {
-			return version == 2
+			return 1
+		} else if height < FloonetSecondHardFork {
+			return 2
+		} else if height < 3*HardForkInterval {
+			return 3
 		} else {
-			return false
+			return hfInterval
 		}
 	// everything else just like mainnet
 	default:
-		if height < HardForkInterval {
-			return version == 1
-		} else if height < 2*HardForkInterval {
-			return version == 2
-		} else {
-			return false
-		}
+		return hfInterval
 	}
+}
+
+// ValidHeaderVersion check whether the block version is valid at a given height, implements
+// 6 months interval scheduled hard forks for the first 2 years.
+func ValidHeaderVersion(chainType ChainType, height uint64, version uint16) bool {
+	return height < 3*HardForkInterval && version == HeaderVersion(chainType, height)
 }
 
 // DifficultyAdjustWindow is the number of blocks used to calculate difficulty adjustments
@@ -169,12 +173,11 @@ const ARScaleDampFactor uint64 = 13
 // This can wait until end of 2019 at latest
 func GraphWeight(chainType ChainType, height uint64, edgeBits uint8) uint64 {
 	xprEdgeBits := uint64(edgeBits)
-	bitsOverMin := saturatingSubUint8(edgeBits, minEdgeBits(chainType))
-	expiryHeight := (1 << bitsOverMin) * YearHeight
-	if height >= expiryHeight {
+	expiryHeight := YearHeight
+	if edgeBits == 31 && height >= expiryHeight {
 		xprEdgeBits = saturatingSubUint64(xprEdgeBits, 1+(height-expiryHeight)/WeekHeight)
 	}
-	return (2 << uint64(edgeBits-baseEdgeBits(chainType))) * xprEdgeBits
+	return (uint64(2) << uint64(edgeBits-baseEdgeBits(chainType))) * xprEdgeBits
 }
 
 // MinDifficulty is the minimum difficulty, enforced in diff retargetting

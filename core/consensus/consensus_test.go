@@ -1,4 +1,4 @@
-// Copyright 2018 BlockCypher
+// Copyright 2019 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,24 +38,24 @@ func TestGraphWeight(t *testing.T) {
 
 	// 2 years in, 31 still at 0, 32 starts decreasing
 	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight, 31), uint64(0))
-	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight, 32), uint64(512*31))
+	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight, 32), uint64(512*32))
 	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight, 33), uint64(1024*33))
 
-	// 32 loses one factor per week
-	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+WeekHeight, 32), uint64(512*30))
+	// 32 phaseout on hold
+	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+WeekHeight, 32), uint64(512*32))
 	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+WeekHeight, 31), uint64(0))
-	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+30*WeekHeight, 32), uint64(512))
-	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+31*WeekHeight, 32), uint64(0))
+	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+30*WeekHeight, 32), uint64(512*32))
+	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+31*WeekHeight, 32), uint64(512*32))
 
 	// 3 years in, nothing changes
 	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 31), uint64(0))
-	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 32), uint64(0))
+	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 32), uint64(512*32))
 	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 33), uint64(1024*33))
 
 	// 4 years in, 33 starts starts decreasing
 	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 31), uint64(0))
-	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 32), uint64(0))
-	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 33), uint64(1024*32))
+	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 32), uint64(512*32))
+	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 33), uint64(1024*33))
 }
 
 func TestSecondaryPoWRatio(t *testing.T) {
@@ -98,16 +98,58 @@ func TestSecondaryPoWRatio(t *testing.T) {
 }
 
 func TestValidHeaderVersion(t *testing.T) {
-	assert.True(t, ValidHeaderVersion(Mainnet, YearHeight/2, 2))
-	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight/2, 1))
-	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight, 1))
-	assert.True(t, ValidHeaderVersion(Mainnet, YearHeight/2+1, 2))
-	assert.True(t, ValidHeaderVersion(Mainnet, YearHeight/2-1, 1))
-	// v3 not active yet
-	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight, 3))
-	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight, 2))
-	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight, 1))
-	assert.False(t, ValidHeaderVersion(Mainnet, YearHeight*3/2, 2))
-	assert.True(t, !ValidHeaderVersion(Mainnet, YearHeight+1, 2))
+	// Tests for Mainnet
+	{
+		assert.True(t, ValidHeaderVersion(Mainnet, YearHeight/2, 2))
+		assert.False(t, ValidHeaderVersion(Mainnet, YearHeight/2, 1))
+		assert.False(t, ValidHeaderVersion(Mainnet, YearHeight, 1))
+		assert.True(t, ValidHeaderVersion(Mainnet, YearHeight/2+1, 2))
+		assert.True(t, ValidHeaderVersion(Mainnet, YearHeight/2-1, 1))
 
+		assert.True(t, ValidHeaderVersion(Mainnet, YearHeight-1, 2))
+		assert.True(t, ValidHeaderVersion(Mainnet, YearHeight, 3))
+		assert.True(t, ValidHeaderVersion(Mainnet, YearHeight+1, 3))
+		assert.False(t, ValidHeaderVersion(Mainnet, YearHeight, 2))
+		assert.False(t, ValidHeaderVersion(Mainnet, YearHeight*3/2, 2))
+
+		// v4 not active yet
+		assert.False(t, ValidHeaderVersion(Mainnet, YearHeight*3/2, 4))
+		assert.False(t, ValidHeaderVersion(Mainnet, YearHeight*3/2, 3))
+		assert.False(t, ValidHeaderVersion(Mainnet, YearHeight*3/2, 2))
+		assert.False(t, ValidHeaderVersion(Mainnet, YearHeight*3/2, 1))
+		assert.False(t, ValidHeaderVersion(Mainnet, YearHeight*2, 3))
+		assert.False(t, ValidHeaderVersion(Mainnet, YearHeight*3/2+1, 3))
+	}
+	// Tests for Floonet
+	{
+		assert.True(t, ValidHeaderVersion(Floonet, 0, 1))
+		assert.True(t, ValidHeaderVersion(Floonet, 10, 1))
+		assert.False(t, ValidHeaderVersion(Floonet, 10, 2))
+
+		assert.True(t, ValidHeaderVersion(Floonet, FloonetFirstHardFork-1, 1))
+		assert.True(t, ValidHeaderVersion(Floonet, FloonetFirstHardFork, 2))
+		assert.True(t, ValidHeaderVersion(Floonet, FloonetFirstHardFork+1, 2))
+		assert.False(t, ValidHeaderVersion(Floonet, FloonetFirstHardFork, 1))
+
+		assert.False(t, ValidHeaderVersion(Floonet, YearHeight, 1))
+
+		assert.True(t, ValidHeaderVersion(Floonet, FloonetSecondHardFork-1, 2))
+		assert.True(t, ValidHeaderVersion(Floonet, FloonetSecondHardFork, 3))
+		assert.True(t, ValidHeaderVersion(Floonet, FloonetSecondHardFork+1, 3))
+		assert.False(t, ValidHeaderVersion(Floonet, FloonetSecondHardFork, 2))
+		assert.False(t, ValidHeaderVersion(Floonet, FloonetSecondHardFork, 1))
+
+		assert.False(t, ValidHeaderVersion(Floonet, YearHeight-1, 2))
+		assert.True(t, ValidHeaderVersion(Floonet, YearHeight-1, 3))
+		assert.True(t, ValidHeaderVersion(Floonet, YearHeight, 3))
+		assert.True(t, ValidHeaderVersion(Floonet, YearHeight+1, 3))
+
+		// v4 not active yet
+		assert.False(t, ValidHeaderVersion(Floonet, YearHeight*3/2, 4))
+		assert.False(t, ValidHeaderVersion(Floonet, YearHeight*3/2, 3))
+		assert.False(t, ValidHeaderVersion(Floonet, YearHeight*3/2, 2))
+		assert.False(t, ValidHeaderVersion(Floonet, YearHeight*3/2, 1))
+		assert.False(t, ValidHeaderVersion(Floonet, YearHeight*2, 3))
+		assert.False(t, ValidHeaderVersion(Floonet, YearHeight*3/2+1, 3))
+	}
 }

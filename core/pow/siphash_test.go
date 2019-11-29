@@ -1,4 +1,4 @@
-// Copyright 2018 BlockCypher
+// Copyright 2019 BlockCypher
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ func TestSipash24(t *testing.T) {
 }
 
 func TestSiphashBlock(t *testing.T) {
-	assert.Equal(t, SipHashBlock([4]uint64{1, 2, 3, 4}, 10, 21), uint64(1182162244994096396))
-	assert.Equal(t, SipHashBlock([4]uint64{1, 2, 3, 4}, 123, 21), uint64(11303676240481718781))
-	assert.Equal(t, SipHashBlock([4]uint64{9, 7, 6, 7}, 12, 21), uint64(4886136884237259030))
+	assert.Equal(t, SipHashBlock([4]uint64{1, 2, 3, 4}, 10, 21, false), uint64(1182162244994096396))
+	assert.Equal(t, SipHashBlock([4]uint64{1, 2, 3, 4}, 123, 21, false), uint64(11303676240481718781))
+	assert.Equal(t, SipHashBlock([4]uint64{9, 7, 6, 7}, 12, 21, false), uint64(4886136884237259030))
 }

@@ -15,6 +15,9 @@
 package core
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/blockcypher/libgrin/core/consensus"
 	"github.com/blockcypher/libgrin/core/pow"
 )
@@ -26,15 +29,19 @@ func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uin
 	// Mainnet has Cuckaroo29 for AR and Cuckatoo30+ for AF
 	case consensus.Mainnet <= chainType && edgeBits > 29:
 		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	case consensus.Mainnet <= chainType && edgeBits == 29 && consensus.ValidHeaderVersion(chainType, height, 2):
+	case consensus.Mainnet <= chainType && consensus.ValidHeaderVersion(chainType, height, 3):
+		return pow.NewCuckaroomCtx(chainType, edgeBits, proofSize)
+	case consensus.Mainnet <= chainType && consensus.ValidHeaderVersion(chainType, height, 2):
 		return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
-	case consensus.Mainnet <= chainType && edgeBits == 29:
+	case consensus.Mainnet <= chainType:
 		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
 	case consensus.Floonet <= chainType && edgeBits > 29:
 		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	case consensus.Floonet <= chainType && edgeBits == 29 && consensus.ValidHeaderVersion(chainType, height, 2):
+	case consensus.Floonet <= chainType && consensus.ValidHeaderVersion(chainType, height, 3):
+		return pow.NewCuckaroomCtx(chainType, edgeBits, proofSize)
+	case consensus.Floonet <= chainType && consensus.ValidHeaderVersion(chainType, height, 2):
 		return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
-	case consensus.Floonet <= chainType && edgeBits == 29:
+	case consensus.Floonet <= chainType:
 		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
 	default:
 		// Everything else is Cuckatoo only
@@ -47,6 +54,7 @@ func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uin
 func VerifySize(chainType consensus.ChainType, prePoW []uint8, bh *BlockHeader) error {
 	ctx := createPoWContext(chainType, bh.Height, bh.PoW.EdgeBits(), len(bh.PoW.Proof.Nonces), bh.PoW.Proof.Nonces, maxSols)
 	ctx.SetHeaderNonce(prePoW, nil)
+	fmt.Println(reflect.TypeOf(ctx).String())
 	if err := ctx.Verify(bh.PoW.Proof); err != nil {
 		return err
 	}
