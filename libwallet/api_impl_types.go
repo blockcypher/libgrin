@@ -44,7 +44,7 @@ type SendTXArgs struct {
 	TargetSlateVersion *uint16 `json:"target_slate_version"`
 }
 
-// InitTxArgs is V2 Init / Send TX API Args
+// InitTxArgs is V3 Init / Send TX API Args
 type InitTxArgs struct {
 	// The human readable account name from which to draw outputs
 	// for the transaction, overriding whatever the active account is as set via the
@@ -82,6 +82,8 @@ type InitTxArgs struct {
 	// down to the minimum slate version compatible with the current. If `None` the slate
 	// is generated with the latest version.
 	TargetSlateVersion *uint16 `json:"target_slate_version"`
+	// If set, require a payment proof for the particular recipient
+	PaymentProofRecipientAddress *string
 	// If true, just return an estimate of the resulting slate, containing fees and amounts
 	// locked without actually locking outputs or creating the transaction. Note if this is set to
 	// 'true', the amount field in the slate will contain the total amount locked, not the provided

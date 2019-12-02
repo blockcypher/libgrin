@@ -24,6 +24,13 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+// PaymentInfo is a payment info
+type PaymentInfo struct {
+	SenderAddress     string  `json:"sender_address"`
+	ReceiverAddress   string  `json:"receiver_address"`
+	ReceiverSignature *string `json:"receiver_signature"`
+}
+
 // ParticipantData is a public data for each participant in the slate
 type ParticipantData struct {
 	// Id of participant in the transaction. (For now, 0=sender, 1=rec)
@@ -74,10 +81,16 @@ type Slate struct {
 	Height core.Uint64 `json:"height"`
 	// Lock height
 	LockHeight core.Uint64 `json:"lock_height"`
+	// TTL, the block height at which wallets
+	// should refuse to process the transaction and unlock all
+	// associated outputs
+	TTLCutoffHeight *core.Uint64 `json:"ttl_cutoff_height"`
 	// Participant data, each participant in the transaction will
 	// insert their public data here. For now, 0 is sender and 1
 	// is receiver, though this will change for multi-party
 	ParticipantData []ParticipantData `json:"participant_data"`
+	// Payment Proof
+	PaymentProof *PaymentInfo `json:"payment_proof"`
 }
 
 // VersionCompatInfo is the versioning and compatibility info about this slate
