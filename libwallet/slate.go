@@ -123,6 +123,7 @@ func parseSlateVersion(slateBytes []byte) (uint16, error) {
 	return version, nil
 }
 
+// UnmarshalUpgrade unmarshal and upgrade a slate to v3 if necessary
 func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
 	// check version
 	version, err := parseSlateVersion(slateBytes)
@@ -131,10 +132,17 @@ func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
 	}
 
 	switch version {
-	case 2:
+	case 3:
 		if err := json.Unmarshal(slateBytes, &slate); err != nil {
 			return err
 		}
+		return nil
+	case 2:
+		var slateV2 slateversions.SlateV2
+		if err := json.Unmarshal(slateBytes, &slateV2); err != nil {
+			return err
+		}
+		*slate = slateV2ToSlate(slateV2)
 		return nil
 	default:
 		return errors.New("can't parse slate version")
