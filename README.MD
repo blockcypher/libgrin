@@ -1,6 +1,6 @@
 # libgrin
 
-[![Build Status](https://dev.azure.com/blockcypher/libgrin/_apis/build/status/blockcypher.libgrin?branchName=master)](https://dev.azure.com/blockcypher/libgrin/_build/latest?definitionId=1&branchName=master)
+![](https://github.com/blockcypher/libgrin/workflows/Continuous%20Integration/badge.svg)
 [![ISC License](http://img.shields.io/badge/license-apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/blockcypher/libgrin)
 
