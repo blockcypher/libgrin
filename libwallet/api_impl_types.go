@@ -54,7 +54,7 @@ type InitTxArgs struct {
 	Amount core.Uint64 `json:"amount"`
 	// The minimum number of confirmations an output
 	// should have in order to be included in the transaction.
-	MinimumConfirmations uint64 `json:"minimum_confirmations"`
+	MinimumConfirmations core.Uint64 `json:"minimum_confirmations"`
 	// By default, the wallet selects as many inputs as possible in a
 	// transaction, to reduce the Output set and the fees. The wallet will attempt to spend
 	// include up to `max_outputs` in a transaction, however if this is not enough to cover
@@ -82,6 +82,8 @@ type InitTxArgs struct {
 	// down to the minimum slate version compatible with the current. If `None` the slate
 	// is generated with the latest version.
 	TargetSlateVersion *uint16 `json:"target_slate_version"`
+	// Number of blocks from current after which TX should be ignored
+	TTLBlocks *core.Uint64 `json:"ttl_blocks"`
 	// If set, require a payment proof for the particular recipient
 	PaymentProofRecipientAddress *string
 	// If true, just return an estimate of the resulting slate, containing fees and amounts
