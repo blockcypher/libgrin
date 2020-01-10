@@ -85,7 +85,7 @@ type InitTxArgs struct {
 	// Number of blocks from current after which TX should be ignored
 	TTLBlocks *core.Uint64 `json:"ttl_blocks"`
 	// If set, require a payment proof for the particular recipient
-	PaymentProofRecipientAddress *string
+	PaymentProofRecipientAddress *string `json:"payment_proof_recipient_address"`
 	// If true, just return an estimate of the resulting slate, containing fees and amounts
 	// locked without actually locking outputs or creating the transaction. Note if this is set to
 	// 'true', the amount field in the slate will contain the total amount locked, not the provided
