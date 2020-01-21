@@ -25,7 +25,6 @@ import (
 
 // PubKeyFromOnionV3 returns the ed25519 public key represented in an onion address
 func PubKeyFromOnionV3(onionAddress string) (ed25519.PublicKey, error) {
-
 	input := strings.ToUpper(onionAddress)
 	if strings.HasPrefix(input, "HTTP://") || strings.HasPrefix(input, "HTTPS://") {
 		input = strings.Replace(input, "HTTP://", "", 1)
