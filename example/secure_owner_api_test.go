@@ -18,6 +18,10 @@ import (
 	"testing"
 )
 
+//"github.com/blockcypher/libgrin/example"
+//"github.com/blockcypher/libgrin/libwallet"
+//"github.com/stretchr/testify/assert"
+
 func TestReal(t *testing.T) {
 	// commenting this since this can't be done on CI for now
 	/*url := "http://127.0.0.1:3420/v3/owner"
@@ -32,7 +36,15 @@ func TestReal(t *testing.T) {
 	if err != nil {
 		assert.Error(t, err)
 	}
-	fmt.Println(nodeHeight)
+	assert.NotNil(t, nodeHeight)
+	torConfig := libwallet.TorConfig{
+		UseTorListener: true,
+		SocksProxyAddr: "127.0.0.1:59050",
+		SendConfigDir:  ".",
+	}
+	if err := ownerAPI.SetTorConfig(torConfig); err != nil {
+		assert.Error(t, err)
+	}
 	if err := ownerAPI.Close(nil); err != nil {
 		assert.Error(t, err)
 	}*/

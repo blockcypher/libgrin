@@ -638,3 +638,39 @@ func (owner *SecureOwnerAPI) NodeHeight() (*libwallet.NodeHeightResult, error) {
 	}
 	return &nodeHeightResult, nil
 }
+
+// SetTorConfig set the TOR configuration for this instance of the OwnerAPI,
+// used during InitSendTx when send args are present and a TOR address is specified
+func (owner *SecureOwnerAPI) SetTorConfig(torConfig libwallet.TorConfig) error {
+	params := struct {
+		TorConfig libwallet.TorConfig `json:"tor_config"`
+	}{
+		TorConfig: torConfig,
+	}
+	paramsBytes, err := json.Marshal(params)
+	if err != nil {
+		return err
+	}
+	envl, err := owner.client.EncryptedRequest("set_tor_config", paramsBytes, owner.sharedSecret)
+	if err != nil {
+		return err
+	}
+	if envl == nil {
+		return errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+	}
+	if envl.Error != nil {
+		log.WithFields(log.Fields{
+			"code":    envl.Error.Code,
+			"message": envl.Error.Message,
+		}).Error("OwnerAPI: RPC Error during SetTorConfig")
+		return errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
+	}
+	var result Result
+	if err = json.Unmarshal(envl.Result, &result); err != nil {
+		return err
+	}
+	if result.Err != nil {
+		return errors.New(string(result.Err))
+	}
+	return nil
+}
