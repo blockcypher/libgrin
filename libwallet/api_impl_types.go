@@ -159,6 +159,8 @@ type OutputCommitMapping struct {
 type NodeHeightResult struct {
 	// Last known height
 	Height core.Uint64 `json:"height"`
+	// Hash
+	HeaderHash string `json:"header_hash"`
 	// Whether this height was updated from the node
 	UpdatedFromNode bool `json:"updated_from_node"`
 }

@@ -16,7 +16,13 @@ package example
 
 import (
 	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"strconv"
 	"sync/atomic"
@@ -47,7 +53,7 @@ type Envelope struct {
 // will automatically be serialized
 type JSONRPCID string
 
-// MarshalJSON implement the Marshaler interface on JSONRPCVersion
+// MarshalJSON implement the Marshaler interface on JSONRPCID
 func (e JSONRPCID) MarshalJSON() ([]byte, error) {
 	counter := strconv.FormatUint(atomic.AddUint64(&requestCounter, 1), 10)
 	b, err := json.Marshal(counter)
@@ -103,19 +109,130 @@ func (c *RPCHTTPClient) Request(method string, params json.RawMessage) (*Envelop
 	return &envl, nil
 }
 
+// EncryptedData are the params or result to send/receive for the encrypted owner API
+type EncryptedData struct {
+	Nonce   string `json:"nonce"`
+	BodyEnc string `json:"body_enc"`
+}
+
+// EncryptedRequest do an encrypted RPC POST request with the server
+func (c *RPCHTTPClient) EncryptedRequest(method string, params json.RawMessage, sharedSecret []byte) (*Envelope, error) {
+	toEncryptRequestBody, err := json.Marshal(Envelope{
+		Method: method,
+		Params: params,
+	})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Couldn't marshal RPC request body to encrypt")
+		return nil, err
+	}
+	nonce := make([]byte, 12)
+	rand.Read(nonce)
+	encryptedRequestBody, err := encrypt(sharedSecret, nonce, toEncryptRequestBody)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Couldn't encrypt request body")
+		return nil, err
+	}
+
+	encryptedParams, err := json.Marshal(EncryptedData{
+		Nonce:   hex.EncodeToString(nonce),
+		BodyEnc: base64.StdEncoding.EncodeToString(encryptedRequestBody),
+	})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Couldn't marshal encrypted RPC params")
+		return nil, err
+	}
+	requestBody, err := json.Marshal(Envelope{
+		Method: "encrypted_request_v3",
+		Params: encryptedParams,
+	})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Couldn't marshal RPC request body")
+		return nil, err
+	}
+	body, err := post(c.URL, requestBody)
+	var envl Envelope
+	if err := json.Unmarshal(body, &envl); err != nil {
+		return nil, err
+	}
+	if envl.Error != nil {
+		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
+	}
+	var result Result
+	if err = json.Unmarshal(envl.Result, &result); err != nil {
+		return nil, err
+	}
+	if result.Err != nil {
+		return nil, errors.New(string(result.Err))
+	}
+	var encryptedOk EncryptedData
+	if err = json.Unmarshal(result.Ok, &encryptedOk); err != nil {
+		return nil, err
+	}
+	nonceResponse, err := hex.DecodeString(encryptedOk.Nonce)
+	if err != nil {
+		return nil, err
+	}
+	encryptedBody, err := base64.StdEncoding.DecodeString(encryptedOk.BodyEnc)
+	if err != nil {
+		return nil, err
+	}
+	decryptedBody, err := decrypt(sharedSecret, nonceResponse, encryptedBody)
+	var envlDecrypted Envelope
+	if err := json.Unmarshal(decryptedBody, &envlDecrypted); err != nil {
+		return nil, err
+	}
+	return &envlDecrypted, nil
+}
+
 func post(url string, requestBody []byte) ([]byte, error) {
 	client := pester.New()
 	// We don't to retry here
 	client.MaxRetries = 0
 	client.Timeout = 60 * time.Second
-
 	r, err := client.Post(url, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, err
 	}
 	responseData, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	return responseData, nil
+}
+
+func encrypt(key, nonce, plaintext []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+
+	ciphertext := aesgcm.Seal(nil, nonce, plaintext, nil)
+	return ciphertext, nil
+}
+
+func decrypt(key, nonce, ciphertext []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+
+	return aesgcm.Open(nil, nonce, ciphertext, nil)
 }
