@@ -168,15 +168,18 @@ const DifficultyDampFactor uint64 = 3
 // ARScaleDampFactor is the dampening factor to use for AR scale calculation.
 const ARScaleDampFactor uint64 = 13
 
-// GraphWeight is a weight of a graph as number of siphash bits defining the graph
-// Must be made dependent on height to phase out smaller size over the years
-// This can wait until end of 2019 at latest
+// GraphWeight compute weight of a graph as number of siphash bits defining the graph
+// Must be made dependent on height to phase out C31 in early 2020
+// Later phase outs are on hold for now
 func GraphWeight(chainType ChainType, height uint64, edgeBits uint8) uint64 {
 	xprEdgeBits := uint64(edgeBits)
 	expiryHeight := YearHeight
 	if edgeBits == 31 && height >= expiryHeight {
 		xprEdgeBits = saturatingSubUint64(xprEdgeBits, 1+(height-expiryHeight)/WeekHeight)
 	}
+	// For C31 xpr_edge_bits reaches 0 at height YEAR_HEIGHT + 30 * WEEK_HEIGHT
+	// 30 weeks after Jan 15, 2020 would be Aug 12, 2020
+
 	return (uint64(2) << uint64(edgeBits-baseEdgeBits(chainType))) * xprEdgeBits
 }
 

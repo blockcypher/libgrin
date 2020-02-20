@@ -45,14 +45,15 @@ func TestGraphWeight(t *testing.T) {
 	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+WeekHeight, 32), uint64(512*32))
 	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+WeekHeight, 31), uint64(0))
 	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+30*WeekHeight, 32), uint64(512*32))
-	assert.Equal(t, GraphWeight(Mainnet, 2*YearHeight+31*WeekHeight, 32), uint64(512*32))
+	assert.Equal(t,
+		GraphWeight(Mainnet, 2*YearHeight+31*WeekHeight, 32), uint64(512*32))
 
 	// 3 years in, nothing changes
 	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 31), uint64(0))
 	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 32), uint64(512*32))
 	assert.Equal(t, GraphWeight(Mainnet, 3*YearHeight, 33), uint64(1024*33))
 
-	// 4 years in, 33 starts starts decreasing
+	// 4 years in, still on hold
 	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 31), uint64(0))
 	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 32), uint64(512*32))
 	assert.Equal(t, GraphWeight(Mainnet, 4*YearHeight, 33), uint64(1024*33))
