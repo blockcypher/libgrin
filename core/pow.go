@@ -26,6 +26,8 @@ func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uin
 	// Mainnet has Cuckaroo29 for AR and Cuckatoo30+ for AF
 	case consensus.Mainnet <= chainType && edgeBits > 29:
 		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
+	case consensus.Mainnet <= chainType && consensus.ValidHeaderVersion(chainType, height, 4):
+		return pow.NewCuckaroozCtx(chainType, edgeBits, proofSize)
 	case consensus.Mainnet <= chainType && consensus.ValidHeaderVersion(chainType, height, 3):
 		return pow.NewCuckaroomCtx(chainType, edgeBits, proofSize)
 	case consensus.Mainnet <= chainType && consensus.ValidHeaderVersion(chainType, height, 2):
@@ -34,6 +36,8 @@ func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uin
 		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
 	case consensus.Floonet <= chainType && edgeBits > 29:
 		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
+	case consensus.Floonet <= chainType && consensus.ValidHeaderVersion(chainType, height, 4):
+		return pow.NewCuckaroozCtx(chainType, edgeBits, proofSize)
 	case consensus.Floonet <= chainType && consensus.ValidHeaderVersion(chainType, height, 3):
 		return pow.NewCuckaroomCtx(chainType, edgeBits, proofSize)
 	case consensus.Floonet <= chainType && consensus.ValidHeaderVersion(chainType, height, 2):
