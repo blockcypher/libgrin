@@ -125,22 +125,49 @@ const FloonetFirstHardFork uint64 = 185040
 // FloonetSecondHardFork is the Floonet second hard fork height, set to happen around 2019-12-19
 const FloonetSecondHardFork uint64 = 298080
 
+// FloonetThirdHardFork is the Floonet second hard fork height, set to happen around 2020-06-20
+const FloonetThirdHardFork uint64 = 552960
+
+// TestingFirstHardFork is the AutomatedTesting and UserTesting HF1 height
+const TestingFirstHardFork uint64 = 3
+
+// TestingSecondHardFork is the AutomatedTesting and UserTesting HF2 height
+const TestingSecondHardFork uint64 = 6
+
+// TestingThirdHardFork is the AutomatedTesting and UserTesting HF3 height
+const TestingThirdHardFork uint64 = 9
+
 // HeaderVersion compute possible block version at a given height, implements
 // 6 months interval scheduled hard forks for the first 2 years.
 func HeaderVersion(chainType ChainType, height uint64) uint16 {
 	hfInterval := uint16(1 + height/HardForkInterval)
 	switch chainType {
+	case Mainnet:
+		return hfInterval
 	case Floonet:
 		if height < FloonetFirstHardFork {
 			return 1
 		} else if height < FloonetSecondHardFork {
 			return 2
-		} else if height < 3*HardForkInterval {
+		} else if height < FloonetThirdHardFork {
 			return 3
+		} else if height < 3*HardForkInterval {
+			return 4
 		} else {
 			return hfInterval
 		}
-	// everything else just like mainnet
+	case AutomatedTesting, UserTesting:
+		if height < TestingFirstHardFork {
+			return 1
+		} else if height < TestingSecondHardFork {
+			return 2
+		} else if height < TestingThirdHardFork {
+			return 3
+		} else if height < 4*HardForkInterval {
+			return 4
+		} else {
+			return 5
+		}
 	default:
 		return hfInterval
 	}
@@ -149,7 +176,7 @@ func HeaderVersion(chainType ChainType, height uint64) uint16 {
 // ValidHeaderVersion check whether the block version is valid at a given height, implements
 // 6 months interval scheduled hard forks for the first 2 years.
 func ValidHeaderVersion(chainType ChainType, height uint64, version uint16) bool {
-	return height < 3*HardForkInterval && version == HeaderVersion(chainType, height)
+	return height < 4*HardForkInterval && version == HeaderVersion(chainType, height)
 }
 
 // DifficultyAdjustWindow is the number of blocks used to calculate difficulty adjustments
@@ -169,8 +196,7 @@ const DifficultyDampFactor uint64 = 3
 const ARScaleDampFactor uint64 = 13
 
 // GraphWeight compute weight of a graph as number of siphash bits defining the graph
-// Must be made dependent on height to phase out C31 in early 2020
-// Later phase outs are on hold for now
+// The height dependence allows a 30-week linear transition from C31+ to C32+ starting after 1 year
 func GraphWeight(chainType ChainType, height uint64, edgeBits uint8) uint64 {
 	xprEdgeBits := uint64(edgeBits)
 	expiryHeight := YearHeight

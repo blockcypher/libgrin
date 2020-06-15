@@ -49,7 +49,7 @@ func (c *CuckaroodContext) Verify(proof Proof) error {
 	uvs := make([]uint64, 2*proof.proofSize())
 	ndir := make([]uint64, 2)
 	var xor0, xor1 uint64
-	nodemask := c.params.edgeMask >> 1
+	nodeMask := c.params.edgeMask >> 1
 
 	for n := 0; n < proof.proofSize(); n++ {
 		dir := uint(nonces[n] & 1)
@@ -62,11 +62,12 @@ func (c *CuckaroodContext) Verify(proof Proof) error {
 		if n > 0 && nonces[n] <= nonces[n-1] {
 			return errors.New("edges not ascending")
 		}
+		// cuckarood uses a non-standard siphash rotation constant 25 as anti-ASIC tweak
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 25, false)
 		idx := 4*ndir[dir] + 2*uint64(dir)
-		uvs[idx] = edge & nodemask
-		uvs[idx+1] = (edge >> 32) & nodemask
+		uvs[idx] = edge & nodeMask
 		xor0 ^= uvs[idx]
+		uvs[idx+1] = (edge >> 32) & nodeMask
 		xor1 ^= uvs[idx+1]
 		ndir[dir]++
 	}

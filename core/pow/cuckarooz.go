@@ -20,37 +20,35 @@ import (
 	"github.com/blockcypher/libgrin/core/consensus"
 )
 
-// NewCuckaroomCtx instantiates a new CuckaroomContext as a PowContext. Note that this can't
+// NewCuckaroozCtx instantiates a new CuckaroozContext as a PowContext. Note that this can't
 /// be moved in the PoWContext trait as this particular trait needs to be
 /// convertible to an object trait.
-func NewCuckaroomCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroomContext {
+func NewCuckaroozCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroomContext {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, proofSize)
 	return &CuckaroomContext{chainType, params}
 }
 
-// CuckaroomContext is a Cuckaroom cycle context. Only includes the verifier for now.
-type CuckaroomContext struct {
+// CuckaroozContext is a Cuckarooz cycle context. Only includes the verifier for now.
+type CuckaroozContext struct {
 	chainType consensus.ChainType
 	params    CuckooParams
 }
 
 // SetHeaderNonce sets the header nonce.
-func (c *CuckaroomContext) SetHeaderNonce(header []uint8, nonce *uint32) {
+func (c *CuckaroozContext) SetHeaderNonce(header []uint8, nonce *uint32) {
 	c.params.resetHeaderNonce(header, nonce)
 }
 
 // Verify verifies the Cuckaroom context.
-func (c *CuckaroomContext) Verify(proof Proof) error {
+func (c *CuckaroozContext) Verify(proof Proof) error {
 	if proof.proofSize() != consensus.ChainTypeProofSize(c.chainType) {
 		return errors.New("wrong cycle length")
 	}
 	nonces := proof.Nonces
-	from := make([]uint64, proof.proofSize())
-	to := make([]uint64, proof.proofSize())
-	var xorFrom uint64 = 0
-	var xorTo uint64 = 0
-	nodeMask := c.params.edgeMask >> 1
+	uvs := make([]uint64, 2*proof.proofSize())
+	var xoruv uint64 = 0
+	nodeMask := c.params.edgeMask<<1 | 1
 
 	for n := 0; n < proof.proofSize(); n++ {
 		if nonces[n] > c.params.edgeMask {
@@ -61,34 +59,40 @@ func (c *CuckaroomContext) Verify(proof Proof) error {
 		}
 		// 21 is standard siphash rotation constant
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, true)
-		from[n] = edge & nodeMask
-		xorFrom ^= from[n]
-		to[n] = (edge >> 32) & nodeMask
-		xorTo ^= to[n]
+		uvs[2*n] = edge & nodeMask
+		uvs[2*n+1] = edge >> 32 & nodeMask
+		xoruv ^= uvs[2*n] ^ uvs[2*n+1]
 	}
-	if xorFrom != xorTo {
+	if xoruv != 0 {
 		return errors.New("endpoints don't match up")
 	}
-	visited := make([]bool, proof.proofSize())
+
 	n := 0
 	i := 0
+	j := 0
 	for {
 		// follow cycle
-		if visited[i] {
-			return errors.New("branch in cycle")
-		}
-		visited[i] = true
-		nexti := 0
-		for from[nexti] != to[i] {
-			nexti++
-			if nexti == proof.proofSize() {
-				return errors.New("cycle dead ends")
+		j = i
+		k := j
+		for {
+			k = (j + 1) % (2 * c.params.proofSize)
+			if k == i {
+				break
 			}
 		}
-		i = nexti
+		if uvs[k] == uvs[i] {
+			// find other edge endpoint matching one at i
+			if j != i {
+				return errors.New("branch in cycle")
+			}
+			j = k
+		}
+		if j == i {
+			return errors.New("cycle dead ends")
+		}
+		i = j ^ 1
 		n++
 		if i == 0 {
-			// must cycle back to start or find branch
 			break
 		}
 	}
@@ -96,4 +100,5 @@ func (c *CuckaroomContext) Verify(proof Proof) error {
 		return nil
 	}
 	return errors.New("cycle too short")
+
 }
