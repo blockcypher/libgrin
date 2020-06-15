@@ -48,6 +48,7 @@ func (c *CuckaroozContext) Verify(proof Proof) error {
 	nonces := proof.Nonces
 	uvs := make([]uint64, 2*proof.proofSize())
 	var xoruv uint64 = 0
+	nodeMask := c.params.edgeMask<<1 | 1
 
 	for n := 0; n < proof.proofSize(); n++ {
 		if nonces[n] > c.params.edgeMask {
@@ -58,8 +59,8 @@ func (c *CuckaroozContext) Verify(proof Proof) error {
 		}
 		// 21 is standard siphash rotation constant
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, true)
-		uvs[2*n] = edge & c.params.edgeMask
-		uvs[2*n+1] = edge >> 32 & c.params.edgeMask
+		uvs[2*n] = edge & nodeMask
+		uvs[2*n+1] = edge >> 32 & nodeMask
 		xoruv ^= uvs[2*n] ^ uvs[2*n+1]
 	}
 	if xoruv != 0 {

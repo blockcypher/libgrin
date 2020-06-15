@@ -46,11 +46,11 @@ func (c *CuckaroomContext) Verify(proof Proof) error {
 		return errors.New("wrong cycle length")
 	}
 	nonces := proof.Nonces
-	from := make([]uint32, proof.proofSize())
-	to := make([]uint32, proof.proofSize())
-	var xorFrom uint32 = 0
-	var xorTo uint32 = 0
-	nodemask := c.params.edgeMask >> 1
+	from := make([]uint64, proof.proofSize())
+	to := make([]uint64, proof.proofSize())
+	var xorFrom uint64 = 0
+	var xorTo uint64 = 0
+	nodeMask := c.params.edgeMask >> 1
 
 	for n := 0; n < proof.proofSize(); n++ {
 		if nonces[n] > c.params.edgeMask {
@@ -59,10 +59,11 @@ func (c *CuckaroomContext) Verify(proof Proof) error {
 		if n > 0 && nonces[n] <= nonces[n-1] {
 			return errors.New("edges not ascending")
 		}
+		// 21 is standard siphash rotation constant
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, true)
-		from[n] = uint32(edge & nodemask)
+		from[n] = edge & nodeMask
 		xorFrom ^= from[n]
-		to[n] = uint32((edge >> 32) & nodemask)
+		to[n] = (edge >> 32) & nodeMask
 		xorTo ^= to[n]
 	}
 	if xorFrom != xorTo {
