@@ -25,37 +25,35 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUnmarshalV2(t *testing.T) {
-	slateV2JSON, _ := ioutil.ReadFile("slateversions/test_data/v2.slate")
-	var slateV2 slateversions.SlateV2
-	err := json.Unmarshal(slateV2JSON, &slateV2)
-	assert.Nil(t, err)
-}
-
-func TestMarshalV2(t *testing.T) {
-	slateV2JSON, _ := ioutil.ReadFile("slateversions/test_data/v2_raw.slate")
-	var slateV2 slateversions.SlateV2
-	err := json.Unmarshal(slateV2JSON, &slateV2)
-	assert.Nil(t, err)
-
-	serializedSlateV2, err := json.Marshal(slateV2)
-	assert.Equal(t, slateV2JSON, serializedSlateV2)
-}
-
 func TestUnmarshalV3(t *testing.T) {
 	slateV3JSON, _ := ioutil.ReadFile("slateversions/test_data/v3.slate")
-	var slateV3 libwallet.Slate
+	var slateV3 slateversions.SlateV3
 	err := json.Unmarshal(slateV3JSON, &slateV3)
 	assert.Nil(t, err)
 }
 
 func TestMarshalV3(t *testing.T) {
 	slateV3JSON, _ := ioutil.ReadFile("slateversions/test_data/v3_raw.slate")
-	var slateV3 libwallet.Slate
+	var slateV3 slateversions.SlateV3
 	err := json.Unmarshal(slateV3JSON, &slateV3)
 	assert.Nil(t, err)
 
 	serializedSlateV3, err := json.Marshal(slateV3)
 	assert.Equal(t, slateV3JSON, serializedSlateV3)
+}
+func TestUnmarshalV4(t *testing.T) {
+	slateV4JSON, _ := ioutil.ReadFile("slateversions/test_data/v4.slate")
+	var slateV4 libwallet.Slate
+	err := json.Unmarshal(slateV4JSON, &slateV4)
+	assert.Nil(t, err)
+}
 
+func TestMarshalV4(t *testing.T) {
+	slateV4JSON, _ := ioutil.ReadFile("slateversions/test_data/v4_raw.slate")
+	var slateV4 libwallet.Slate
+	err := json.Unmarshal(slateV4JSON, &slateV4)
+	assert.Nil(t, err)
+
+	serializedSlateV4, err := json.Marshal(slateV4)
+	assert.Equal(t, slateV4JSON, serializedSlateV4)
 }

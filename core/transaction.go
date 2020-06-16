@@ -63,6 +63,8 @@ const (
 	CoinbaseKernel
 	// HeightLockedKernel is a kernel with an explicit lock height.
 	HeightLockedKernel
+	// NoRecentDuplicateKernel is a NRD kernel
+	NoRecentDuplicateKernel
 )
 
 func (s KernelFeatures) String() string {
@@ -70,15 +72,17 @@ func (s KernelFeatures) String() string {
 }
 
 var toStringKernelFeatures = map[KernelFeatures]string{
-	PlainKernel:        "Plain",
-	CoinbaseKernel:     "Coinbase",
-	HeightLockedKernel: "HeightLocked",
+	PlainKernel:             "Plain",
+	CoinbaseKernel:          "Coinbase",
+	HeightLockedKernel:      "HeightLocked",
+	NoRecentDuplicateKernel: "NoRecentDuplicate",
 }
 
 var toIDKernelFeatures = map[string]KernelFeatures{
-	"Plain":        PlainKernel,
-	"Coinbase":     CoinbaseKernel,
-	"HeightLocked": HeightLockedKernel,
+	"Plain":             PlainKernel,
+	"Coinbase":          CoinbaseKernel,
+	"HeightLocked":      HeightLockedKernel,
+	"NoRecentDuplicate": NoRecentDuplicateKernel,
 }
 
 // MarshalJSON marshals the enum as a quoted json string

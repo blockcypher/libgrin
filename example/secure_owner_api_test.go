@@ -15,7 +15,12 @@
 package example_test
 
 import (
+	"fmt"
 	"testing"
+
+	"github.com/blockcypher/libgrin/example"
+	"github.com/blockcypher/libgrin/libwallet"
+	"github.com/stretchr/testify/assert"
 )
 
 //"github.com/blockcypher/libgrin/example"
@@ -24,7 +29,7 @@ import (
 
 func TestReal(t *testing.T) {
 	// commenting this since this can't be done on CI for now
-	/*url := "http://127.0.0.1:3420/v3/owner"
+	url := "http://127.0.0.1:3420/v3/owner"
 	ownerAPI := example.NewSecureOwnerAPI(url)
 	if err := ownerAPI.Init(); err != nil {
 		assert.Error(t, err)
@@ -45,7 +50,22 @@ func TestReal(t *testing.T) {
 	if err := ownerAPI.SetTorConfig(torConfig); err != nil {
 		assert.Error(t, err)
 	}
+	slatepackAddress, err := ownerAPI.GetSlatepackAddress(0)
+	if err != nil {
+		assert.Error(t, err)
+	}
+	assert.NotNil(t, slatepackAddress)
 	if err := ownerAPI.Close(nil); err != nil {
 		assert.Error(t, err)
-	}*/
+	}
+	slatepackSecretKey, err := ownerAPI.GetSlatepackSecretKey(0)
+	if err != nil {
+		assert.Error(t, err)
+	}
+	assert.NotNil(t, slatepackSecretKey)
+	if err := ownerAPI.Close(nil); err != nil {
+		assert.Error(t, err)
+	}
+	fmt.Println(*slatepackSecretKey)
+	assert.True(t, false)
 }

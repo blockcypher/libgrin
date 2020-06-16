@@ -15,11 +15,10 @@
 package libwallet
 
 import (
+	"bytes"
 	"encoding/json"
-	"errors"
 
 	"github.com/blockcypher/libgrin/core"
-	"github.com/blockcypher/libgrin/libwallet/slateversions"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 )
@@ -33,18 +32,12 @@ type PaymentInfo struct {
 
 // ParticipantData is a public data for each participant in the slate
 type ParticipantData struct {
-	// Id of participant in the transaction. (For now, 0=sender, 1=rec)
-	ID core.Uint64 `json:"id"`
 	// Public key corresponding to private blinding factor
 	PublicBlindExcess string `json:"public_blind_excess"`
 	// Public key corresponding to private nonce
 	PublicNonce string `json:"public_nonce"`
 	// Public partial signature
 	PartSig *string `json:"part_sig"`
-	// A message for other participants
-	Message *string `json:"message"`
-	// Signature, created with private key corresponding to 'public_blind_excess'
-	MessageSig *string `json:"message_sig"`
 }
 
 // ParticipantMessageData is the public message data (for serializing and storage)
@@ -70,35 +63,115 @@ type Slate struct {
 	NumParticipants uint `json:"num_participants"`
 	// Unique transaction ID, selected by sender
 	ID uuid.UUID `json:"id"`
+	/// Slate state
+	State SlateState `json:"state"`
 	// The core transaction data:
 	// inputs, outputs, kernels, kernel offset
-	Transaction core.Transaction `json:"tx"`
+	// Optional as of V4 to allow for a compact
+	// transaction initiation
+	Transaction *core.Transaction `json:"tx"`
 	// base amount (excluding fee)
 	Amount core.Uint64 `json:"amount"`
 	// fee amount
 	Fee core.Uint64 `json:"fee"`
-	// Block height for the transaction
-	Height core.Uint64 `json:"height"`
-	// Lock height
-	LockHeight core.Uint64 `json:"lock_height"`
 	// TTL, the block height at which wallets
 	// should refuse to process the transaction and unlock all
 	// associated outputs
 	TTLCutoffHeight *core.Uint64 `json:"ttl_cutoff_height"`
+	// Kernel Features flag -
+	// 	0: plain
+	// 	1: coinbase (invalid)
+	// 	2: height_locked
+	// 	3: NRD
+	KernelFeatures uint8 `json:"kernel_features"`
 	// Participant data, each participant in the transaction will
 	// insert their public data here. For now, 0 is sender and 1
 	// is receiver, though this will change for multi-party
 	ParticipantData []ParticipantData `json:"participant_data"`
 	// Payment Proof
 	PaymentProof *PaymentInfo `json:"payment_proof"`
+	// Kernel features arguments
+	KernelFeaturesArgs *KernelFeaturesArgs `json:"kernel_features_args"`
+	// TODO: Remove post HF3
+	// participant ID, only stored for compatibility with V3 slates
+	// not serialized anywhere
+	ParticipantID *string `json:"participant_id"`
+}
+
+// SlateState state definition
+type SlateState int
+
+const (
+	// UnknownSlateState coming from earlier versions of the slate
+	UnknownSlateState SlateState = iota
+	// Standard1SlateState flow, freshly init
+	Standard1SlateState
+	// Standard2SlateState flow, return journey
+	Standard2SlateState
+	// Standard3SlateState flow, ready for transaction posting
+	Standard3SlateState
+	// Invoice1SlateState flow, freshly init
+	Invoice1SlateState
+	// Invoice2SlateState flow, return journey
+	Invoice2SlateState
+	// Invoice3SlateState flow, ready for tranasction posting
+	Invoice3SlateState
+)
+
+func (s SlateState) String() string {
+	return toStringSlateState[s]
+}
+
+var toStringSlateState = map[SlateState]string{
+	UnknownSlateState:   "NA",
+	Standard1SlateState: "S1",
+	Standard2SlateState: "S2",
+	Standard3SlateState: "S3",
+	Invoice1SlateState:  "I1",
+	Invoice2SlateState:  "I2",
+	Invoice3SlateState:  "I3",
+}
+
+var toIDSlateState = map[string]SlateState{
+	"NA": UnknownSlateState,
+	"S1": Standard1SlateState,
+	"S2": Standard2SlateState,
+	"S3": Standard3SlateState,
+	"I1": Invoice1SlateState,
+	"I2": Invoice2SlateState,
+	"I3": Invoice3SlateState,
+}
+
+// MarshalJSON marshals the enum as a quoted json string
+func (s SlateState) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(toStringSlateState[s])
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON unmarshals a quoted json string to the enum value
+func (s *SlateState) UnmarshalJSON(b []byte) error {
+	var j string
+	err := json.Unmarshal(b, &j)
+	if err != nil {
+		return err
+	}
+	// Note that if the string cannot be found then it will be set to the zero value, 'UnknownSlateState' in this case.
+	*s = toIDSlateState[j]
+	return nil
+}
+
+// KernelFeaturesArgs are the kernel features arguments definition
+type KernelFeaturesArgs struct {
+	/// Lock height, for HeightLocked (also NRD relative lock height)
+	LockHeight core.Uint64 `json:"lock_hgt"`
 }
 
 // VersionCompatInfo is the versioning and compatibility info about this slate
 type VersionCompatInfo struct {
 	// The current version of the slate format
 	Version uint16 `json:"version"`
-	// Original version this slate was converted from
-	OrigVersion uint16 `json:"orig_version"`
 	// The grin block header version this slate is intended for
 	BlockHeaderVersion uint16 `json:"block_header_version"`
 }
@@ -121,96 +194,4 @@ func parseSlateVersion(slateBytes []byte) (uint16, error) {
 		return 1, nil
 	}
 	return version, nil
-}
-
-// UnmarshalUpgrade unmarshal and upgrade a slate to v3 if necessary
-func UnmarshalUpgrade(slateBytes []byte, slate *Slate) error {
-	// check version
-	version, err := parseSlateVersion(slateBytes)
-	if err != nil {
-		return errors.New("can't parse slate version")
-	}
-
-	switch version {
-	case 3:
-		if err := json.Unmarshal(slateBytes, &slate); err != nil {
-			return err
-		}
-		return nil
-	case 2:
-		var slateV2 slateversions.SlateV2
-		if err := json.Unmarshal(slateBytes, &slateV2); err != nil {
-			return err
-		}
-		*slate = slateV2ToSlate(slateV2)
-		return nil
-	default:
-		return errors.New("can't parse slate version")
-	}
-}
-
-func slateV2ToSlate(v2 slateversions.SlateV2) Slate {
-	var slate Slate
-	slate.VersionInfo = VersionCompatInfo(v2.VersionInfo)
-	slate.NumParticipants = v2.NumParticipants
-	slate.ID = v2.ID
-	var inputs []core.Input
-	for i := range v2.Transaction.Body.Inputs {
-		inputs = append(inputs, core.Input(v2.Transaction.Body.Inputs[i]))
-	}
-	var outputs []core.Output
-	for i := range v2.Transaction.Body.Outputs {
-		outputs = append(outputs, core.Output(v2.Transaction.Body.Outputs[i]))
-	}
-	var kernels []core.TxKernel
-	for i := range v2.Transaction.Body.Kernels {
-		kernels = append(kernels, core.TxKernel(v2.Transaction.Body.Kernels[i]))
-	}
-	slate.Transaction.Body.Inputs = inputs
-	slate.Transaction.Body.Outputs = outputs
-	slate.Transaction.Body.Kernels = kernels
-	slate.Transaction.Offset = v2.Transaction.Offset
-	slate.Amount = v2.Amount
-	slate.Fee = v2.Fee
-	slate.Height = v2.Height
-	slate.LockHeight = v2.LockHeight
-	var participantData []ParticipantData
-	for i := range v2.ParticipantData {
-		participantData = append(participantData, ParticipantData(v2.ParticipantData[i]))
-	}
-	slate.ParticipantData = participantData
-	return slate
-}
-
-func slateToSlateV2(slate Slate) slateversions.SlateV2 {
-	var slateV2 slateversions.SlateV2
-	slateV2.VersionInfo = slateversions.VersionCompatInfoV2(slate.VersionInfo)
-	slateV2.NumParticipants = slate.NumParticipants
-	slateV2.ID = slate.ID
-	var inputs []slateversions.InputV2
-	for i := range slate.Transaction.Body.Inputs {
-		inputs = append(inputs, slateversions.InputV2(slate.Transaction.Body.Inputs[i]))
-	}
-	var outputs []slateversions.OutputV2
-	for i := range slate.Transaction.Body.Outputs {
-		outputs = append(outputs, slateversions.OutputV2(slate.Transaction.Body.Outputs[i]))
-	}
-	var kernels []slateversions.TxKernelV2
-	for i := range slate.Transaction.Body.Kernels {
-		kernels = append(kernels, slateversions.TxKernelV2(slate.Transaction.Body.Kernels[i]))
-	}
-	slateV2.Transaction.Body.Inputs = inputs
-	slateV2.Transaction.Body.Outputs = outputs
-	slateV2.Transaction.Body.Kernels = kernels
-	slateV2.Transaction.Offset = slate.Transaction.Offset
-	slateV2.Amount = slate.Amount
-	slateV2.Fee = slate.Fee
-	slateV2.Height = slate.Height
-	slateV2.LockHeight = slate.LockHeight
-	var participantData []slateversions.ParticipantDataV2
-	for i := range slate.ParticipantData {
-		participantData = append(participantData, slateversions.ParticipantDataV2(slate.ParticipantData[i]))
-	}
-	slateV2.ParticipantData = participantData
-	return slateV2
 }
