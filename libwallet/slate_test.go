@@ -19,7 +19,6 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/blockcypher/libgrin/libwallet"
 	"github.com/blockcypher/libgrin/libwallet/slateversions"
 
 	"github.com/stretchr/testify/assert"
@@ -41,19 +40,22 @@ func TestMarshalV3(t *testing.T) {
 	serializedSlateV3, err := json.Marshal(slateV3)
 	assert.Equal(t, slateV3JSON, serializedSlateV3)
 }
-func TestUnmarshalV4(t *testing.T) {
+func TestCustomUnmarshalV4(t *testing.T) {
 	slateV4JSON, _ := ioutil.ReadFile("slateversions/test_data/v4.slate")
-	var slateV4 libwallet.Slate
-	err := json.Unmarshal(slateV4JSON, &slateV4)
+	var slateV4 slateversions.SlateV4
+	err := slateV4.Unmarshal(slateV4JSON)
+	assert.True(t, slateV4.Ver.Version != 0)
+
+	// Check default for num parts
+	assert.Equal(t, slateV4.NumParts, uint8(2))
 	assert.Nil(t, err)
 }
 
-func TestMarshalV4(t *testing.T) {
+func TestCustomMarshalV4(t *testing.T) {
 	slateV4JSON, _ := ioutil.ReadFile("slateversions/test_data/v4_raw.slate")
-	var slateV4 libwallet.Slate
-	err := json.Unmarshal(slateV4JSON, &slateV4)
+	var slateV4 slateversions.SlateV4
+	err := slateV4.Unmarshal(slateV4JSON)
 	assert.Nil(t, err)
-
-	serializedSlateV4, err := json.Marshal(slateV4)
+	serializedSlateV4, err := slateV4.Marshal()
 	assert.Equal(t, slateV4JSON, serializedSlateV4)
 }

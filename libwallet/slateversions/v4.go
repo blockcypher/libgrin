@@ -17,6 +17,10 @@ package slateversions
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/blockcypher/libgrin/core"
 
@@ -26,15 +30,16 @@ import (
 // SlateV4 slate v4
 type SlateV4 struct {
 	// Versioning info
-	VersionInfo VersionCompatInfoV4 `json:"version_info"`
+	Ver VersionCompatInfoV4 `json:"ver"`
 	// Unique transaction ID, selected by sender
 	ID uuid.UUID `json:"id"`
 	// Slate state
 	Sta SlateStateV4 `json:"sta"`
+	// Optional fields depending on state
 	// Offset, modified by each participant inserting inputs
-	Offset string `json:"offset"`
+	Off string `json:"off,omitempty"`
 	// The number of participants intended to take part in this transaction, optional
-	NumParts *uint32 `json:"num_parts"`
+	NumParts uint8 `json:"num_parts"`
 	// base amount (excluding fee)
 	Amt core.Uint64 `json:"amt"`
 	// fee amount
@@ -51,12 +56,47 @@ type SlateV4 struct {
 	Sigs []ParticipantDataV4 `json:"sigs"`
 	// Situational, but required at some point in the tx
 	// Inputs/Output commits added to slate
-	Coms *[]CommitsV4 `json:"coms"`
+	Coms *[]CommitsV4 `json:"coms,omitempty"`
 	// Optional Structs
 	// Payment Proof
-	Proof *PaymentInfoV4 `json:"proof"`
+	Proof *PaymentInfoV4 `json:"proof,omitempty"`
 	// Kernel features arguments
-	FeatArgs *KernelFeaturesArgsV4 `json:"feat_args"`
+	FeatArgs *KernelFeaturesArgsV4 `json:"feat_args,omitempty"`
+}
+
+// Marshal is a custom marshaller that implement default for certain fields
+func (s SlateV4) Marshal() ([]byte, error) {
+	// Find a way to remove a field
+	bytes, err := json.Marshal(s)
+	if err != nil {
+		return nil, err
+	}
+
+	var tempSlateV4 map[string]json.RawMessage
+	if err := json.Unmarshal(bytes, &tempSlateV4); err != nil {
+		return nil, err
+	}
+	if s.NumParts == 2 {
+		delete(tempSlateV4, "num_parts")
+	}
+	if s.Feat == 0 {
+		delete(tempSlateV4, "feat")
+	}
+	if s.TTL == 0 {
+		delete(tempSlateV4, "ttl")
+	}
+	return json.Marshal(tempSlateV4)
+}
+
+// Unmarshal for SlateV4 implements defaults
+func (s *SlateV4) Unmarshal(bs []byte) error {
+	if err := json.Unmarshal(bs, &s); err != nil {
+		return err
+	}
+	if s.NumParts == 0 {
+		s.NumParts = 2
+	}
+	return nil
 }
 
 // SlateStateV4 state definition
@@ -137,6 +177,41 @@ type VersionCompatInfoV4 struct {
 	BlockHeaderVersion uint16 `json:"block_header_version"`
 }
 
+// MarshalJSON marshals the VersionCompatInfoV4 as a quoted version like {}:{}
+func (v VersionCompatInfoV4) MarshalJSON() ([]byte, error) {
+	str := fmt.Sprintf("%d:%d", v.Version, v.BlockHeaderVersion)
+	bytes, err := json.Marshal(str)
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
+}
+
+// UnmarshalJSON unmarshals a quoted version to a VersionCompatInfoV4
+func (v *VersionCompatInfoV4) UnmarshalJSON(bs []byte) error {
+	var verString string
+	if err := json.Unmarshal(bs, &verString); err != nil {
+		return err
+	}
+	ver := strings.Split(verString, ":")
+	if len(ver) != 2 {
+		return errors.New("cannot parse version")
+	}
+
+	version, err := strconv.ParseUint(ver[0], 10, 16)
+	if err != nil {
+		return errors.New("cannot parse version")
+	}
+
+	v.Version = uint16(version)
+	blockHeaderVersion, err := strconv.ParseUint(ver[1], 10, 16)
+	if err != nil {
+		return errors.New("cannot parse version")
+	}
+	v.BlockHeaderVersion = uint16(blockHeaderVersion)
+	return nil
+}
+
 // ParticipantDataV4 is a v4 participant data
 type ParticipantDataV4 struct {
 	// Public key corresponding to private blinding factor
@@ -144,7 +219,7 @@ type ParticipantDataV4 struct {
 	// Public key corresponding to private nonce
 	Nonce string `json:"nonce"`
 	// Public partial signature
-	Part *string `json:"part"`
+	Part *string `json:"part,omitempty"`
 }
 
 // PaymentInfoV4 is a v4 payment info
@@ -166,7 +241,7 @@ type CommitsV4 struct {
 }
 
 // OutputFeaturesV4 is a v4 output features
-type OutputFeaturesV4 struct{ uint8 }
+type OutputFeaturesV4 uint8
 
 // TransactionV4 is a v4 transaction
 type TransactionV4 struct {

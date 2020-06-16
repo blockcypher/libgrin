@@ -15,7 +15,6 @@
 package libwallet
 
 import (
-	"bytes"
 	"encoding/json"
 
 	"github.com/blockcypher/libgrin/core"
@@ -32,12 +31,18 @@ type PaymentInfo struct {
 
 // ParticipantData is a public data for each participant in the slate
 type ParticipantData struct {
+	// Id of participant in the transaction. (For now, 0=sender, 1=rec)
+	ID core.Uint64 `json:"id"`
 	// Public key corresponding to private blinding factor
 	PublicBlindExcess string `json:"public_blind_excess"`
 	// Public key corresponding to private nonce
 	PublicNonce string `json:"public_nonce"`
 	// Public partial signature
 	PartSig *string `json:"part_sig"`
+	// A message for other participants
+	Message *string `json:"message"`
+	// Signature, created with private key corresponding to 'public_blind_excess'
+	MessageSig *string `json:"message_sig"`
 }
 
 // ParticipantMessageData is the public message data (for serializing and storage)
@@ -63,115 +68,35 @@ type Slate struct {
 	NumParticipants uint `json:"num_participants"`
 	// Unique transaction ID, selected by sender
 	ID uuid.UUID `json:"id"`
-	/// Slate state
-	State SlateState `json:"state"`
 	// The core transaction data:
 	// inputs, outputs, kernels, kernel offset
-	// Optional as of V4 to allow for a compact
-	// transaction initiation
-	Transaction *core.Transaction `json:"tx"`
+	Transaction core.Transaction `json:"tx"`
 	// base amount (excluding fee)
 	Amount core.Uint64 `json:"amount"`
 	// fee amount
 	Fee core.Uint64 `json:"fee"`
+	// Block height for the transaction
+	Height core.Uint64 `json:"height"`
+	// Lock height
+	LockHeight core.Uint64 `json:"lock_height"`
 	// TTL, the block height at which wallets
 	// should refuse to process the transaction and unlock all
 	// associated outputs
 	TTLCutoffHeight *core.Uint64 `json:"ttl_cutoff_height"`
-	// Kernel Features flag -
-	// 	0: plain
-	// 	1: coinbase (invalid)
-	// 	2: height_locked
-	// 	3: NRD
-	KernelFeatures uint8 `json:"kernel_features"`
 	// Participant data, each participant in the transaction will
 	// insert their public data here. For now, 0 is sender and 1
 	// is receiver, though this will change for multi-party
 	ParticipantData []ParticipantData `json:"participant_data"`
 	// Payment Proof
 	PaymentProof *PaymentInfo `json:"payment_proof"`
-	// Kernel features arguments
-	KernelFeaturesArgs *KernelFeaturesArgs `json:"kernel_features_args"`
-	// TODO: Remove post HF3
-	// participant ID, only stored for compatibility with V3 slates
-	// not serialized anywhere
-	ParticipantID *string `json:"participant_id"`
-}
-
-// SlateState state definition
-type SlateState int
-
-const (
-	// UnknownSlateState coming from earlier versions of the slate
-	UnknownSlateState SlateState = iota
-	// Standard1SlateState flow, freshly init
-	Standard1SlateState
-	// Standard2SlateState flow, return journey
-	Standard2SlateState
-	// Standard3SlateState flow, ready for transaction posting
-	Standard3SlateState
-	// Invoice1SlateState flow, freshly init
-	Invoice1SlateState
-	// Invoice2SlateState flow, return journey
-	Invoice2SlateState
-	// Invoice3SlateState flow, ready for tranasction posting
-	Invoice3SlateState
-)
-
-func (s SlateState) String() string {
-	return toStringSlateState[s]
-}
-
-var toStringSlateState = map[SlateState]string{
-	UnknownSlateState:   "NA",
-	Standard1SlateState: "S1",
-	Standard2SlateState: "S2",
-	Standard3SlateState: "S3",
-	Invoice1SlateState:  "I1",
-	Invoice2SlateState:  "I2",
-	Invoice3SlateState:  "I3",
-}
-
-var toIDSlateState = map[string]SlateState{
-	"NA": UnknownSlateState,
-	"S1": Standard1SlateState,
-	"S2": Standard2SlateState,
-	"S3": Standard3SlateState,
-	"I1": Invoice1SlateState,
-	"I2": Invoice2SlateState,
-	"I3": Invoice3SlateState,
-}
-
-// MarshalJSON marshals the enum as a quoted json string
-func (s SlateState) MarshalJSON() ([]byte, error) {
-	buffer := bytes.NewBufferString(`"`)
-	buffer.WriteString(toStringSlateState[s])
-	buffer.WriteString(`"`)
-	return buffer.Bytes(), nil
-}
-
-// UnmarshalJSON unmarshals a quoted json string to the enum value
-func (s *SlateState) UnmarshalJSON(b []byte) error {
-	var j string
-	err := json.Unmarshal(b, &j)
-	if err != nil {
-		return err
-	}
-	// Note that if the string cannot be found then it will be set to the zero value, 'UnknownSlateState' in this case.
-	*s = toIDSlateState[j]
-	return nil
-}
-
-// KernelFeaturesArgs are the kernel features arguments definition
-type KernelFeaturesArgs struct {
-	/// Lock height, for HeightLocked (also NRD relative lock height)
-	LockHeight core.Uint64 `json:"lock_hgt"`
 }
 
 // VersionCompatInfo is the versioning and compatibility info about this slate
 type VersionCompatInfo struct {
 	// The current version of the slate format
 	Version uint16 `json:"version"`
+	// Original version this slate was converted from
+	OrigVersion uint16 `json:"orig_version"`
 	// The grin block header version this slate is intended for
 	BlockHeaderVersion uint16 `json:"block_header_version"`
 }
