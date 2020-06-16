@@ -14,13 +14,18 @@
 
 package slateversions
 
-// CurrentSlateVersion is The most recent version of the slate
-const CurrentSlateVersion uint16 = 2
+// CurrentSlateVersion is the most recent version of the slate
+const CurrentSlateVersion uint16 = 4
+
+// GrinBlockHeaderVersion is the grin block header this slate is intended to be compatible with
+const GrinBlockHeaderVersion uint16 = 3
 
 // SlateVersion represents the slate version
 type SlateVersion int
 
 const (
-	// V2 (most current)
-	V2 SlateVersion = iota
+	// V4 (most current)
+	V4 SlateVersion = iota
+	// V3 (3.0.0 - 4.0.0)
+	V3
 )
