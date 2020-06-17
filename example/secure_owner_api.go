@@ -24,6 +24,7 @@ import (
 
 	"github.com/blockcypher/libgrin/core"
 	"github.com/blockcypher/libgrin/libwallet"
+	"github.com/blockcypher/libgrin/libwallet/slateversions"
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/google/uuid"
 
@@ -724,12 +725,12 @@ func (owner *SecureOwnerAPI) GetSlatepackSecretKey(derivationIndex uint32) (*str
 }
 
 // CreateSlatepackMessage create a slatepack message from the given slate
-func (owner *SecureOwnerAPI) CreateSlatepackMessage(derivationIndex uint32, slate libwallet.Slate, senderIndex *uint32, recipients []string) (*string, error) {
+func (owner *SecureOwnerAPI) CreateSlatepackMessage(derivationIndex uint32, slate slateversions.SlateV4, senderIndex *uint32, recipients []string) (*string, error) {
 	params := struct {
 		Token       string   `json:"token"`
 		SenderIndex *uint32  `json:"sender_index"`
 		Recipients  []string `json:"recipients"`
-		Slate       libwallet.Slate
+		Slate       slateversions.SlateV4
 	}{
 		Token:       owner.token,
 		SenderIndex: senderIndex,

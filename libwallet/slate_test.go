@@ -40,10 +40,10 @@ func TestMarshalV3(t *testing.T) {
 	serializedSlateV3, err := json.Marshal(slateV3)
 	assert.Equal(t, slateV3JSON, serializedSlateV3)
 }
-func TestCustomUnmarshalV4(t *testing.T) {
+func TestUnmarshalV4(t *testing.T) {
 	slateV4JSON, _ := ioutil.ReadFile("slateversions/test_data/v4.slate")
 	var slateV4 slateversions.SlateV4
-	err := slateV4.Unmarshal(slateV4JSON)
+	err := json.Unmarshal(slateV4JSON, &slateV4)
 	assert.True(t, slateV4.Ver.Version != 0)
 
 	// Check default for num parts
@@ -51,10 +51,10 @@ func TestCustomUnmarshalV4(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestCustomMarshalV4(t *testing.T) {
+func TestMarshalV4(t *testing.T) {
 	slateV4JSON, _ := ioutil.ReadFile("slateversions/test_data/v4_raw.slate")
 	var slateV4 slateversions.SlateV4
-	err := slateV4.Unmarshal(slateV4JSON)
+	err := json.Unmarshal(slateV4JSON, &slateV4)
 	assert.Nil(t, err)
 	serializedSlateV4, err := slateV4.Marshal()
 	assert.Equal(t, slateV4JSON, serializedSlateV4)

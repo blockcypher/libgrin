@@ -15,7 +15,6 @@
 package example_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/blockcypher/libgrin/example"
@@ -58,14 +57,15 @@ func TestReal(t *testing.T) {
 	if err := ownerAPI.Close(nil); err != nil {
 		assert.Error(t, err)
 	}
-	slatepackSecretKey, err := ownerAPI.GetSlatepackSecretKey(0)
+
+	// BROKEN on 4.0.0- beta.3
+	/*slatepackSecretKey, err := ownerAPI.GetSlatepackSecretKey(0)
 	if err != nil {
 		assert.Error(t, err)
 	}
 	assert.NotNil(t, slatepackSecretKey)
 	if err := ownerAPI.Close(nil); err != nil {
 		assert.Error(t, err)
-	}
-	fmt.Println(*slatepackSecretKey)
+	}*/
 	assert.True(t, false)
 }

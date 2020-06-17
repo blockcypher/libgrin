@@ -66,48 +66,52 @@ type SlateV4 struct {
 	FeatArgs *KernelFeaturesArgsV4 `json:"feat_args,omitempty"`
 }
 
-// Marshal is a custom marshaller that implement default for certain fields
-func (s SlateV4) Marshal() ([]byte, error) {
-	bytes, err := json.Marshal(s)
+// MarshalJSON is a custom marshaller to account for default field
+func (s SlateV4) MarshalJSON() ([]byte, error) {
+	type TempSlateV4 SlateV4
+	var tempS TempSlateV4 = TempSlateV4(s)
+	bytes, err := json.Marshal(tempS)
 	if err != nil {
 		return nil, err
 	}
-
-	var tempSlateV4 map[string]json.RawMessage
-	if err := json.Unmarshal(bytes, &tempSlateV4); err != nil {
+	var tempSlateMapV4 map[string]json.RawMessage
+	if err := json.Unmarshal(bytes, &tempSlateMapV4); err != nil {
 		return nil, err
 	}
 	// Default numParts is 2
 	if s.NumParts == defaultNumParticipants {
-		delete(tempSlateV4, "num_parts")
+		delete(tempSlateMapV4, "num_parts")
 	}
 	// We could keep the following fields
 	// But save some space by having
 	if s.Amt == 0 {
-		delete(tempSlateV4, "amt")
+		delete(tempSlateMapV4, "amt")
 	}
 	if s.Fee == 0 {
-		delete(tempSlateV4, "fee")
+		delete(tempSlateMapV4, "fee")
 	}
 	if s.Feat == 0 {
-		delete(tempSlateV4, "feat")
+		delete(tempSlateMapV4, "feat")
 	}
 	if s.TTL == 0 {
-		delete(tempSlateV4, "ttl")
+		delete(tempSlateMapV4, "ttl")
 	}
-	return json.Marshal(tempSlateV4)
+	return json.Marshal(tempSlateMapV4)
 }
 
-// Unmarshal for SlateV4 implements defaults
-func (s *SlateV4) Unmarshal(bs []byte) error {
-	if err := json.Unmarshal(bs, &s); err != nil {
+// UnmarshalJSON is a custom unmarshaller that respect default value
+func (s *SlateV4) UnmarshalJSON(b []byte) error {
+	type TempSlateV4 SlateV4
+	var tempS TempSlateV4
+	if err := json.Unmarshal(b, &tempS); err != nil {
 		return err
 	}
 	// this indicates that the num parts was not in the bytes slice
 	// replace by the default num parts
-	if s.NumParts == 0 {
-		s.NumParts = defaultNumParticipants
+	if tempS.NumParts == 0 {
+		tempS.NumParts = defaultNumParticipants
 	}
+	*s = SlateV4(tempS)
 	return nil
 }
 
