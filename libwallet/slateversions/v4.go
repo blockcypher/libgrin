@@ -27,6 +27,8 @@ import (
 	"github.com/google/uuid"
 )
 
+const defaultNumParticipants uint8 = 2
+
 // SlateV4 slate v4
 type SlateV4 struct {
 	// Versioning info
@@ -66,7 +68,6 @@ type SlateV4 struct {
 
 // Marshal is a custom marshaller that implement default for certain fields
 func (s SlateV4) Marshal() ([]byte, error) {
-	// Find a way to remove a field
 	bytes, err := json.Marshal(s)
 	if err != nil {
 		return nil, err
@@ -76,8 +77,17 @@ func (s SlateV4) Marshal() ([]byte, error) {
 	if err := json.Unmarshal(bytes, &tempSlateV4); err != nil {
 		return nil, err
 	}
-	if s.NumParts == 2 {
+	// Default numParts is 2
+	if s.NumParts == defaultNumParticipants {
 		delete(tempSlateV4, "num_parts")
+	}
+	// We could keep the following fields
+	// But save some space by having
+	if s.Amt == 0 {
+		delete(tempSlateV4, "amt")
+	}
+	if s.Fee == 0 {
+		delete(tempSlateV4, "fee")
 	}
 	if s.Feat == 0 {
 		delete(tempSlateV4, "feat")
@@ -93,8 +103,10 @@ func (s *SlateV4) Unmarshal(bs []byte) error {
 	if err := json.Unmarshal(bs, &s); err != nil {
 		return err
 	}
+	// this indicates that the num parts was not in the bytes slice
+	// replace by the default num parts
 	if s.NumParts == 0 {
-		s.NumParts = 2
+		s.NumParts = defaultNumParticipants
 	}
 	return nil
 }
@@ -226,7 +238,7 @@ type ParticipantDataV4 struct {
 type PaymentInfoV4 struct {
 	Saddr string  `json:"saddr"`
 	Raddr string  `json:"raddr"`
-	Rsig  *string `json:"rsig"`
+	Rsig  *string `json:"rsig,omitempty"`
 }
 
 // CommitsV4 is a v4 commit
@@ -237,7 +249,7 @@ type CommitsV4 struct {
 	C string `json:"c"`
 	// A proof that the commitment is in the right range
 	// Only applies for transaction outputs
-	P *string `json:"p"`
+	P *string `json:"p,omitempty"`
 }
 
 // OutputFeaturesV4 is a v4 output features
