@@ -727,15 +727,15 @@ func (owner *SecureOwnerAPI) GetSlatepackSecretKey(derivationIndex uint32) (*str
 // CreateSlatepackMessage create a slatepack message from the given slate
 func (owner *SecureOwnerAPI) CreateSlatepackMessage(derivationIndex uint32, slate slateversions.SlateV4, senderIndex *uint32, recipients []string) (*string, error) {
 	params := struct {
-		Token       string   `json:"token"`
-		SenderIndex *uint32  `json:"sender_index"`
-		Recipients  []string `json:"recipients"`
-		Slate       slateversions.SlateV4
+		Token       string                `json:"token"`
+		Slate       slateversions.SlateV4 `json:"slate"`
+		SenderIndex *uint32               `json:"sender_index"`
+		Recipients  []string              `json:"recipients"`
 	}{
 		Token:       owner.token,
+		Slate:       slate,
 		SenderIndex: senderIndex,
 		Recipients:  recipients,
-		Slate:       slate,
 	}
 	paramsBytes, err := json.Marshal(params)
 	if err != nil {
@@ -767,6 +767,93 @@ func (owner *SecureOwnerAPI) CreateSlatepackMessage(derivationIndex uint32, slat
 		return nil, err
 	}
 	return &slatepackMessage, nil
+}
+
+// SlateFromSlatepackMessage create a slate from a slatepack message
+func (owner *SecureOwnerAPI) SlateFromSlatepackMessage(message string, secretIndices []uint32) (*slateversions.SlateV4, error) {
+	params := struct {
+		Token         string   `json:"token"`
+		Message       string   `json:"message"`
+		SecretIndices []uint32 `json:"secret_indices"`
+	}{
+		Token:         owner.token,
+		Message:       message,
+		SecretIndices: secretIndices,
+	}
+	paramsBytes, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+	envl, err := owner.client.EncryptedRequest("slate_from_slatepack_message", paramsBytes, owner.sharedSecret)
+	if err != nil {
+		return nil, err
+	}
+	if envl == nil {
+		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+	}
+	if envl.Error != nil {
+		log.WithFields(log.Fields{
+			"code":    envl.Error.Code,
+			"message": envl.Error.Message,
+		}).Error("OwnerAPI: RPC Error during SlateFromSlatepackMessage")
+		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
+	}
+	var result Result
+	if err = json.Unmarshal(envl.Result, &result); err != nil {
+		return nil, err
+	}
+	if result.Err != nil {
+		return nil, errors.New(string(result.Err))
+	}
+	var slateV4 slateversions.SlateV4
+	if err := json.Unmarshal(result.Ok, &slateV4); err != nil {
+		return nil, err
+	}
+	return &slateV4, nil
+}
+
+// DecodeSlatepackMessage decodes a slatepack message
+func (owner *SecureOwnerAPI) DecodeSlatepackMessage(message string, secretIndices []uint32) (*libwallet.Slatepack, error) {
+	params := struct {
+		Token         string   `json:"token"`
+		Message       string   `json:"message"`
+		SecretIndices []uint32 `json:"secret_indices"`
+	}{
+		Token:         owner.token,
+		Message:       message,
+		SecretIndices: secretIndices,
+	}
+	paramsBytes, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+
+	envl, err := owner.client.EncryptedRequest("decode_slatepack_message", paramsBytes, owner.sharedSecret)
+	if err != nil {
+		return nil, err
+	}
+	if envl == nil {
+		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+	}
+	if envl.Error != nil {
+		log.WithFields(log.Fields{
+			"code":    envl.Error.Code,
+			"message": envl.Error.Message,
+		}).Error("OwnerAPI: RPC Error during DecodeSlatepackMessage")
+		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
+	}
+	var result Result
+	if err = json.Unmarshal(envl.Result, &result); err != nil {
+		return nil, err
+	}
+	if result.Err != nil {
+		return nil, errors.New(string(result.Err))
+	}
+	var slatepack libwallet.Slatepack
+	if err := json.Unmarshal(result.Ok, &slatepack); err != nil {
+		return nil, err
+	}
+	return &slatepack, nil
 }
 
 // SetTorConfig set the TOR configuration for this instance of the OwnerAPI,

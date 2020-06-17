@@ -36,7 +36,7 @@ type SlateV4 struct {
 	// Unique transaction ID, selected by sender
 	ID uuid.UUID `json:"id"`
 	// Slate state
-	Sta SlateStateV4 `json:"sta"`
+	Sta slateStateV4 `json:"sta"`
 	// Optional fields depending on state
 	// Offset, modified by each participant inserting inputs
 	Off string `json:"off,omitempty"`
@@ -116,11 +116,11 @@ func (s *SlateV4) UnmarshalJSON(b []byte) error {
 }
 
 // SlateStateV4 state definition
-type SlateStateV4 int
+type slateStateV4 int
 
 const (
 	// UnknownSlateState coming from earlier versions of the slate
-	UnknownSlateState SlateStateV4 = iota
+	UnknownSlateState slateStateV4 = iota
 	// Standard1SlateState flow, freshly init
 	Standard1SlateState
 	// Standard2SlateState flow, return journey
@@ -135,11 +135,7 @@ const (
 	Invoice3SlateState
 )
 
-func (s SlateStateV4) String() string {
-	return toStringSlateStateV4[s]
-}
-
-var toStringSlateStateV4 = map[SlateStateV4]string{
+var toStringSlateStateV4 = map[slateStateV4]string{
 	UnknownSlateState:   "NA",
 	Standard1SlateState: "S1",
 	Standard2SlateState: "S2",
@@ -149,7 +145,7 @@ var toStringSlateStateV4 = map[SlateStateV4]string{
 	Invoice3SlateState:  "I3",
 }
 
-var toIDSlateStateV4 = map[string]SlateStateV4{
+var toIDSlateStateV4 = map[string]slateStateV4{
 	"NA": UnknownSlateState,
 	"S1": Standard1SlateState,
 	"S2": Standard2SlateState,
@@ -160,7 +156,7 @@ var toIDSlateStateV4 = map[string]SlateStateV4{
 }
 
 // MarshalJSON marshals the enum as a quoted json string
-func (s SlateStateV4) MarshalJSON() ([]byte, error) {
+func (s slateStateV4) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	buffer.WriteString(toStringSlateStateV4[s])
 	buffer.WriteString(`"`)
@@ -168,7 +164,7 @@ func (s SlateStateV4) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON unmarshals a quoted json string to the enum value
-func (s *SlateStateV4) UnmarshalJSON(b []byte) error {
+func (s *slateStateV4) UnmarshalJSON(b []byte) error {
 	var j string
 	err := json.Unmarshal(b, &j)
 	if err != nil {
