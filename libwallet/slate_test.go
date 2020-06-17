@@ -56,6 +56,6 @@ func TestMarshalV4(t *testing.T) {
 	var slateV4 slateversions.SlateV4
 	err := json.Unmarshal(slateV4JSON, &slateV4)
 	assert.Nil(t, err)
-	serializedSlateV4, err := slateV4.Marshal()
+	serializedSlateV4, err := json.Marshal(slateV4)
 	assert.Equal(t, slateV4JSON, serializedSlateV4)
 }
