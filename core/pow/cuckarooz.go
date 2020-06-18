@@ -23,10 +23,10 @@ import (
 // NewCuckaroozCtx instantiates a new CuckaroozContext as a PowContext. Note that this can't
 /// be moved in the PoWContext trait as this particular trait needs to be
 /// convertible to an object trait.
-func NewCuckaroozCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroomContext {
+func NewCuckaroozCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroozContext {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, proofSize)
-	return &CuckaroomContext{chainType, params}
+	return &CuckaroozContext{chainType, params}
 }
 
 // CuckaroozContext is a Cuckarooz cycle context. Only includes the verifier for now.
