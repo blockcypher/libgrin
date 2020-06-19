@@ -75,7 +75,7 @@ func (c *CuckaroozContext) Verify(proof Proof) error {
 		j = i
 		k := j
 		for {
-			k = (j + 1) % (2 * c.params.proofSize)
+			k = (k + 1) % (2 * c.params.proofSize)
 			if k == i {
 				break
 			}
