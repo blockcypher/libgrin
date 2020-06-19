@@ -60,7 +60,7 @@ func (c *CuckaroozContext) Verify(proof Proof) error {
 		// 21 is standard siphash rotation constant
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, true)
 		uvs[2*n] = edge & nodeMask
-		uvs[2*n+1] = edge >> 32 & nodeMask
+		uvs[2*n+1] = (edge >> 32) & nodeMask
 		xoruv ^= uvs[2*n] ^ uvs[2*n+1]
 	}
 	if xoruv != 0 {
@@ -79,13 +79,13 @@ func (c *CuckaroozContext) Verify(proof Proof) error {
 			if k == i {
 				break
 			}
-		}
-		if uvs[k] == uvs[i] {
-			// find other edge endpoint matching one at i
-			if j != i {
-				return errors.New("branch in cycle")
+			if uvs[k] == uvs[i] {
+				// find other edge endpoint matching one at i
+				if j != i {
+					return errors.New("branch in cycle")
+				}
+				j = k
 			}
-			j = k
 		}
 		if j == i {
 			return errors.New("cycle dead ends")
