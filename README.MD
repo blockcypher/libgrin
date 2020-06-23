@@ -9,7 +9,7 @@ Currently, it contains the basic consensus parameters, chain, slate structures a
 
 ## Requirements
 
-[Go](http://golang.org) 1.11 or newer.
+[Go](http://golang.org) 1.14 or newer.
 
 ## Installation
 

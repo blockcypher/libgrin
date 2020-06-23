@@ -12,31 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package example_test
+package owner_test
 
 import (
 	"encoding/json"
 	"fmt"
 	"testing"
 
-	"github.com/blockcypher/libgrin/example"
+	"github.com/blockcypher/libgrin/owner"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEnvelope(t *testing.T) {
-	requestBody, err := json.Marshal(example.Envelope{
+	requestBody, err := json.Marshal(owner.Envelope{
 		Method: "test",
 		Params: nil,
 	})
 	assert.Nil(t, err)
 
-	var envl example.Envelope
+	var envl owner.Envelope
 	err = json.Unmarshal(requestBody, &envl)
 	fmt.Println(envl)
 	assert.Nil(t, err)
-	assert.Equal(t, example.JSONRPCID("1"), envl.ID)
+	assert.Equal(t, owner.JSONRPCID("1"), envl.ID)
 	assert.Equal(t, "test", envl.Method)
-	assert.Equal(t, example.JSONRPCV2Version("2.0"), envl.Version)
+	assert.Equal(t, owner.JSONRPCV2Version("2.0"), envl.Version)
 	assert.Nil(t, envl.Params)
 }
 
