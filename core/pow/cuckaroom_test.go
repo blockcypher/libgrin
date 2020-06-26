@@ -70,6 +70,6 @@ func TestCuckaroom29Vectors(t *testing.T) {
 
 func newCuckaroomImpl(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroomContext {
 	cp := new(CuckooParams)
-	params := cp.new(edgeBits, proofSize)
+	params := cp.new(edgeBits, edgeBits, proofSize)
 	return &CuckaroomContext{chainType, params}
 }

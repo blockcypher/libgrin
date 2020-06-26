@@ -23,7 +23,7 @@ import (
 // NewCuckatooCtx instantiates a new CuckatooContext as a PowContext
 func NewCuckatooCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int, maxSols uint32) *CuckatooContext {
 	cp := new(CuckooParams)
-	params := cp.new(edgeBits, proofSize)
+	params := cp.new(edgeBits, edgeBits, proofSize)
 	return &CuckatooContext{chainType, params}
 }
 
@@ -36,11 +36,6 @@ type CuckatooContext struct {
 // SetHeaderNonce sets the header nonce.
 func (c *CuckatooContext) SetHeaderNonce(header []uint8, nonce *uint32) {
 	c.params.resetHeaderNonce(header, nonce)
-}
-
-// Return siphash masked for type.
-func (c *CuckatooContext) sipnode(edge, uorv uint64) uint64 {
-	return c.params.sipnode(edge, uorv, false)
 }
 
 // Verify verifies the Cuckatoo context.
@@ -60,8 +55,8 @@ func (c *CuckatooContext) Verify(proof Proof) error {
 		if n > 0 && nonces[n] <= nonces[n-1] {
 			return errors.New("edges not ascending")
 		}
-		uvs[2*n] = c.sipnode(nonces[n], 0)
-		uvs[2*n+1] = c.sipnode(nonces[n], 1)
+		uvs[2*n] = c.params.sipnode(nonces[n], 0)
+		uvs[2*n+1] = c.params.sipnode(nonces[n], 1)
 		xor0 ^= uvs[2*n]
 		xor1 ^= uvs[2*n+1]
 	}

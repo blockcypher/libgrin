@@ -64,6 +64,6 @@ func TestCuckaroo19Vectors(t *testing.T) {
 
 func newCuckarooImpl(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckarooContext {
 	cp := new(CuckooParams)
-	params := cp.new(edgeBits, proofSize)
+	params := cp.new(edgeBits, edgeBits, proofSize)
 	return &CuckarooContext{chainType, params}
 }
