@@ -21,7 +21,7 @@ import (
 
 func TestCuckooParams(t *testing.T) {
 	cp := new(CuckooParams)
-	params := cp.new(19, 42)
+	params := cp.new(19, 19, 42)
 	assert.Equal(t, params.edgeBits, uint8(19))
 	assert.Equal(t, params.proofSize, 42)
 	assert.Equal(t, params.numEdges, uint64(524288))

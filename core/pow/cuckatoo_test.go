@@ -75,6 +75,6 @@ func TestValidateFail(t *testing.T) {
 
 func newCuckatooImpl(chainType consensus.ChainType, edgeBits uint8, proofSize int, maxSols uint32) CuckatooContext {
 	cp := new(CuckooParams)
-	params := cp.new(edgeBits, proofSize)
+	params := cp.new(edgeBits, edgeBits, proofSize)
 	return CuckatooContext{chainType, params}
 }

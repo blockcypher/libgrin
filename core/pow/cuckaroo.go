@@ -25,7 +25,7 @@ import (
 // NewCuckarooCtx instantiates a new CuckarooContext as a PowContext
 func NewCuckarooCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckarooContext {
 	cp := new(CuckooParams)
-	params := cp.new(edgeBits, proofSize)
+	params := cp.new(edgeBits, edgeBits, proofSize)
 	return &CuckarooContext{chainType, params}
 }
 
@@ -48,7 +48,6 @@ func (c *CuckarooContext) Verify(proof Proof) error {
 	nonces := proof.Nonces
 	uvs := make([]uint64, 2*proof.proofSize())
 	var xor0, xor1 uint64
-	nodeMask := c.params.edgeMask
 
 	for n := 0; n < proof.proofSize(); n++ {
 		if nonces[n] > c.params.edgeMask {
@@ -59,9 +58,9 @@ func (c *CuckarooContext) Verify(proof Proof) error {
 		}
 		// 21 is standard siphash rotation constant
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, false)
-		uvs[2*n] = edge & nodeMask
+		uvs[2*n] = edge & c.params.edgeMask
 		xor0 ^= uvs[2*n]
-		uvs[2*n+1] = (edge >> 32) & nodeMask
+		uvs[2*n+1] = (edge >> 32) & c.params.edgeMask
 		xor1 ^= uvs[2*n+1]
 	}
 
