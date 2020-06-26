@@ -58,8 +58,8 @@ func (c *CuckaroozContext) Verify(proof Proof) error {
 		}
 		// 21 is standard siphash rotation constant
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, true)
-		uvs[2*n] = edge & c.params.edgeMask
-		uvs[2*n+1] = (edge >> 32) & c.params.edgeMask
+		uvs[2*n] = edge & c.params.nodeMask
+		uvs[2*n+1] = (edge >> 32) & c.params.nodeMask
 		xoruv ^= uvs[2*n] ^ uvs[2*n+1]
 	}
 	if xoruv != 0 {

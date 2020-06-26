@@ -60,9 +60,9 @@ func (c *CuckaroomContext) Verify(proof Proof) error {
 		}
 		// 21 is standard siphash rotation constant
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, true)
-		from[n] = edge & c.params.edgeMask
+		from[n] = edge & c.params.nodeMask
 		xorFrom ^= from[n]
-		to[n] = (edge >> 32) & c.params.edgeMask
+		to[n] = (edge >> 32) & c.params.nodeMask
 		xorTo ^= to[n]
 	}
 	if xorFrom != xorTo {
