@@ -13,3 +13,7 @@
 
 # General
 .DS_Store
+
+# Local dev
+/config/test.env
+owner_test.go
