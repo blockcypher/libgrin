@@ -140,6 +140,8 @@ func (owner *SecureOwnerAPI) InitSecureAPI(pubKey []byte) (string, error) {
 	return serverPubKey, nil
 }
 
+// Accounts Returns a list of accounts stored in the wallet
+// (i.e. mappings between user-specified labels and BIP32 derivation paths
 func (owner *SecureOwnerAPI) Accounts() (*[]libwallet.AccountPathMapping, error) {
 	params := struct {
 		Token string `json:"token"`
