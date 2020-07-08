@@ -159,7 +159,7 @@ func (owner *SecureOwnerAPI) Accounts() (*[]libwallet.AccountPathMapping, error)
 	}
 
 	if envl == nil {
-		return nil, errors.New("Accounts: Empty RPC Response from grin-wallet")
+		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
