@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package example
+package client
 
 import (
 	"crypto/ecdsa"
@@ -138,6 +138,48 @@ func (owner *SecureOwnerAPI) InitSecureAPI(pubKey []byte) (string, error) {
 	}
 	serverPubKey := strings.Trim(string(result.Ok), "\"")
 	return serverPubKey, nil
+}
+
+// Accounts Returns a list of accounts stored in the wallet
+// (i.e. mappings between user-specified labels and BIP32 derivation paths
+func (owner *SecureOwnerAPI) Accounts() (*[]libwallet.AccountPathMapping, error) {
+	params := struct {
+		Token string `json:"token"`
+	}{
+		Token: owner.token,
+	}
+	paramsBytes, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+
+	envl, err := owner.client.EncryptedRequest("accounts", paramsBytes, owner.sharedSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	if envl == nil {
+		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+	}
+	if envl.Error != nil {
+		log.WithFields(log.Fields{
+			"code":    envl.Error.Code,
+			"message": envl.Error.Message,
+		}).Error("OwnerAPI: RPC Error during Accounts")
+		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
+	}
+	var result Result
+	if err = json.Unmarshal(envl.Result, &result); err != nil {
+		return nil, err
+	}
+	if result.Err != nil {
+		return nil, errors.New(string(result.Err))
+	}
+	var accounts []libwallet.AccountPathMapping
+	if err = json.Unmarshal(result.Ok, &accounts); err != nil {
+		return nil, err
+	}
+	return &accounts, nil
 }
 
 // OpenWallet `opens` a wallet, populating the internal keychain with the encrypted seed, and optionally

@@ -24,6 +24,14 @@ import (
 	"github.com/google/uuid"
 )
 
+// AccountPathMapping maps name accounts to BIP32 paths
+type AccountPathMapping struct {
+	// label used by user
+	Label string
+	// Corresponding parent BIP32 derivation path
+	Path string
+}
+
 // OutputData is the information about an output that's being tracked by the wallet. Must be
 // enough to reconstruct the commitment associated with the output when the
 // root private key is known.

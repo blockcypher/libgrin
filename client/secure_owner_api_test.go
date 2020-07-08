@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package example_test
+package client_test
 
 import (
 	"testing"
 )
 
-//"github.com/blockcypher/libgrin/example"
+//"github.com/blockcypher/libgrin/client"
 //"github.com/blockcypher/libgrin/libwallet"
 //"github.com/stretchr/testify/assert"
 
