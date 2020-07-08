@@ -20,11 +20,6 @@ import (
 	"github.com/blockcypher/libgrin/libwallet/slateversions"
 )
 
-type AccountPathMapping struct {
-	Label string
-	Path  string
-}
-
 // SendTXArgs Send TX API Args
 // TODO: This is here to ensure the legacy V1 API remains intact
 // remove this when v1 api is removed
