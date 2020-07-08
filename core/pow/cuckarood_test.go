@@ -72,6 +72,6 @@ func TestCuckarood29Vectors(t *testing.T) {
 
 func newCuckaroodImpl(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroodContext {
 	cp := new(CuckooParams)
-	params := cp.new(edgeBits, proofSize)
+	params := cp.new(edgeBits, edgeBits-1, proofSize)
 	return &CuckaroodContext{chainType, params}
 }

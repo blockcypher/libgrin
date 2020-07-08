@@ -25,7 +25,7 @@ import (
 /// convertible to an object trait.
 func NewCuckaroomCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroomContext {
 	cp := new(CuckooParams)
-	params := cp.new(edgeBits, proofSize)
+	params := cp.new(edgeBits, edgeBits, proofSize)
 	return &CuckaroomContext{chainType, params}
 }
 
@@ -50,7 +50,6 @@ func (c *CuckaroomContext) Verify(proof Proof) error {
 	to := make([]uint64, proof.proofSize())
 	var xorFrom uint64 = 0
 	var xorTo uint64 = 0
-	nodeMask := c.params.edgeMask >> 1
 
 	for n := 0; n < proof.proofSize(); n++ {
 		if nonces[n] > c.params.edgeMask {
@@ -61,9 +60,9 @@ func (c *CuckaroomContext) Verify(proof Proof) error {
 		}
 		// 21 is standard siphash rotation constant
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, true)
-		from[n] = edge & nodeMask
+		from[n] = edge & c.params.nodeMask
 		xorFrom ^= from[n]
-		to[n] = (edge >> 32) & nodeMask
+		to[n] = (edge >> 32) & c.params.nodeMask
 		xorTo ^= to[n]
 	}
 	if xorFrom != xorTo {

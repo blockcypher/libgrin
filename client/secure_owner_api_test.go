@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package example_test
+package client_test
 
 import (
 	"testing"
 )
+
+//"github.com/blockcypher/libgrin/client"
+//"github.com/blockcypher/libgrin/libwallet"
+//"github.com/stretchr/testify/assert"
 
 func TestReal(t *testing.T) {
 	// commenting this since this can't be done on CI for now

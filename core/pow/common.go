@@ -56,14 +56,17 @@ type CuckooParams struct {
 	numEdges    uint64
 	siphashKeys [4]uint64
 	edgeMask    uint64
+	nodeMask    uint64
 }
 
 // Instantiates new params and calculate edge mask, etc
-func (c *CuckooParams) new(edgeBits uint8, proofSize int) CuckooParams {
+func (c *CuckooParams) new(edgeBits, nodeBits uint8, proofSize int) CuckooParams {
 	numEdges := uint64(1) << edgeBits
 	edgeMask := numEdges - 1
+	numNodes := uint64(1) << nodeBits
+	nodeMask := numNodes - 1
 	var siphashKeys [4]uint64
-	return CuckooParams{edgeBits, proofSize, numEdges, siphashKeys, edgeMask}
+	return CuckooParams{edgeBits, proofSize, numEdges, siphashKeys, edgeMask, nodeMask}
 }
 
 // Reset the main keys used for siphash from the header and nonce
@@ -72,12 +75,8 @@ func (c *CuckooParams) resetHeaderNonce(header []uint8, nonce *uint32) {
 }
 
 // Return siphash masked for type
-func (c *CuckooParams) sipnode(edge, uorv uint64, shift bool) uint64 {
+func (c *CuckooParams) sipnode(edge, uorv uint64) uint64 {
 	hashUint64 := SipHash24(c.siphashKeys, 2*edge+uorv, 21)
-	masked := hashUint64 & c.edgeMask
-	if shift {
-		masked <<= 1
-		masked |= uorv
-	}
-	return masked
+	node := hashUint64 & c.nodeMask
+	return node
 }

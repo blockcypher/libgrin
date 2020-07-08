@@ -23,10 +23,10 @@ import (
 // NewCuckaroozCtx instantiates a new CuckaroozContext as a PowContext. Note that this can't
 /// be moved in the PoWContext trait as this particular trait needs to be
 /// convertible to an object trait.
-func NewCuckaroozCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroomContext {
+func NewCuckaroozCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroozContext {
 	cp := new(CuckooParams)
-	params := cp.new(edgeBits, proofSize)
-	return &CuckaroomContext{chainType, params}
+	params := cp.new(edgeBits, edgeBits+1, proofSize)
+	return &CuckaroozContext{chainType, params}
 }
 
 // CuckaroozContext is a Cuckarooz cycle context. Only includes the verifier for now.
@@ -48,7 +48,6 @@ func (c *CuckaroozContext) Verify(proof Proof) error {
 	nonces := proof.Nonces
 	uvs := make([]uint64, 2*proof.proofSize())
 	var xoruv uint64 = 0
-	nodeMask := c.params.edgeMask<<1 | 1
 
 	for n := 0; n < proof.proofSize(); n++ {
 		if nonces[n] > c.params.edgeMask {
@@ -59,8 +58,8 @@ func (c *CuckaroozContext) Verify(proof Proof) error {
 		}
 		// 21 is standard siphash rotation constant
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 21, true)
-		uvs[2*n] = edge & nodeMask
-		uvs[2*n+1] = edge >> 32 & nodeMask
+		uvs[2*n] = edge & c.params.nodeMask
+		uvs[2*n+1] = (edge >> 32) & c.params.nodeMask
 		xoruv ^= uvs[2*n] ^ uvs[2*n+1]
 	}
 	if xoruv != 0 {
@@ -75,17 +74,17 @@ func (c *CuckaroozContext) Verify(proof Proof) error {
 		j = i
 		k := j
 		for {
-			k = (j + 1) % (2 * c.params.proofSize)
+			k = (k + 1) % (2 * c.params.proofSize)
 			if k == i {
 				break
 			}
-		}
-		if uvs[k] == uvs[i] {
-			// find other edge endpoint matching one at i
-			if j != i {
-				return errors.New("branch in cycle")
+			if uvs[k] == uvs[i] {
+				// find other edge endpoint matching one at i
+				if j != i {
+					return errors.New("branch in cycle")
+				}
+				j = k
 			}
-			j = k
 		}
 		if j == i {
 			return errors.New("cycle dead ends")

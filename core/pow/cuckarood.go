@@ -25,7 +25,7 @@ import (
 // convertible to an object trait.
 func NewCuckaroodCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroodContext {
 	cp := new(CuckooParams)
-	params := cp.new(edgeBits, proofSize)
+	params := cp.new(edgeBits, edgeBits-1, proofSize)
 	return &CuckaroodContext{chainType, params}
 }
 
@@ -49,7 +49,6 @@ func (c *CuckaroodContext) Verify(proof Proof) error {
 	uvs := make([]uint64, 2*proof.proofSize())
 	ndir := make([]uint64, 2)
 	var xor0, xor1 uint64
-	nodeMask := c.params.edgeMask >> 1
 
 	for n := 0; n < proof.proofSize(); n++ {
 		dir := uint(nonces[n] & 1)
@@ -65,9 +64,9 @@ func (c *CuckaroodContext) Verify(proof Proof) error {
 		// cuckarood uses a non-standard siphash rotation constant 25 as anti-ASIC tweak
 		edge := SipHashBlock(c.params.siphashKeys, nonces[n], 25, false)
 		idx := 4*ndir[dir] + 2*uint64(dir)
-		uvs[idx] = edge & nodeMask
+		uvs[idx] = edge & c.params.nodeMask
 		xor0 ^= uvs[idx]
-		uvs[idx+1] = (edge >> 32) & nodeMask
+		uvs[idx+1] = (edge >> 32) & c.params.nodeMask
 		xor1 ^= uvs[idx+1]
 		ndir[dir]++
 	}
