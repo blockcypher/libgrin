@@ -16,15 +16,7 @@ package owner_test
 
 import (
 	"testing"
-
-	log "github.com/sirupsen/logrus"
 )
-
-func checkError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 func TestReal(t *testing.T) {
 	// commenting this since this can't be done on CI for now
