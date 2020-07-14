@@ -21,14 +21,14 @@ import (
 	"github.com/blockcypher/libgrin/core/consensus"
 )
 
-// GrinAPI struct
-type GrinAPI struct {
-	GrinServerAPI string
+// NodeAPI struct
+type NodeAPI struct {
+	URL string
 }
 
 // GetBlockReward queries the node to get the block reward with fees
-func (grinAPI *GrinAPI) GetBlockReward(blockHash string) (uint64, error) {
-	block, err := grinAPI.GetBlockByHash(blockHash)
+func (nodeAPI *NodeAPI) GetBlockReward(blockHash string) (uint64, error) {
+	block, err := nodeAPI.GetBlockByHash(blockHash)
 	if err != nil {
 		return 0, err
 	}
@@ -43,9 +43,9 @@ func (grinAPI *GrinAPI) GetBlockReward(blockHash string) (uint64, error) {
 }
 
 // GetBlockByHash returns a block using the hash
-func (grinAPI *GrinAPI) GetBlockByHash(blockHash string) (*api.BlockPrintable, error) {
+func (nodeAPI *NodeAPI) GetBlockByHash(blockHash string) (*api.BlockPrintable, error) {
 	var block api.BlockPrintable
-	url := "http://" + grinAPI.GrinServerAPI + "/v1/blocks/" + blockHash
+	url := "http://" + nodeAPI.URL + "/v1/blocks/" + blockHash
 	if err := getJSON(url, &block); err != nil {
 		return nil, err
 	}
@@ -59,9 +59,9 @@ func (grinAPI *GrinAPI) GetBlockByHash(blockHash string) (*api.BlockPrintable, e
 }
 
 // GetBlockByHeight returns a block using the height
-func (grinAPI *GrinAPI) GetBlockByHeight(height uint64) (*api.BlockPrintable, error) {
+func (nodeAPI *NodeAPI) GetBlockByHeight(height uint64) (*api.BlockPrintable, error) {
 	var block api.BlockPrintable
-	url := fmt.Sprintf("http://%s/v1/blocks/%d", grinAPI.GrinServerAPI, height)
+	url := fmt.Sprintf("http://%s/v1/blocks/%d", nodeAPI.URL, height)
 	if err := getJSON(url, &block); err != nil {
 		return nil, err
 	}
@@ -75,9 +75,9 @@ func (grinAPI *GrinAPI) GetBlockByHeight(height uint64) (*api.BlockPrintable, er
 }
 
 // GetStatus returns the node status
-func (grinAPI *GrinAPI) GetStatus() (*api.Status, error) {
+func (nodeAPI *NodeAPI) GetStatus() (*api.Status, error) {
 	var status api.Status
-	url := "http://" + grinAPI.GrinServerAPI + "/v1/status"
+	url := "http://" + nodeAPI.URL + "/v1/status"
 	if err := getJSON(url, &status); err != nil {
 		return nil, err
 	}

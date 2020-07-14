@@ -118,12 +118,12 @@ func addBlock() {
 	blocks = append(blocks, block16112)
 }
 
-func nextAPI(increment int) (client.GrinAPI, string) {
+func nextAPI(increment int) (client.NodeAPI, string) {
 	var startPort = 23413
 	portInt := startPort + increment
 	port := strconv.Itoa(portInt)
 	addr := "127.0.0.1:" + port
-	return client.GrinAPI{GrinServerAPI: addr}, addr
+	return client.NodeAPI{URL: addr}, addr
 }
 
 // The API used here
@@ -170,7 +170,7 @@ func TestGetBlockByHashMissing(t *testing.T) {
 }
 
 func TestGetBlockByHashUnreachable(t *testing.T) {
-	grinAPI := client.GrinAPI{}
+	grinAPI := client.NodeAPI{}
 	var blockHash = "0822cd711993d0f9a3ffdb4e755defd84a40aa25ce72f8053fa330247a36f687"
 	block, err := grinAPI.GetBlockByHash(blockHash)
 	assert.Error(t, err)
@@ -197,7 +197,7 @@ func TestGetBlockByHeightMissing(t *testing.T) {
 }
 
 func TestGetBlockUnreachable(t *testing.T) {
-	grinAPI := client.GrinAPI{}
+	grinAPI := client.NodeAPI{}
 	block, err := grinAPI.GetBlockByHeight(1619)
 	assert.Error(t, err)
 	assert.Nil(t, block)
@@ -218,7 +218,7 @@ func TestGetStatus(t *testing.T) {
 }
 
 func TestGetStatusUnreachable(t *testing.T) {
-	grinAPI := client.GrinAPI{}
+	grinAPI := client.NodeAPI{}
 	status, err := grinAPI.GetStatus()
 	assert.Error(t, err)
 	assert.Nil(t, status)
