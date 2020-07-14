@@ -22,13 +22,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// API struct
-type grinAPI struct {
+// GrinAPI struct
+type GrinAPI struct {
 	GrinServerAPI string
 }
 
 // GetBlockReward queries the node to get the block reward with fees
-func (grinAPI *grinAPI) GetBlockReward(blockHash string) (uint64, error) {
+func (grinAPI *GrinAPI) GetBlockReward(blockHash string) (uint64, error) {
 	block, err := grinAPI.GetBlockByHash(blockHash)
 	if err != nil {
 		return 0, err
@@ -44,7 +44,7 @@ func (grinAPI *grinAPI) GetBlockReward(blockHash string) (uint64, error) {
 }
 
 // GetBlockByHash returns a block using the hash
-func (grinAPI *grinAPI) GetBlockByHash(blockHash string) (*api.BlockPrintable, error) {
+func (grinAPI *GrinAPI) GetBlockByHash(blockHash string) (*api.BlockPrintable, error) {
 	var block api.BlockPrintable
 	url := "http://" + grinAPI.GrinServerAPI + "/v1/blocks/" + blockHash
 	if err := getJSON(url, &block); err != nil {
@@ -59,8 +59,8 @@ func (grinAPI *grinAPI) GetBlockByHash(blockHash string) (*api.BlockPrintable, e
 	return &block, nil
 }
 
-// GetBlockByHash returns a block using the height
-func (grinAPI *grinAPI) GetBlockByHeight(height uint64) (*api.BlockPrintable, error) {
+// GetBlockByHeight returns a block using the height
+func (grinAPI *GrinAPI) GetBlockByHeight(height uint64) (*api.BlockPrintable, error) {
 	var block api.BlockPrintable
 	url := fmt.Sprintf("http://%s/v1/blocks/%d", grinAPI.GrinServerAPI, height)
 	if err := getJSON(url, &block); err != nil {
@@ -75,8 +75,8 @@ func (grinAPI *grinAPI) GetBlockByHeight(height uint64) (*api.BlockPrintable, er
 	return &block, nil
 }
 
-// GetBlockByHash returns a block using the hash
-func (grinAPI *grinAPI) GetStatus() (*api.Status, error) {
+// GetStatus returns the node status
+func (grinAPI *GrinAPI) GetStatus() (*api.Status, error) {
 	var status api.Status
 	url := "http://" + grinAPI.GrinServerAPI + "/v1/status"
 	if err := getJSON(url, &status); err != nil {
@@ -85,7 +85,8 @@ func (grinAPI *grinAPI) GetStatus() (*api.Status, error) {
 	return &status, nil
 }
 
-func (grinAPI *grinAPI) GetTargetDifficultyAndHashrates(status *api.Status) (uint64, float64, float64, error) {
+// GetTargetDifficultyAndHashrates returns the target difficulty and hashrate
+func (grinAPI *GrinAPI) GetTargetDifficultyAndHashrates(status *api.Status) (uint64, float64, float64, error) {
 	if status == nil {
 		return 0, 0, 0, fmt.Errorf("status is nil")
 	}
@@ -115,8 +116,40 @@ func (grinAPI *grinAPI) GetTargetDifficultyAndHashrates(status *api.Status) (uin
 	return targetDifficulty, primaryHashrate, secondaryHashrate, nil
 }
 
+// GetTargetDifficultyAndAllHashrates retrieve the target difficulty and hashrate
+// different from the function above as it send back ALL the hashrates (c29,c31...)
+func (grinAPI *GrinAPI) GetTargetDifficultyAndAllHashrates(status *api.Status) (uint64, map[uint8]float64, error) {
+	if status == nil {
+		return 0, nil, fmt.Errorf("status is nil")
+	}
+	lastBlock, err := grinAPI.GetBlockByHash(status.Tip.LastBlockPushed)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("API: Cannot get last block from Grin Node API")
+		return 0, nil, fmt.Errorf("API: Cannot get last block from Grin Node API: %s", err)
+	}
+	previousBlock, err := grinAPI.GetBlockByHash(status.Tip.PrevBlockToLast)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("API: Cannot get previous block from Grin Node API")
+		return 0, nil, fmt.Errorf("API: Cannot get previous block from Grin Node API: %s", err)
+	}
+	targetDifficulty := lastBlock.Header.TotalDifficulty - previousBlock.Header.TotalDifficulty
+
+	hashrates, err := grinAPI.computeAllHashrates(lastBlock.Header.Height)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("API: Cannot compute hashrates")
+		return 0, nil, fmt.Errorf("API: Cannot compute hashrates: %s", err)
+	}
+	return targetDifficulty, hashrates, nil
+}
+
 // computePrimarySecondaryNetworkHashrates is a shameless copy of https://github.com/grin-pool/grin-pool/blob/f3e21651b26f759b5303e9f7f702a55d55f63ca4/grin-py/grinlib/grinstats.py#L93
-func (grinAPI *grinAPI) computePrimarySecondaryNetworkHashrates(endHeight uint64) (float64, float64, error) {
+func (grinAPI *GrinAPI) computePrimarySecondaryNetworkHashrates(endHeight uint64) (float64, float64, error) {
 	var blocks []api.BlockPrintable
 	var startHeight uint64
 	if endHeight < consensus.DifficultyAdjustWindow {
@@ -186,4 +219,23 @@ func estimateAllHashrates(blocks []api.BlockPrintable) (map[uint8]float64, error
 		gpsMap[edgeBits] = gps
 	}
 	return gpsMap, nil
+}
+
+func (grinAPI *GrinAPI) computeAllHashrates(endHeight uint64) (map[uint8]float64, error) {
+	var blocks []api.BlockPrintable
+	var startHeight uint64
+	if endHeight < consensus.DifficultyAdjustWindow {
+		startHeight = 0
+	}
+	startHeight = endHeight - consensus.DifficultyAdjustWindow
+	for height := startHeight; height <= endHeight; height++ {
+		block, err := grinAPI.GetBlockByHeight(height)
+		if err != nil {
+			return nil, err
+		}
+		blocks = append(blocks, *block)
+	}
+
+	return estimateAllHashrates(blocks)
+
 }
