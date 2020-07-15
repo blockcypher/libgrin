@@ -18,15 +18,11 @@ import (
 	"testing"
 )
 
-//"github.com/blockcypher/libgrin/client"
-//"github.com/blockcypher/libgrin/libwallet"
-//"github.com/stretchr/testify/assert"
-
 func TestReal(t *testing.T) {
 	// commenting this since this can't be done on CI for now
 	/*
 		url := "http://127.0.0.1:3420/v3/owner"
-		ownerAPI := example.NewSecureOwnerAPI(url)
+		ownerAPI := client.NewSecureOwnerAPI(url)
 		if err := ownerAPI.Init(); err != nil {
 			assert.Error(t, err)
 		}
@@ -81,13 +77,13 @@ func TestReal(t *testing.T) {
 				},
 				ID:  id,
 				Sta: slateversions.Standard1SlateState,
-				Off: "0gKWSQAAAADTApZJAAAAANQClkkAAAAA1QKWSQAAAAA",
+				Off: "d202964900000000d302964900000000d402964900000000d502964900000000",
 				Amt: 6000000000,
-				Fee: 8000000,
+				Fee: 7000000,
 				Sigs: []slateversions.ParticipantDataV4{
 					{
-						Xs:    "Ajh4zoRXJ/Ok7HbKPz20s4otBdY2uMNjIQi4V/7WPJbe",
-						Nonce: "AxuExVZ7EmRAmV0+1aq6BWXXHhg0YEgZ/5wX9enV3QeP",
+						Xs:    "030152d2d72e2dba7c6086ad49a219d9ff0dfe0fd993dcaea22e058c210033ce93",
+						Nonce: "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
 					},
 				},
 			}
@@ -124,6 +120,5 @@ func TestReal(t *testing.T) {
 
 		if err := ownerAPI.Close(nil); err != nil {
 			assert.Error(t, err)
-		}
-	*/
+		}*/
 }
