@@ -24,6 +24,7 @@ import (
 
 	"github.com/blockcypher/libgrin/core"
 	"github.com/blockcypher/libgrin/libwallet"
+	"github.com/blockcypher/libgrin/libwallet/slatepack"
 	"github.com/blockcypher/libgrin/libwallet/slateversions"
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/google/uuid"
@@ -855,7 +856,7 @@ func (owner *SecureOwnerAPI) SlateFromSlatepackMessage(message string, secretInd
 }
 
 // DecodeSlatepackMessage decodes a slatepack message
-func (owner *SecureOwnerAPI) DecodeSlatepackMessage(message string, secretIndices []uint32) (*libwallet.Slatepack, error) {
+func (owner *SecureOwnerAPI) DecodeSlatepackMessage(message string, secretIndices []uint32) (*slatepack.Slatepack, error) {
 	params := struct {
 		Token         string   `json:"token"`
 		Message       string   `json:"message"`
@@ -891,7 +892,7 @@ func (owner *SecureOwnerAPI) DecodeSlatepackMessage(message string, secretIndice
 	if result.Err != nil {
 		return nil, errors.New(string(result.Err))
 	}
-	var slatepack libwallet.Slatepack
+	var slatepack slatepack.Slatepack
 	if err := json.Unmarshal(result.Ok, &slatepack); err != nil {
 		return nil, err
 	}

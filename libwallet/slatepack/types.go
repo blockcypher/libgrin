@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package libwallet
+package slatepack
 
 import (
 	"encoding/json"
@@ -32,7 +32,7 @@ type Slatepack struct {
 
 	// Optional Fields
 	// Optional Sender address
-	Sender *string `json:"sender,omitempty"`
+	Sender *SlatepackAddress `json:"sender,omitempty"`
 
 	// Encrypted metadata, to be serialized into payload only
 	// shouldn't be accessed directly
@@ -90,7 +90,7 @@ func (v *SlatepackVersion) UnmarshalJSON(bs []byte) error {
 // SlatepackEncMetadata encapsulates encrypted metadata fields
 type SlatepackEncMetadata struct {
 	// Encrypted Sender address, if desired
-	Sender *string `json:"sender,omitempty"`
+	Sender *SlatepackAddress `json:"sender,omitempty"`
 	// Recipients list, if desired (mostly for future multiparty needs)
-	Recipients []string `json:"recipients,omitempty"`
+	Recipients []SlatepackAddress `json:"recipients,omitempty"`
 }

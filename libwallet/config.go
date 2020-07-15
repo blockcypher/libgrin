@@ -16,6 +16,8 @@ package libwallet
 
 // TorConfig is the Tor configuration
 type TorConfig struct {
+	// whether to skip any attempts to send via TOR
+	SkipSendAttempt *bool `json:"skip_send_attempt"`
 	// Whether to start tor listener on listener startup (default true)
 	UseTorListener bool `json:"use_tor_listener"`
 	// Just the address of the socks proxy for now
