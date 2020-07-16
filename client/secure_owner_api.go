@@ -764,6 +764,52 @@ func (owner *SecureOwnerAPI) GetSlatepackSecretKey(derivationIndex uint32) (*str
 	return &slatepackSecretKey, nil
 }
 
+// GetStoredTx retrieves the stored transaction associated with a TxLogEntry. Can be used even after the transaction has completed.
+// Either the Transaction Log ID or the Slate UUID must be supplied.
+// If both are supplied, the Transaction Log ID is preferred.
+func (owner *SecureOwnerAPI) GetStoredTx(id *uint32, slateID *uuid.UUID) (*slateversions.SlateV4, error) {
+	params := struct {
+		Token   string     `json:"token"`
+		ID      *uint32    `json:"id"`
+		SlateID *uuid.UUID `json:"slate_id"`
+	}{
+		Token:   owner.token,
+		ID:      id,
+		SlateID: slateID,
+	}
+	paramsBytes, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+	envl, err := owner.client.EncryptedRequest("get_stored_tx", paramsBytes, owner.sharedSecret)
+	if err != nil {
+		return nil, err
+	}
+	if envl == nil {
+		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+	}
+	if envl.Error != nil {
+		log.WithFields(log.Fields{
+			"code":    envl.Error.Code,
+			"message": envl.Error.Message,
+		}).Error("OwnerAPI: RPC Error during GetStoredTx")
+		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
+	}
+	var result Result
+	if err = json.Unmarshal(envl.Result, &result); err != nil {
+		return nil, err
+	}
+	if result.Err != nil {
+		return nil, errors.New(string(result.Err))
+	}
+
+	var slate slateversions.SlateV4
+	if err := json.Unmarshal(result.Ok, &slate); err != nil {
+		return nil, err
+	}
+	return &slate, nil
+}
+
 // CreateSlatepackMessage create a slatepack message from the given slate
 func (owner *SecureOwnerAPI) CreateSlatepackMessage(derivationIndex uint32, slate slateversions.SlateV4, senderIndex *uint32, recipients []string) (*string, error) {
 	params := struct {

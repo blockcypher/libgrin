@@ -245,7 +245,7 @@ type PaymentInfoV4 struct {
 type CommitsV4 struct {
 	// Options for an output's structure or use
 	F OutputFeaturesV4 `json:"f"`
-	///The homomorphic commitment representing the output amount
+	// The homomorphic commitment representing the output amount
 	C string `json:"c"`
 	// A proof that the commitment is in the right range
 	// Only applies for transaction outputs

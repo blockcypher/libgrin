@@ -29,6 +29,7 @@ func TestReal(t *testing.T) {
 		if err := ownerAPI.Open(nil, ""); err != nil {
 			assert.NoError(t, err)
 		}
+
 		// NodeHeight
 		{
 			nodeHeight, err := ownerAPI.NodeHeight()
@@ -56,7 +57,18 @@ func TestReal(t *testing.T) {
 			_, outputsRetrieved, err := ownerAPI.RetrieveOutputs(false, false, &txLogOwned[0].ID)
 			assert.NoError(t, err)
 			assert.NotEmpty(t, outputsRetrieved)
+			slate, err := ownerAPI.GetStoredTx(nil, &txSlateID)
+			assert.NoError(t, err)
+			for _, comm := range *slate.Coms {
+				if comm.P == nil {
+					fmt.Println("found input", comm.C)
+				}
+			}
+			spew.Dump(slate)
+			assert.NotEmpty(t, slate)
+			assert.True(t, false)
 		}
+
 			// GetSlatepackAddress
 			{
 				slatepackAddress, err := ownerAPI.GetSlatepackAddress(0)
