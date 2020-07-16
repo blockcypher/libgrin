@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package client
+package client_test
 
 import (
 	"context"
@@ -24,6 +24,7 @@ import (
 	"testing"
 
 	"github.com/blockcypher/libgrin/api"
+	"github.com/blockcypher/libgrin/client"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -117,12 +118,12 @@ func addBlock() {
 	blocks = append(blocks, block16112)
 }
 
-func nextAPI(increment int) (grinAPI, string) {
+func nextAPI(increment int) (client.NodeAPI, string) {
 	var startPort = 23413
 	portInt := startPort + increment
 	port := strconv.Itoa(portInt)
 	addr := "127.0.0.1:" + port
-	return grinAPI{GrinServerAPI: addr}, addr
+	return client.NodeAPI{URL: addr}, addr
 }
 
 // The API used here
@@ -169,7 +170,7 @@ func TestGetBlockByHashMissing(t *testing.T) {
 }
 
 func TestGetBlockByHashUnreachable(t *testing.T) {
-	grinAPI := grinAPI{}
+	grinAPI := client.NodeAPI{}
 	var blockHash = "0822cd711993d0f9a3ffdb4e755defd84a40aa25ce72f8053fa330247a36f687"
 	block, err := grinAPI.GetBlockByHash(blockHash)
 	assert.Error(t, err)
@@ -196,7 +197,7 @@ func TestGetBlockByHeightMissing(t *testing.T) {
 }
 
 func TestGetBlockUnreachable(t *testing.T) {
-	grinAPI := grinAPI{}
+	grinAPI := client.NodeAPI{}
 	block, err := grinAPI.GetBlockByHeight(1619)
 	assert.Error(t, err)
 	assert.Nil(t, block)
@@ -217,62 +218,8 @@ func TestGetStatus(t *testing.T) {
 }
 
 func TestGetStatusUnreachable(t *testing.T) {
-	grinAPI := grinAPI{}
+	grinAPI := client.NodeAPI{}
 	status, err := grinAPI.GetStatus()
 	assert.Error(t, err)
 	assert.Nil(t, status)
-}
-
-func TestGetTargetDifficultyAndHashratesMissingLastBlock(t *testing.T) {
-	grinAPI, addr := nextAPI(9)
-	srv := startTestGrinAPIServer(addr)
-	status, err := grinAPI.GetStatus()
-	assert.NoError(t, err)
-	// update with fake block hash
-	status.Tip.LastBlockPushed = "0822cd711993d0f9a3ffdb4e755defd84a40aa25ce72f8053fa330247a36f687"
-	td, _, h, err := grinAPI.GetTargetDifficultyAndHashrates(status)
-	assert.Error(t, err)
-	expectedTD := uint64(0)
-	assert.Equal(t, expectedTD, td)
-	expectedHashrate := 0.0
-	assert.Equal(t, expectedHashrate, h)
-	srv.Shutdown(context.TODO())
-}
-
-func TestGetTargetDifficultyAndHashratesMissingPreviousBlock(t *testing.T) {
-	grinAPI, addr := nextAPI(10)
-	srv := startTestGrinAPIServer(addr)
-	status, err := grinAPI.GetStatus()
-	assert.NoError(t, err)
-	status.Tip.PrevBlockToLast = "0822cd711993d0f9a3ffdb4e755defd84a40aa25ce72f8053fa330247a36f687"
-	td, _, h, err := grinAPI.GetTargetDifficultyAndHashrates(status)
-	assert.Error(t, err)
-	expectedTD := uint64(0)
-	assert.Equal(t, expectedTD, td)
-	expectedHashrate := 0.0
-	assert.Equal(t, expectedHashrate, h)
-	srv.Shutdown(context.TODO())
-}
-
-func TestGetTargetDifficultyAndHashratesUnreachable(t *testing.T) {
-	grinAPI := grinAPI{}
-	status, err := grinAPI.GetStatus()
-	assert.Error(t, err)
-	td, _, h, err := grinAPI.GetTargetDifficultyAndHashrates(status)
-	assert.Error(t, err)
-	expectedTD := uint64(0)
-	assert.Equal(t, expectedTD, td)
-	expectedHashrate := 0.0
-	assert.Equal(t, expectedHashrate, h)
-}
-
-func TestGetTargetDifficultyAndHashratesUnreachableAfter(t *testing.T) {
-	grinAPI := grinAPI{}
-	status := api.Status{ProtocolVersion: 1}
-	td, _, h, err := grinAPI.GetTargetDifficultyAndHashrates(&status)
-	assert.Error(t, err)
-	expectedTD := uint64(0)
-	assert.Equal(t, expectedTD, td)
-	expectedHashrate := 0.0
-	assert.Equal(t, expectedHashrate, h)
 }
