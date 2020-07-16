@@ -32,6 +32,16 @@ func TestUnmarshalSlatepackAddress(t *testing.T) {
 	assert.Equal(t, ed25519.PublicKey{154, 193, 104, 122, 95, 247, 184, 247, 128, 166, 170, 100, 186, 145, 188, 9, 142, 158, 181, 225, 33, 113, 75, 24, 250, 100, 95, 9, 128, 211, 86, 216}, sa.PubKey)
 }
 
+func TestNewSlatepackAddressFromString(t *testing.T) {
+	saString := "tgrin1ntqks7jl77u00q9x4fjt4ydupx8fad0py9c5kx86v30snqxn2mvqacwa3d"
+	sa, err := NewSlatepackAddressFromString(saString)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	assert.Equal(t, "tgrin", sa.HRP)
+	assert.Equal(t, ed25519.PublicKey{154, 193, 104, 122, 95, 247, 184, 247, 128, 166, 170, 100, 186, 145, 188, 9, 142, 158, 181, 225, 33, 113, 75, 24, 250, 100, 95, 9, 128, 211, 86, 216}, sa.PubKey)
+}
+
 func TestMarshalSlatepackAddress(t *testing.T) {
 	sa := SlatepackAddress{
 		HRP:    "tgrin",

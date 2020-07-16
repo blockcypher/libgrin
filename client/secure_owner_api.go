@@ -22,7 +22,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/blockcypher/libgrin/core"
 	"github.com/blockcypher/libgrin/libwallet"
 	"github.com/blockcypher/libgrin/libwallet/slatepack"
 	"github.com/blockcypher/libgrin/libwallet/slateversions"
@@ -442,7 +441,7 @@ func (owner *SecureOwnerAPI) RetrieveSummaryInfo(refreshFromNode bool, minimumCo
 // InitSendTx initiates a new transaction as the sender, creating a new Slate
 // object containing the sender's inputs, change outputs, and public signature
 // data.
-func (owner *SecureOwnerAPI) InitSendTx(initTxArgs libwallet.InitTxArgs) (*libwallet.Slate, error) {
+func (owner *SecureOwnerAPI) InitSendTx(initTxArgs libwallet.InitTxArgs) (*slateversions.SlateV4, error) {
 	params := struct {
 		Token string               `json:"token"`
 		Args  libwallet.InitTxArgs `json:"args"`
@@ -476,7 +475,7 @@ func (owner *SecureOwnerAPI) InitSendTx(initTxArgs libwallet.InitTxArgs) (*libwa
 		return nil, errors.New(string(result.Err))
 	}
 
-	var slate libwallet.Slate
+	var slate slateversions.SlateV4
 	if err := json.Unmarshal(result.Ok, &slate); err != nil {
 		return nil, err
 	}
@@ -485,15 +484,13 @@ func (owner *SecureOwnerAPI) InitSendTx(initTxArgs libwallet.InitTxArgs) (*libwa
 
 // TxLockOutputs locks the outputs associated with the inputs to the transaction
 // in the given Slate, making them unavailable for use in further transactions.
-func (owner *SecureOwnerAPI) TxLockOutputs(slate libwallet.Slate, participantID uint) error {
+func (owner *SecureOwnerAPI) TxLockOutputs(slate slateversions.SlateV4) error {
 	params := struct {
-		Token         string          `json:"token"`
-		Slate         libwallet.Slate `json:"slate"`
-		ParticipantID uint            `json:"participant_id"`
+		Token string                `json:"token"`
+		Slate slateversions.SlateV4 `json:"slate"`
 	}{
-		Token:         owner.token,
-		Slate:         slate,
-		ParticipantID: participantID,
+		Token: owner.token,
+		Slate: slate,
 	}
 	paramsBytes, err := json.Marshal(params)
 	if err != nil {
@@ -524,10 +521,10 @@ func (owner *SecureOwnerAPI) TxLockOutputs(slate libwallet.Slate, participantID 
 }
 
 // FinalizeTx finalizes a transaction, after all parties have filled in both rounds of Slate generation.
-func (owner *SecureOwnerAPI) FinalizeTx(slateIn libwallet.Slate) (*libwallet.Slate, error) {
+func (owner *SecureOwnerAPI) FinalizeTx(slateIn slateversions.SlateV4) (*slateversions.SlateV4, error) {
 	params := struct {
-		Token string          `json:"token"`
-		Slate libwallet.Slate `json:"slate"`
+		Token string                `json:"token"`
+		Slate slateversions.SlateV4 `json:"slate"`
 	}{
 		Token: owner.token,
 		Slate: slateIn,
@@ -558,7 +555,7 @@ func (owner *SecureOwnerAPI) FinalizeTx(slateIn libwallet.Slate) (*libwallet.Sla
 		return nil, errors.New(string(result.Err))
 	}
 
-	var slate libwallet.Slate
+	var slate slateversions.SlateV4
 	if err := json.Unmarshal(result.Ok, &slate); err != nil {
 		return nil, err
 	}
@@ -567,14 +564,14 @@ func (owner *SecureOwnerAPI) FinalizeTx(slateIn libwallet.Slate) (*libwallet.Sla
 
 // PostTx posts a completed transaction to the listening node for validation and
 // inclusion in a block for mining.
-func (owner *SecureOwnerAPI) PostTx(tx core.Transaction, fluff bool) error {
+func (owner *SecureOwnerAPI) PostTx(slate slateversions.SlateV4, fluff bool) error {
 	params := struct {
-		Token string           `json:"token"`
-		Tx    core.Transaction `json:"tx"`
-		Fluff bool             `json:"fluff"`
+		Token string                `json:"token"`
+		Slate slateversions.SlateV4 `json:"slate"`
+		Fluff bool                  `json:"fluff"`
 	}{
 		Token: owner.token,
-		Tx:    tx,
+		Slate: slate,
 		Fluff: fluff,
 	}
 	paramsBytes, err := json.Marshal(params)

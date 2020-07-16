@@ -35,8 +35,8 @@ type SlatepackAddress struct {
 	PubKey ed25519.PublicKey
 }
 
-// New slatepack with default hrp
-func New(pubKey ed25519.PublicKey, chainType consensus.ChainType) SlatepackAddress {
+// NewSlatepackAddress slatepack with default hrp
+func NewSlatepackAddress(pubKey ed25519.PublicKey, chainType consensus.ChainType) SlatepackAddress {
 	var hrp string
 	switch chainType {
 	case consensus.Mainnet:
@@ -50,8 +50,27 @@ func New(pubKey ed25519.PublicKey, chainType consensus.ChainType) SlatepackAddre
 	}
 }
 
-// Random create a new slatepack address with a random key
-func Random(chainType consensus.ChainType) SlatepackAddress {
+// NewSlatepackAddressFromString creates a new slatepack address from a string
+func NewSlatepackAddressFromString(encoded string) (SlatepackAddress, error) {
+	var sa SlatepackAddress
+	hrp, decoded, err := bech32.Decode(encoded)
+	if err != nil {
+		return sa, err
+	}
+	if hrp != "grin" && hrp != "tgrin" {
+		return sa, errors.New("incorrect hrp for slatepack address")
+	}
+	dec, err := bech32.ConvertBits(decoded, 5, 8, false)
+	if err != nil {
+		return sa, err
+	}
+	sa.HRP = hrp
+	sa.PubKey = dec
+	return sa, nil
+}
+
+// RandomSlatepackAddress create a new slatepack address with a random key
+func RandomSlatepackAddress(chainType consensus.ChainType) SlatepackAddress {
 	var hrp string
 	switch chainType {
 	case consensus.Mainnet:
@@ -72,6 +91,9 @@ func Random(chainType consensus.ChainType) SlatepackAddress {
 
 // MarshalJSON is a custom marshaler for slatepack address
 func (sa SlatepackAddress) MarshalJSON() ([]byte, error) {
+	if sa.PubKey == nil {
+		return []byte("null"), nil
+	}
 	var pubKeyBase32 []byte
 	pubKeyBase32, err := bech32.ConvertBits(sa.PubKey, 8, 5, true)
 	if err != nil {
