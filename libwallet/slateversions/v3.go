@@ -19,11 +19,7 @@ import (
 	"github.com/google/uuid"
 )
 
-//! Contains V3 of the slate (grin-wallet 3.0.0)
-//! Changes from V2:
-//! * Addition of payment_proof (PaymentInfo struct)
-//! * Addition of a u64 ttl_cutoff_height field
-
+// SlateV3 slate v3
 type SlateV3 struct {
 	// Versioning info
 	VersionInfo VersionCompatInfoV3 `json:"version_info"`

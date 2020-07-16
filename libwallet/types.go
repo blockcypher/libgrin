@@ -194,12 +194,6 @@ func (s *TxLogEntryType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// ParticipantMessages is an helper just to facilitate serialization
-type ParticipantMessages struct {
-	// included messages
-	Messages []ParticipantMessageData `json:"messages"`
-}
-
 // TxLogEntry is an optional transaction information, recorded when an event
 // happens to add or remove funds from a wallet. One Transaction log entry maps
 // to one or many outputs
@@ -232,8 +226,32 @@ type TxLogEntry struct {
 	AmountDebited core.Uint64 `json:"amount_debited"`
 	// Fee
 	Fee *core.Uint64 `json:"fee"`
-	// Message data, stored as json
-	Messages *ParticipantMessages `json:"messages"`
+	// Cutoff block height
+	TTLCutoffHeight *core.Uint64 `json:"ttl_cutoff_height"`
 	// Location of the store transaction, (reference or resending)
 	StoredTx *string `json:"stored_tx"`
+	// Associated kernel excess, for later lookup if necessary
+	KernelExcess *string `json:"kernel_excess"`
+	// Height reported when transaction was created, if lookup
+	// of kernel is necessary
+	KernelLookupMinHeight *core.Uint64 `json:"kernel_lookup_min_height"`
+	// Additional info needed to stored payment proof
+	PaymentProof *StoredProofInfo `json:"payment_proof"`
+	// Track the time it took for a transaction to get reverted
+	RevertedAfter *string `json:"reverted_after"`
+}
+
+// StoredProofInfo is the payment proof information. Differs from what is sent via
+// the slate
+type StoredProofInfo struct {
+	// receiver address
+	ReceiverAddress string `json:"receiver_address"`
+	// receiver signature
+	ReceiverSignature *string `json:"receiver_signature"`
+	// sender address derivation path index
+	SenderAddressPath uint32 `json:"sender_address_path"`
+	// sender address
+	SenderAddress string `json:"sender_address"`
+	// sender signature
+	SenderSignature *string `json:"sender_signature"`
 }

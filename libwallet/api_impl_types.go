@@ -17,6 +17,7 @@ package libwallet
 import (
 	"github.com/blockcypher/libgrin/core"
 	"github.com/blockcypher/libgrin/keychain"
+	"github.com/blockcypher/libgrin/libwallet/slatepack"
 	"github.com/blockcypher/libgrin/libwallet/slateversions"
 )
 
@@ -72,12 +73,6 @@ type InitTxArgs struct {
 	// as many outputs as are needed to meet the amount, (and no more) starting with the smallest
 	// value outputs.
 	SelectionStrategyIsUseAll bool `json:"selection_strategy_is_use_all"`
-	// An optional participant message to include alongside the sender's public
-	// ParticipantData within the slate. This message will include a signature created with the
-	// sender's private excess value, and will be publically verifiable. Note this message is for
-	// the convenience of the participants during the exchange; it is not included in the final
-	// transaction sent to the chain. The message will be truncated to 256 characters.
-	Message *string `json:"message"`
 	// Optionally set the output target slate version (acceptable
 	// down to the minimum slate version compatible with the current. If `None` the slate
 	// is generated with the latest version.
@@ -85,7 +80,7 @@ type InitTxArgs struct {
 	// Number of blocks from current after which TX should be ignored
 	TTLBlocks *core.Uint64 `json:"ttl_blocks"`
 	// If set, require a payment proof for the particular recipient
-	PaymentProofRecipientAddress *string `json:"payment_proof_recipient_address"`
+	PaymentProofRecipientAddress *slatepack.SlatepackAddress `json:"payment_proof_recipient_address"`
 	// If true, just return an estimate of the resulting slate, containing fees and amounts
 	// locked without actually locking outputs or creating the transaction. Note if this is set to
 	// 'true', the amount field in the slate will contain the total amount locked, not the provided
@@ -99,16 +94,14 @@ type InitTxArgs struct {
 // InitTxSendArgs is the send TX API Args, for convenience functionality that inits the transaction and sends
 // in one go
 type InitTxSendArgs struct {
-	// The transaction method. Can currently be 'http' or 'keybase'.
-	Method string `json:"method"`
 	// The destination, contents will depend on the particular method
 	Dest string `json:"dest"`
-	// Whether to finalize the result immediately if the send was successful
-	Finalize bool `json:"finalize"`
 	// Whether to post the transaction if the send and finalize were successful
 	PostTx bool `json:"post_tx"`
 	// Whether to use dandelion when posting. If false, skip the dandelion relay
 	Fluff bool `json:"fluff"`
+	// If set, skip the Slatepack TOR send attempt
+	SkipTor bool `json:"skip_tor"`
 }
 
 // IssueInvoiceTxArgs are the v2 Issue Invoice Tx Args

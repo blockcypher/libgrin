@@ -14,18 +14,27 @@
 
 package slateversions
 
-// CurrentSlateVersion is the most recent version of the slate
-const CurrentSlateVersion uint16 = 4
+import (
+	"encoding/json"
+	"io/ioutil"
+	"testing"
 
-// GrinBlockHeaderVersion is the grin block header this slate is intended to be compatible with
-const GrinBlockHeaderVersion uint16 = 3
-
-// SlateVersion represents the slate version
-type SlateVersion int
-
-const (
-	// V4 (most current)
-	V4 SlateVersion = iota
-	// V3 (3.0.0 - 4.0.0)
-	V3
+	"github.com/stretchr/testify/assert"
 )
+
+func TestUnmarshalSlateV3(t *testing.T) {
+	slateV3JSON, _ := ioutil.ReadFile("test_data/v3.slate")
+	var slateV3 SlateV3
+	err := json.Unmarshal(slateV3JSON, &slateV3)
+	assert.Nil(t, err)
+}
+
+func TestMarshalSlateV3(t *testing.T) {
+	slateV3JSON, _ := ioutil.ReadFile("test_data/v3_raw.slate")
+	var slateV3 SlateV3
+	err := json.Unmarshal(slateV3JSON, &slateV3)
+	assert.Nil(t, err)
+
+	serializedSlateV3, err := json.Marshal(slateV3)
+	assert.Equal(t, slateV3JSON, serializedSlateV3)
+}
