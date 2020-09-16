@@ -15,7 +15,7 @@
 package slateversions
 
 import (
-	"github.com/blockcypher/libgrin/core"
+	"github.com/blockcypher/libgrin/v4/core"
 	"github.com/google/uuid"
 )
 

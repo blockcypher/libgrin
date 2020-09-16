@@ -20,8 +20,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/blockcypher/libgrin/core"
-	"github.com/blockcypher/libgrin/libwallet"
+	"github.com/blockcypher/libgrin/v4/core"
+	"github.com/blockcypher/libgrin/v4/libwallet"
 	log "github.com/sirupsen/logrus"
 )
 

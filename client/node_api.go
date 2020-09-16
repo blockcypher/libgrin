@@ -17,8 +17,8 @@ package client
 import (
 	"fmt"
 
-	"github.com/blockcypher/libgrin/api"
-	"github.com/blockcypher/libgrin/core/consensus"
+	"github.com/blockcypher/libgrin/v4/api"
+	"github.com/blockcypher/libgrin/v4/core/consensus"
 )
 
 // NodeAPI struct

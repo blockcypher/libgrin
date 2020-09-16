@@ -17,7 +17,7 @@ package pow
 import (
 	"errors"
 
-	"github.com/blockcypher/libgrin/core/consensus"
+	"github.com/blockcypher/libgrin/v4/core/consensus"
 )
 
 // https://github.com/mimblewimble/grin/blob/master/core/src/pow/cuckaroo.rs

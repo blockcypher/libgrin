@@ -16,9 +16,10 @@ package libwallet_test
 
 import (
 	"fmt"
-	"github.com/blockcypher/libgrin/libwallet"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/blockcypher/libgrin/v4/libwallet"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestOnionV3Conversion(t *testing.T) {
