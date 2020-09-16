@@ -14,7 +14,7 @@
 
 package core
 
-import "github.com/blockcypher/libgrin/core/pow"
+import "github.com/blockcypher/libgrin/v4/core/pow"
 
 // BlockHeader is a block header, fairly standard compared to other blockchains.
 type BlockHeader struct {

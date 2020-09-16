@@ -19,8 +19,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/blockcypher/libgrin/core"
-	"github.com/blockcypher/libgrin/keychain"
+	"github.com/blockcypher/libgrin/v4/core"
+	"github.com/blockcypher/libgrin/v4/keychain"
 	"github.com/google/uuid"
 )
 
