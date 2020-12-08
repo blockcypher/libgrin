@@ -59,8 +59,8 @@ const (
 	AutomatedTesting ChainType = iota
 	// UserTesting is for User testing
 	UserTesting
-	// Floonet is the protocol testing network
-	Floonet
+	// Testnet is the protocol testing network
+	Testnet
 	// Mainnet is the main production network
 	Mainnet
 )
@@ -72,8 +72,8 @@ func (c ChainType) shortname() string {
 		shortName = "auto"
 	case UserTesting:
 		shortName = "user"
-	case Floonet:
-		shortName = "floo"
+	case Testnet:
+		shortName = "test"
 	case Mainnet:
 		shortName = "main"
 	}
@@ -137,7 +137,7 @@ func initialBlockDifficulty(chainType ChainType) uint64 {
 		return TestingInitialDifficulty
 	case UserTesting:
 		return TestingInitialDifficulty
-	case Floonet:
+	case Testnet:
 		return InitialDifficulty
 	case Mainnet:
 		return InitialDifficulty
@@ -153,7 +153,7 @@ func initialGraphWeight(chainType ChainType) uint32 {
 		return TestingInitialGraphWeight
 	case UserTesting:
 		return TestingInitialGraphWeight
-	case Floonet:
+	case Testnet:
 		return uint32(GraphWeight(chainType, 0, SecondPoWEdgeBits))
 	case Mainnet:
 		return uint32(GraphWeight(chainType, 0, SecondPoWEdgeBits))
@@ -169,7 +169,7 @@ func maxBlockWeight(chainType ChainType) int {
 		return TestingMaxBlockWeight
 	case UserTesting:
 		return TestingMaxBlockWeight
-	case Floonet:
+	case Testnet:
 		return MaxBlockWeight
 	case Mainnet:
 		return MaxBlockWeight
@@ -215,14 +215,14 @@ func isUserTestingMode(chainType ChainType) bool {
 // Are we in production mode? / Production defined as a live public network,
 //testnet[n] or mainnet.
 func isProductionMode(chainType ChainType) bool {
-	return Floonet == chainType || Mainnet == chainType
+	return Testnet == chainType || Mainnet == chainType
 }
 
-// Are we in floonet? / Note: We do not have a corresponding is_mainnet() as we
+// Are we in testnet? / Note: We do not have a corresponding is_mainnet() as we
 //want any tests to be as close / as possible to "mainnet" configuration as
 //possible. / We want to avoid missing any mainnet only code paths.
-func isFloonet(chainType ChainType) bool {
-	return Floonet == chainType
+func isTestnet(chainType ChainType) bool {
+	return Testnet == chainType
 }
 
 // Are we for real?
@@ -242,7 +242,7 @@ func getGenesisNonce(chainType ChainType) uint64 {
 	case UserTesting:
 		// Magic nonce for current genesis block at cuckatoo15
 		return 27944
-	case Floonet:
+	case Testnet:
 		// Placeholder, obviously not the right value
 		return 0
 	case Mainnet:

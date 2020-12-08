@@ -21,10 +21,10 @@ import (
 )
 
 // NewCuckatooCtx instantiates a new CuckatooContext as a PowContext
-func NewCuckatooCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int, maxSols uint32) *CuckatooContext {
+func NewCuckatooCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int, maxSols uint32) (*CuckatooContext, error) {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, edgeBits, proofSize)
-	return &CuckatooContext{chainType, params}
+	return &CuckatooContext{chainType, params}, nil
 }
 
 // CuckatooContext is a Cuckatoo solver context.
