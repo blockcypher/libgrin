@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/blockcypher/libgrin/v4/core"
+	"github.com/blockcypher/libgrin/v5/core"
 )
 
 // BlockPrintable is the result of the Grin block API

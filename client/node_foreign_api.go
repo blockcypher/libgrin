@@ -18,8 +18,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/blockcypher/libgrin/v4/api"
-	"github.com/blockcypher/libgrin/v4/core"
+	"github.com/blockcypher/libgrin/v5/api"
+	"github.com/blockcypher/libgrin/v5/core"
 	"github.com/blockcypher/libgrin/v5/pool"
 	log "github.com/sirupsen/logrus"
 )
