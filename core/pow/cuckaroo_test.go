@@ -16,7 +16,7 @@ package pow
 import (
 	"testing"
 
-	"github.com/blockcypher/libgrin/v4/core/consensus"
+	"github.com/blockcypher/libgrin/v5/core/consensus"
 	"github.com/stretchr/testify/assert"
 )
 

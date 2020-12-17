@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/blockcypher/libgrin/v4/core"
+	"github.com/blockcypher/libgrin/v5/core"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 )

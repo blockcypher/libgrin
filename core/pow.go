@@ -15,8 +15,8 @@
 package core
 
 import (
-	"github.com/blockcypher/libgrin/v4/core/consensus"
-	"github.com/blockcypher/libgrin/v4/core/pow"
+	"github.com/blockcypher/libgrin/v5/core/consensus"
+	"github.com/blockcypher/libgrin/v5/core/pow"
 )
 
 const maxSols uint32 = 10

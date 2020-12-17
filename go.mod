@@ -1,4 +1,4 @@
-module github.com/blockcypher/libgrin/v4
+module github.com/blockcypher/libgrin/v5
 
 go 1.14
 

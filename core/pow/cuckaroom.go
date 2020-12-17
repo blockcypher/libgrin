@@ -17,7 +17,7 @@ package pow
 import (
 	"errors"
 
-	"github.com/blockcypher/libgrin/v4/core/consensus"
+	"github.com/blockcypher/libgrin/v5/core/consensus"
 )
 
 // NewCuckaroomCtx instantiates a new CuckaroomContext as a PowContext. Note that this can't

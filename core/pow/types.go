@@ -19,7 +19,7 @@ import (
 	"math/big"
 	"strconv"
 
-	"github.com/blockcypher/libgrin/v4/core/consensus"
+	"github.com/blockcypher/libgrin/v5/core/consensus"
 )
 
 // PowContext is a generic interface for a solver/verifier providing common

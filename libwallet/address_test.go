@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/blockcypher/libgrin/v4/libwallet"
+	"github.com/blockcypher/libgrin/v5/libwallet"
 	"github.com/stretchr/testify/assert"
 )
 

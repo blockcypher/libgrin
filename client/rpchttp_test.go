@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/blockcypher/libgrin/v4/client"
+	"github.com/blockcypher/libgrin/v5/client"
 	"github.com/stretchr/testify/assert"
 )
 

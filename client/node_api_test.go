@@ -23,8 +23,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/blockcypher/libgrin/v4/api"
-	"github.com/blockcypher/libgrin/v4/client"
+	"github.com/blockcypher/libgrin/v5/api"
+	"github.com/blockcypher/libgrin/v5/client"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"

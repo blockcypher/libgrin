@@ -22,9 +22,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/blockcypher/libgrin/v4/libwallet"
-	"github.com/blockcypher/libgrin/v4/libwallet/slatepack"
-	"github.com/blockcypher/libgrin/v4/libwallet/slateversions"
+	"github.com/blockcypher/libgrin/v5/libwallet"
+	"github.com/blockcypher/libgrin/v5/libwallet/slatepack"
+	"github.com/blockcypher/libgrin/v5/libwallet/slateversions"
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/google/uuid"
 
