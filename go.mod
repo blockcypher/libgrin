@@ -2,8 +2,10 @@ module github.com/blockcypher/libgrin/v5
 
 go 1.14
 
+replace github.com/blockcypher/libgrin/v4 => /Users/quentin/go/src/github.com/blockcypher/libgrin
+
 require (
-	github.com/blockcypher/libgrin v2.0.0+incompatible
+	github.com/blockcypher/libgrin/v4 v4.0.0 // indirect
 	github.com/btcsuite/btcd v0.20.1-beta
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/google/uuid v1.1.1

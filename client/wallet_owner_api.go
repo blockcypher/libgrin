@@ -31,8 +31,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// SecureOwnerAPI represent the wallet owner API (v3)
-type SecureOwnerAPI struct {
+// WalletOwnerAPI represent the wallet owner API (v3)
+type WalletOwnerAPI struct {
 	client          RPCHTTPClient
 	token           string
 	privateKey      btcec.PrivateKey
@@ -41,9 +41,9 @@ type SecureOwnerAPI struct {
 	sharedSecret    []byte
 }
 
-// NewSecureOwnerAPI creates a new owner API
-func NewSecureOwnerAPI(url string) *SecureOwnerAPI {
-	return &SecureOwnerAPI{client: RPCHTTPClient{URL: url}}
+// NewWalletOwnerAPI creates a new wallet owner API
+func NewWalletOwnerAPI(url string) *WalletOwnerAPI {
+	return &WalletOwnerAPI{client: RPCHTTPClient{URL: url}}
 }
 
 func newKey() (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
@@ -56,7 +56,7 @@ func newKey() (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
 }
 
 // Init initalize the secure owner API
-func (owner *SecureOwnerAPI) Init() error {
+func (owner *WalletOwnerAPI) Init() error {
 	ecdsaPrivateKey, ecdsaPublicKey, err := newKey()
 	if err != nil {
 		return err
@@ -83,7 +83,7 @@ func (owner *SecureOwnerAPI) Init() error {
 }
 
 // Open is an helper function to open the wallet and set the token
-func (owner *SecureOwnerAPI) Open(name *string, password string) error {
+func (owner *WalletOwnerAPI) Open(name *string, password string) error {
 	token, err := owner.OpenWallet(name, password)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (owner *SecureOwnerAPI) Open(name *string, password string) error {
 }
 
 // Close is an helper function to close the wallet and free the token from memory
-func (owner *SecureOwnerAPI) Close(name *string) error {
+func (owner *WalletOwnerAPI) Close(name *string) error {
 	if err := owner.CloseWallet(name); err != nil {
 		return err
 	}
@@ -102,8 +102,8 @@ func (owner *SecureOwnerAPI) Close(name *string) error {
 }
 
 // InitSecureAPI Initializes the secure JSON-RPC API. This function must be called and a shared key
-// established before any other OwnerAPI JSON-RPC function can be called.
-func (owner *SecureOwnerAPI) InitSecureAPI(pubKey []byte) (string, error) {
+// established before any other WalletOwnerAPI JSON-RPC function can be called.
+func (owner *WalletOwnerAPI) InitSecureAPI(pubKey []byte) (string, error) {
 	hexPubKey := hex.EncodeToString(pubKey)
 	params := struct {
 		PublicKey string `json:"ecdh_pubkey"`
@@ -121,13 +121,13 @@ func (owner *SecureOwnerAPI) InitSecureAPI(pubKey []byte) (string, error) {
 	}
 
 	if envl == nil {
-		return "", errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return "", errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during InitSecureAPI")
+		}).Error("WalletOwnerAPI: RPC Error during InitSecureAPI")
 		return "", errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -143,7 +143,7 @@ func (owner *SecureOwnerAPI) InitSecureAPI(pubKey []byte) (string, error) {
 
 // Accounts Returns a list of accounts stored in the wallet
 // (i.e. mappings between user-specified labels and BIP32 derivation paths
-func (owner *SecureOwnerAPI) Accounts() (*[]libwallet.AccountPathMapping, error) {
+func (owner *WalletOwnerAPI) Accounts() (*[]libwallet.AccountPathMapping, error) {
 	params := struct {
 		Token string `json:"token"`
 	}{
@@ -160,13 +160,13 @@ func (owner *SecureOwnerAPI) Accounts() (*[]libwallet.AccountPathMapping, error)
 	}
 
 	if envl == nil {
-		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during Accounts")
+		}).Error("WalletOwnerAPI: RPC Error during Accounts")
 		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -187,7 +187,7 @@ func (owner *SecureOwnerAPI) Accounts() (*[]libwallet.AccountPathMapping, error)
 // returning a `keychain_mask` token to the caller to provide in all future calls.
 // If using a mask, the seed will be stored in-memory XORed against the `keychain_mask`, and
 // will not be useable if the mask is not provided.
-func (owner *SecureOwnerAPI) OpenWallet(name *string, password string) (string, error) {
+func (owner *WalletOwnerAPI) OpenWallet(name *string, password string) (string, error) {
 	params := struct {
 		Name     *string `json:"name"`
 		Password string  `json:"password"`
@@ -207,13 +207,13 @@ func (owner *SecureOwnerAPI) OpenWallet(name *string, password string) (string, 
 	}
 
 	if envl == nil {
-		return "", errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return "", errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during OpenWallet")
+		}).Error("WalletOwnerAPI: RPC Error during OpenWallet")
 		return "", errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -229,7 +229,7 @@ func (owner *SecureOwnerAPI) OpenWallet(name *string, password string) (string, 
 }
 
 // CloseWallet close a wallet, removing the master seed from memory.
-func (owner *SecureOwnerAPI) CloseWallet(name *string) error {
+func (owner *WalletOwnerAPI) CloseWallet(name *string) error {
 	params := struct {
 		Name *string `json:"name"`
 	}{
@@ -247,13 +247,13 @@ func (owner *SecureOwnerAPI) CloseWallet(name *string) error {
 	}
 
 	if envl == nil {
-		return errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during CloseWallet")
+		}).Error("WalletOwnerAPI: RPC Error during CloseWallet")
 		return errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -267,7 +267,7 @@ func (owner *SecureOwnerAPI) CloseWallet(name *string) error {
 }
 
 // RetrieveOutputs returns a list of outputs from the active account in the
-func (owner *SecureOwnerAPI) RetrieveOutputs(includeSpent, refreshFromNode bool, txID *uint32) (bool, *[]libwallet.OutputCommitMapping, error) {
+func (owner *WalletOwnerAPI) RetrieveOutputs(includeSpent, refreshFromNode bool, txID *uint32) (bool, *[]libwallet.OutputCommitMapping, error) {
 	params := struct {
 		Token           string  `json:"token"`
 		IncludeSpent    bool    `json:"include_spent"`
@@ -288,13 +288,13 @@ func (owner *SecureOwnerAPI) RetrieveOutputs(includeSpent, refreshFromNode bool,
 		return false, nil, err
 	}
 	if envl == nil {
-		return false, nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return false, nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during RetrieveOutputs")
+		}).Error("WalletOwnerAPI: RPC Error during RetrieveOutputs")
 		return false, nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -325,7 +325,7 @@ func (owner *SecureOwnerAPI) RetrieveOutputs(includeSpent, refreshFromNode bool,
 }
 
 // RetrieveTxs returns a list of Transaction Log Entries from the active account in the
-func (owner *SecureOwnerAPI) RetrieveTxs(refreshFromNode bool, txID *uint32, txSlateID *uuid.UUID) (bool, *[]libwallet.TxLogEntry, error) {
+func (owner *WalletOwnerAPI) RetrieveTxs(refreshFromNode bool, txID *uint32, txSlateID *uuid.UUID) (bool, *[]libwallet.TxLogEntry, error) {
 	params := struct {
 		Token           string     `json:"token"`
 		RefreshFromNode bool       `json:"refresh_from_node"`
@@ -347,13 +347,13 @@ func (owner *SecureOwnerAPI) RetrieveTxs(refreshFromNode bool, txID *uint32, txS
 		return false, nil, err
 	}
 	if envl == nil {
-		return false, nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return false, nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during RetrieveTxs")
+		}).Error("WalletOwnerAPI: RPC Error during RetrieveTxs")
 		return false, nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -384,7 +384,7 @@ func (owner *SecureOwnerAPI) RetrieveTxs(refreshFromNode bool, txID *uint32, txS
 }
 
 // RetrieveSummaryInfo returns summary information from the active account in the
-func (owner *SecureOwnerAPI) RetrieveSummaryInfo(refreshFromNode bool, minimumConfirmations uint64) (bool, *libwallet.WalletInfo, error) {
+func (owner *WalletOwnerAPI) RetrieveSummaryInfo(refreshFromNode bool, minimumConfirmations uint64) (bool, *libwallet.WalletInfo, error) {
 	params := struct {
 		Token                string `json:"token"`
 		RefreshFromNode      bool   `json:"refresh_from_node"`
@@ -403,13 +403,13 @@ func (owner *SecureOwnerAPI) RetrieveSummaryInfo(refreshFromNode bool, minimumCo
 		return false, nil, err
 	}
 	if envl == nil {
-		return false, nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return false, nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during RetrieveSummaryInfo")
+		}).Error("WalletOwnerAPI: RPC Error during RetrieveSummaryInfo")
 		return false, nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -441,7 +441,7 @@ func (owner *SecureOwnerAPI) RetrieveSummaryInfo(refreshFromNode bool, minimumCo
 // InitSendTx initiates a new transaction as the sender, creating a new Slate
 // object containing the sender's inputs, change outputs, and public signature
 // data.
-func (owner *SecureOwnerAPI) InitSendTx(initTxArgs libwallet.InitTxArgs) (*slateversions.SlateV4, error) {
+func (owner *WalletOwnerAPI) InitSendTx(initTxArgs libwallet.InitTxArgs) (*slateversions.SlateV4, error) {
 	params := struct {
 		Token string               `json:"token"`
 		Args  libwallet.InitTxArgs `json:"args"`
@@ -458,13 +458,13 @@ func (owner *SecureOwnerAPI) InitSendTx(initTxArgs libwallet.InitTxArgs) (*slate
 		return nil, err
 	}
 	if envl == nil {
-		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during InitSendTx")
+		}).Error("WalletOwnerAPI: RPC Error during InitSendTx")
 		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -484,7 +484,7 @@ func (owner *SecureOwnerAPI) InitSendTx(initTxArgs libwallet.InitTxArgs) (*slate
 
 // TxLockOutputs locks the outputs associated with the inputs to the transaction
 // in the given Slate, making them unavailable for use in further transactions.
-func (owner *SecureOwnerAPI) TxLockOutputs(slate slateversions.SlateV4) error {
+func (owner *WalletOwnerAPI) TxLockOutputs(slate slateversions.SlateV4) error {
 	params := struct {
 		Token string                `json:"token"`
 		Slate slateversions.SlateV4 `json:"slate"`
@@ -501,13 +501,13 @@ func (owner *SecureOwnerAPI) TxLockOutputs(slate slateversions.SlateV4) error {
 		return err
 	}
 	if envl == nil {
-		return errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during TxLockOutputs")
+		}).Error("WalletOwnerAPI: RPC Error during TxLockOutputs")
 		return errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -521,7 +521,7 @@ func (owner *SecureOwnerAPI) TxLockOutputs(slate slateversions.SlateV4) error {
 }
 
 // FinalizeTx finalizes a transaction, after all parties have filled in both rounds of Slate generation.
-func (owner *SecureOwnerAPI) FinalizeTx(slateIn slateversions.SlateV4) (*slateversions.SlateV4, error) {
+func (owner *WalletOwnerAPI) FinalizeTx(slateIn slateversions.SlateV4) (*slateversions.SlateV4, error) {
 	params := struct {
 		Token string                `json:"token"`
 		Slate slateversions.SlateV4 `json:"slate"`
@@ -538,13 +538,13 @@ func (owner *SecureOwnerAPI) FinalizeTx(slateIn slateversions.SlateV4) (*slateve
 		return nil, err
 	}
 	if envl == nil {
-		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during FinalizeTx")
+		}).Error("WalletOwnerAPI: RPC Error during FinalizeTx")
 		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -564,7 +564,7 @@ func (owner *SecureOwnerAPI) FinalizeTx(slateIn slateversions.SlateV4) (*slateve
 
 // PostTx posts a completed transaction to the listening node for validation and
 // inclusion in a block for mining.
-func (owner *SecureOwnerAPI) PostTx(slate slateversions.SlateV4, fluff bool) error {
+func (owner *WalletOwnerAPI) PostTx(slate slateversions.SlateV4, fluff bool) error {
 	params := struct {
 		Token string                `json:"token"`
 		Slate slateversions.SlateV4 `json:"slate"`
@@ -583,13 +583,13 @@ func (owner *SecureOwnerAPI) PostTx(slate slateversions.SlateV4, fluff bool) err
 		return err
 	}
 	if envl == nil {
-		return errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during PostTx")
+		}).Error("WalletOwnerAPI: RPC Error during PostTx")
 		return errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -603,7 +603,7 @@ func (owner *SecureOwnerAPI) PostTx(slate slateversions.SlateV4, fluff bool) err
 }
 
 // CancelTx cancels a transaction.
-func (owner *SecureOwnerAPI) CancelTx(txID *uint32, txSlateID *uuid.UUID) error {
+func (owner *WalletOwnerAPI) CancelTx(txID *uint32, txSlateID *uuid.UUID) error {
 	params := struct {
 		Token     string     `json:"token"`
 		TxID      *uint32    `json:"tx_id"`
@@ -622,13 +622,13 @@ func (owner *SecureOwnerAPI) CancelTx(txID *uint32, txSlateID *uuid.UUID) error 
 		return err
 	}
 	if envl == nil {
-		return errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during CancelTx")
+		}).Error("WalletOwnerAPI: RPC Error during CancelTx")
 		return errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -642,7 +642,7 @@ func (owner *SecureOwnerAPI) CancelTx(txID *uint32, txSlateID *uuid.UUID) error 
 }
 
 // NodeHeight retrieves the last known height known by the node.
-func (owner *SecureOwnerAPI) NodeHeight() (*libwallet.NodeHeightResult, error) {
+func (owner *WalletOwnerAPI) NodeHeight() (*libwallet.NodeHeightResult, error) {
 	params := struct {
 		Token string `json:"token"`
 	}{
@@ -657,13 +657,13 @@ func (owner *SecureOwnerAPI) NodeHeight() (*libwallet.NodeHeightResult, error) {
 		return nil, err
 	}
 	if envl == nil {
-		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during NodeHeight")
+		}).Error("WalletOwnerAPI: RPC Error during NodeHeight")
 		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -682,7 +682,7 @@ func (owner *SecureOwnerAPI) NodeHeight() (*libwallet.NodeHeightResult, error) {
 
 // GetSlatepackAddress retrieve the slatepack address for the current parent key at
 // the given index
-func (owner *SecureOwnerAPI) GetSlatepackAddress(derivationIndex uint32) (*string, error) {
+func (owner *WalletOwnerAPI) GetSlatepackAddress(derivationIndex uint32) (*string, error) {
 	params := struct {
 		Token           string `json:"token"`
 		DerivationIndex uint32 `json:"derivation_index"`
@@ -699,13 +699,13 @@ func (owner *SecureOwnerAPI) GetSlatepackAddress(derivationIndex uint32) (*strin
 		return nil, err
 	}
 	if envl == nil {
-		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during GetSlatepackAddress")
+		}).Error("WalletOwnerAPI: RPC Error during GetSlatepackAddress")
 		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -724,7 +724,7 @@ func (owner *SecureOwnerAPI) GetSlatepackAddress(derivationIndex uint32) (*strin
 
 // GetSlatepackSecretKey retrieve the decryption key for the current parent key
 // the given index
-func (owner *SecureOwnerAPI) GetSlatepackSecretKey(derivationIndex uint32) (*string, error) {
+func (owner *WalletOwnerAPI) GetSlatepackSecretKey(derivationIndex uint32) (*string, error) {
 	params := struct {
 		Token           string `json:"token"`
 		DerivationIndex uint32 `json:"derivation_index"`
@@ -741,13 +741,13 @@ func (owner *SecureOwnerAPI) GetSlatepackSecretKey(derivationIndex uint32) (*str
 		return nil, err
 	}
 	if envl == nil {
-		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during GetSlatepackSecretKey")
+		}).Error("WalletOwnerAPI: RPC Error during GetSlatepackSecretKey")
 		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -767,7 +767,7 @@ func (owner *SecureOwnerAPI) GetSlatepackSecretKey(derivationIndex uint32) (*str
 // GetStoredTx retrieves the stored transaction associated with a TxLogEntry. Can be used even after the transaction has completed.
 // Either the Transaction Log ID or the Slate UUID must be supplied.
 // If both are supplied, the Transaction Log ID is preferred.
-func (owner *SecureOwnerAPI) GetStoredTx(id *uint32, slateID *uuid.UUID) (*slateversions.SlateV4, error) {
+func (owner *WalletOwnerAPI) GetStoredTx(id *uint32, slateID *uuid.UUID) (*slateversions.SlateV4, error) {
 	params := struct {
 		Token   string     `json:"token"`
 		ID      *uint32    `json:"id"`
@@ -786,13 +786,13 @@ func (owner *SecureOwnerAPI) GetStoredTx(id *uint32, slateID *uuid.UUID) (*slate
 		return nil, err
 	}
 	if envl == nil {
-		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during GetStoredTx")
+		}).Error("WalletOwnerAPI: RPC Error during GetStoredTx")
 		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -811,7 +811,7 @@ func (owner *SecureOwnerAPI) GetStoredTx(id *uint32, slateID *uuid.UUID) (*slate
 }
 
 // CreateSlatepackMessage create a slatepack message from the given slate
-func (owner *SecureOwnerAPI) CreateSlatepackMessage(derivationIndex uint32, slate slateversions.SlateV4, senderIndex *uint32, recipients []string) (*string, error) {
+func (owner *WalletOwnerAPI) CreateSlatepackMessage(derivationIndex uint32, slate slateversions.SlateV4, senderIndex *uint32, recipients []string) (*string, error) {
 	params := struct {
 		Token       string                `json:"token"`
 		Slate       slateversions.SlateV4 `json:"slate"`
@@ -832,13 +832,13 @@ func (owner *SecureOwnerAPI) CreateSlatepackMessage(derivationIndex uint32, slat
 		return nil, err
 	}
 	if envl == nil {
-		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during CreateSlatepackMessage")
+		}).Error("WalletOwnerAPI: RPC Error during CreateSlatepackMessage")
 		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -856,7 +856,7 @@ func (owner *SecureOwnerAPI) CreateSlatepackMessage(derivationIndex uint32, slat
 }
 
 // SlateFromSlatepackMessage create a slate from a slatepack message
-func (owner *SecureOwnerAPI) SlateFromSlatepackMessage(message string, secretIndices []uint32) (*slateversions.SlateV4, error) {
+func (owner *WalletOwnerAPI) SlateFromSlatepackMessage(message string, secretIndices []uint32) (*slateversions.SlateV4, error) {
 	params := struct {
 		Token         string   `json:"token"`
 		Message       string   `json:"message"`
@@ -875,13 +875,13 @@ func (owner *SecureOwnerAPI) SlateFromSlatepackMessage(message string, secretInd
 		return nil, err
 	}
 	if envl == nil {
-		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during SlateFromSlatepackMessage")
+		}).Error("WalletOwnerAPI: RPC Error during SlateFromSlatepackMessage")
 		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -899,7 +899,7 @@ func (owner *SecureOwnerAPI) SlateFromSlatepackMessage(message string, secretInd
 }
 
 // DecodeSlatepackMessage decodes a slatepack message
-func (owner *SecureOwnerAPI) DecodeSlatepackMessage(message string, secretIndices []uint32) (*slatepack.Slatepack, error) {
+func (owner *WalletOwnerAPI) DecodeSlatepackMessage(message string, secretIndices []uint32) (*slatepack.Slatepack, error) {
 	params := struct {
 		Token         string   `json:"token"`
 		Message       string   `json:"message"`
@@ -919,13 +919,13 @@ func (owner *SecureOwnerAPI) DecodeSlatepackMessage(message string, secretIndice
 		return nil, err
 	}
 	if envl == nil {
-		return nil, errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return nil, errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during DecodeSlatepackMessage")
+		}).Error("WalletOwnerAPI: RPC Error during DecodeSlatepackMessage")
 		return nil, errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result
@@ -942,9 +942,9 @@ func (owner *SecureOwnerAPI) DecodeSlatepackMessage(message string, secretIndice
 	return &slatepack, nil
 }
 
-// SetTorConfig set the TOR configuration for this instance of the OwnerAPI,
+// SetTorConfig set the TOR configuration for this instance of the WalletOwnerAPI,
 // used during InitSendTx when send args are present and a TOR address is specified
-func (owner *SecureOwnerAPI) SetTorConfig(torConfig libwallet.TorConfig) error {
+func (owner *WalletOwnerAPI) SetTorConfig(torConfig libwallet.TorConfig) error {
 	params := struct {
 		TorConfig libwallet.TorConfig `json:"tor_config"`
 	}{
@@ -959,13 +959,13 @@ func (owner *SecureOwnerAPI) SetTorConfig(torConfig libwallet.TorConfig) error {
 		return err
 	}
 	if envl == nil {
-		return errors.New("OwnerAPI: Empty RPC Response from grin-wallet")
+		return errors.New("WalletOwnerAPI: Empty RPC Response from grin-wallet")
 	}
 	if envl.Error != nil {
 		log.WithFields(log.Fields{
 			"code":    envl.Error.Code,
 			"message": envl.Error.Message,
-		}).Error("OwnerAPI: RPC Error during SetTorConfig")
+		}).Error("WalletOwnerAPI: RPC Error during SetTorConfig")
 		return errors.New(string(envl.Error.Code) + "" + envl.Error.Message)
 	}
 	var result Result

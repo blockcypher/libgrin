@@ -18,7 +18,7 @@ import (
 	"testing"
 )
 
-func TestReal(t *testing.T) {
+func TestWalletOwnerAPI(t *testing.T) {
 	// commenting this since this can't be done on CI for now
 
 	/*
