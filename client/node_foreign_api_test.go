@@ -13,20 +13,3 @@
 // limitations under the License.
 
 package client_test
-
-import (
-	"testing"
-)
-
-func TestWalletForeignAPI(t *testing.T) {
-	// commenting this since this can't be done on CI for now
-	/*
-		url := "http://127.0.0.1:3415/v2/foreign"
-		walletForeignAPI := client.NewWalletForeignAPI(url)
-		// CheckVersion
-		{
-			versionInfo, err := walletForeignAPI.CheckVersion()
-			assert.NoError(t, err)
-			assert.NotNil(t, versionInfo)
-		}*/
-}

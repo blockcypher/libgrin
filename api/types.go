@@ -83,13 +83,15 @@ type TxKernelsPrintables struct {
 
 // The Status represents various statistics about the network
 type Status struct {
-	ProtocolVersion int    `json:"protocol_version"`
+	ProtocolVersion uint32 `json:"protocol_version"`
 	UserAgent       string `json:"user_agent"`
-	Connections     int    `json:"connections"`
+	Connections     uint32 `json:"connections"`
 	Tip             struct {
-		Height          int    `json:"height"`
+		Height          uint64 `json:"height"`
 		LastBlockPushed string `json:"last_block_pushed"`
 		PrevBlockToLast string `json:"prev_block_to_last"`
-		TotalDifficulty int    `json:"total_difficulty"`
+		TotalDifficulty uint64 `json:"total_difficulty"`
 	} `json:"tip"`
+	SyncStatus string  `json:"sync_status"`
+	SyncInfo   *string `json:"sync_info"`
 }

@@ -12,21 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package client_test
+package client
 
-import (
-	"testing"
-)
+// NodeForeignAPI represents the node foreign API (v2)
+type NodeForeignAPI struct {
+	client RPCHTTPClient
+}
 
-func TestWalletForeignAPI(t *testing.T) {
-	// commenting this since this can't be done on CI for now
-	/*
-		url := "http://127.0.0.1:3415/v2/foreign"
-		walletForeignAPI := client.NewWalletForeignAPI(url)
-		// CheckVersion
-		{
-			versionInfo, err := walletForeignAPI.CheckVersion()
-			assert.NoError(t, err)
-			assert.NotNil(t, versionInfo)
-		}*/
+// NewNodeForeignAPI creates a new node foreign API
+func NewNodeForeignAPI(url string) *NodeForeignAPI {
+	return &NodeForeignAPI{client: RPCHTTPClient{URL: url}}
 }

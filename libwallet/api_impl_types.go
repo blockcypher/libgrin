@@ -15,10 +15,10 @@
 package libwallet
 
 import (
+	"github.com/blockcypher/libgrin/v4/libwallet/slateversions"
 	"github.com/blockcypher/libgrin/v5/core"
 	"github.com/blockcypher/libgrin/v5/keychain"
 	"github.com/blockcypher/libgrin/v5/libwallet/slatepack"
-	"github.com/blockcypher/libgrin/v5/libwallet/slateversions"
 )
 
 // SendTXArgs Send TX API Args

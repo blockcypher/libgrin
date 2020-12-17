@@ -16,17 +16,30 @@ package client_test
 
 import (
 	"testing"
+
+	"github.com/blockcypher/libgrin/v5/client"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestWalletForeignAPI(t *testing.T) {
+func TestNodeOwnerAPI(t *testing.T) {
 	// commenting this since this can't be done on CI for now
-	/*
-		url := "http://127.0.0.1:3415/v2/foreign"
-		walletForeignAPI := client.NewWalletForeignAPI(url)
-		// CheckVersion
-		{
-			versionInfo, err := walletForeignAPI.CheckVersion()
-			assert.NoError(t, err)
-			assert.NotNil(t, versionInfo)
-		}*/
+
+	url := "http://127.0.0.1:3413/v2/owner"
+	nodeOwnerAPI := client.NewNodeOwnerAPI(url)
+	// GetStatus
+	{
+		status, err := nodeOwnerAPI.GetStatus()
+		assert.NoError(t, err)
+		assert.NotNil(t, status)
+	}
+	// ValidateChain (will timeout)
+	{
+		err := nodeOwnerAPI.ValidateChain()
+		assert.NoError(t, err)
+	}
+	// CompactChain
+	{
+		err := nodeOwnerAPI.CompactChain()
+		assert.NoError(t, err)
+	}
 }

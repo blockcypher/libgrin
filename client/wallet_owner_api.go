@@ -31,7 +31,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// WalletOwnerAPI represent the wallet owner API (v3)
+// WalletOwnerAPI represents the wallet owner API (v3)
 type WalletOwnerAPI struct {
 	client          RPCHTTPClient
 	token           string
