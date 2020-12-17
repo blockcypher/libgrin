@@ -19,8 +19,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/blockcypher/libgrin/v4/core"
-	"github.com/blockcypher/libgrin/v4/keychain"
+	"github.com/blockcypher/libgrin/v5/core"
+	"github.com/blockcypher/libgrin/v5/keychain"
 	"github.com/google/uuid"
 )
 
@@ -50,7 +50,7 @@ type OutputData struct {
 	// Value of the output, necessary to rebuild the commitment
 	Value core.Uint64 `json:"value"`
 	// Current status of the output
-	Status OutputStatus `json:"status"`
+	Status outputStatus `json:"status"`
 	// Height of the output
 	Height core.Uint64 `json:"height"`
 	// Height we are locked until
@@ -65,11 +65,11 @@ type OutputData struct {
 // Can either be unconfirmed, spent, unspent, or locked (when it's been used
 //to generate a transaction but we don't have confirmation that the transaction
 // was broadcasted or mined).
-type OutputStatus int
+type outputStatus int
 
 const (
 	// Unconfirmed output
-	Unconfirmed OutputStatus = iota
+	Unconfirmed outputStatus = iota
 	// Unspent output
 	Unspent
 	// Locked output
@@ -78,18 +78,18 @@ const (
 	Spent
 )
 
-func (s OutputStatus) String() string {
+func (s outputStatus) String() string {
 	return toStringOutputStatus[s]
 }
 
-var toStringOutputStatus = map[OutputStatus]string{
+var toStringOutputStatus = map[outputStatus]string{
 	Unconfirmed: "Unconfirmed",
 	Unspent:     "Unspent",
 	Locked:      "Locked",
 	Spent:       "Spent",
 }
 
-var toIDOutputStatus = map[string]OutputStatus{
+var toIDOutputStatus = map[string]outputStatus{
 	"Unconfirmed": Unconfirmed,
 	"Unspent":     Unspent,
 	"Locked":      Locked,
@@ -97,7 +97,7 @@ var toIDOutputStatus = map[string]OutputStatus{
 }
 
 // MarshalJSON marshals the enum as a quoted json string
-func (s OutputStatus) MarshalJSON() ([]byte, error) {
+func (s outputStatus) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	buffer.WriteString(toStringOutputStatus[s])
 	buffer.WriteString(`"`)
@@ -105,7 +105,7 @@ func (s OutputStatus) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON unmarshals a quoted json string to the enum value
-func (s *OutputStatus) UnmarshalJSON(b []byte) error {
+func (s *outputStatus) UnmarshalJSON(b []byte) error {
 	var j string
 	err := json.Unmarshal(b, &j)
 	if err != nil {
@@ -139,11 +139,11 @@ type WalletInfo struct {
 
 // TxLogEntryType represent the type of transactions that can be contained
 // within a TXLog entry
-type TxLogEntryType int
+type txLogEntryType int
 
 const (
 	// ConfirmedCoinbase is a coinbase transaction becomes confirmed
-	ConfirmedCoinbase TxLogEntryType = iota
+	ConfirmedCoinbase txLogEntryType = iota
 	// TxReceived are outputs created when a transaction is received
 	TxReceived
 	// TxSent are inputs locked + change outputs when a transaction is created
@@ -154,11 +154,11 @@ const (
 	TxSentCancelled
 )
 
-func (s TxLogEntryType) String() string {
+func (s txLogEntryType) String() string {
 	return toStringTxLogEntryType[s]
 }
 
-var toStringTxLogEntryType = map[TxLogEntryType]string{
+var toStringTxLogEntryType = map[txLogEntryType]string{
 	ConfirmedCoinbase:   "ConfirmedCoinbase",
 	TxReceived:          "TxReceived",
 	TxSent:              "TxSent",
@@ -166,7 +166,7 @@ var toStringTxLogEntryType = map[TxLogEntryType]string{
 	TxSentCancelled:     "TxSentCancelled",
 }
 
-var toIDTxLogEntryType = map[string]TxLogEntryType{
+var toIDTxLogEntryType = map[string]txLogEntryType{
 	"ConfirmedCoinbase":   ConfirmedCoinbase,
 	"TxReceived":          TxReceived,
 	"TxSent":              TxSent,
@@ -175,7 +175,7 @@ var toIDTxLogEntryType = map[string]TxLogEntryType{
 }
 
 // MarshalJSON marshals the enum as a quoted json string
-func (s TxLogEntryType) MarshalJSON() ([]byte, error) {
+func (s txLogEntryType) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	buffer.WriteString(toStringTxLogEntryType[s])
 	buffer.WriteString(`"`)
@@ -183,7 +183,7 @@ func (s TxLogEntryType) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON unmarshals a quoted json string to the enum value
-func (s *TxLogEntryType) UnmarshalJSON(b []byte) error {
+func (s *txLogEntryType) UnmarshalJSON(b []byte) error {
 	var j string
 	err := json.Unmarshal(b, &j)
 	if err != nil {
@@ -205,7 +205,7 @@ type TxLogEntry struct {
 	// Slate transaction this entry is associated with, if any
 	TxSlateID *uuid.UUID `json:"tx_slate_id"`
 	// Transaction type (as above)
-	TxType TxLogEntryType `json:"tx_type"`
+	TxType txLogEntryType `json:"tx_type"`
 	// Time this tx entry was created
 	// #[serde(with = "tx_date_format")]
 	CreationTs time.Time `json:"creation_ts"`

@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/blockcypher/libgrin/v4/core"
+	"github.com/blockcypher/libgrin/v5/core"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 )
@@ -56,7 +56,7 @@ type Slate struct {
 	// Unique transaction ID, selected by sender
 	ID uuid.UUID `json:"id"`
 	// Slate state
-	state slateState `json:"state"`
+	State slateState `json:"state"`
 	// The core transaction data:
 	// inputs, outputs, kernels, kernel offset
 	// Optional as of V4 to allow for a compact

@@ -17,16 +17,16 @@ package pow
 import (
 	"errors"
 
-	"github.com/blockcypher/libgrin/v4/core/consensus"
+	"github.com/blockcypher/libgrin/v5/core/consensus"
 )
 
 // NewCuckaroozCtx instantiates a new CuckaroozContext as a PowContext. Note that this can't
 /// be moved in the PoWContext trait as this particular trait needs to be
 /// convertible to an object trait.
-func NewCuckaroozCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckaroozContext {
+func NewCuckaroozCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) (*CuckaroozContext, error) {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, edgeBits+1, proofSize)
-	return &CuckaroozContext{chainType, params}
+	return &CuckaroozContext{chainType, params}, nil
 }
 
 // CuckaroozContext is a Cuckarooz cycle context. Only includes the verifier for now.

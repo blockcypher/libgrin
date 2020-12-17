@@ -17,16 +17,19 @@ package pow
 import (
 	"errors"
 
-	"github.com/blockcypher/libgrin/v4/core/consensus"
+	"github.com/blockcypher/libgrin/v5/core/consensus"
 )
 
-// https://github.com/mimblewimble/grin/blob/master/core/src/pow/cuckaroo.rs
-
 // NewCuckarooCtx instantiates a new CuckarooContext as a PowContext
-func NewCuckarooCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) *CuckarooContext {
+func NewCuckarooCtx(chainType consensus.ChainType, edgeBits uint8, proofSize int) (*CuckarooContext, error) {
 	cp := new(CuckooParams)
 	params := cp.new(edgeBits, edgeBits, proofSize)
-	return &CuckarooContext{chainType, params}
+	return &CuckarooContext{chainType, params}, nil
+}
+
+// NoCuckarooCtx error returned for cuckaroo request beyond HardFork4
+func NoCuckarooCtx() (PowContext, error) {
+	return nil, errors.New("no cuckaroo past HardFork4")
 }
 
 // CuckarooContext is a Cuckatoo cycle context. Only includes the verifier for now.

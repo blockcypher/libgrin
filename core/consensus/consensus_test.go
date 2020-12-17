@@ -103,65 +103,42 @@ func TestHardForks(t *testing.T) {
 	{
 		assert.True(t, ValidHeaderVersion(Mainnet, 0, 1))
 		assert.True(t, ValidHeaderVersion(Mainnet, 10, 1))
-		assert.False(t, ValidHeaderVersion(Mainnet, 10, 2))
 
 		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval-1, 1))
-		assert.False(t, ValidHeaderVersion(Mainnet, HardForkInterval, 1))
 		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval, 2))
 		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval+1, 2))
 
 		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval*2-1, 2))
-		assert.False(t, ValidHeaderVersion(Mainnet, HardForkInterval*2, 2))
 		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval*2, 3))
 		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval*2+1, 3))
 
 		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval*3-1, 3))
-		assert.False(t, ValidHeaderVersion(Mainnet, HardForkInterval*3, 3))
 		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval*3, 4))
 		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval*3+1, 4))
 
-		// v5 not active yet
-		assert.False(t, ValidHeaderVersion(Mainnet, HardForkInterval*4, 5))
-		assert.False(t, ValidHeaderVersion(Mainnet, HardForkInterval*4, 4))
-		assert.False(t, ValidHeaderVersion(Mainnet, HardForkInterval*4, 3))
-		assert.False(t, ValidHeaderVersion(Mainnet, HardForkInterval*4, 2))
-		assert.False(t, ValidHeaderVersion(Mainnet, HardForkInterval*4, 1))
+		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval*4-1, 4))
+		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval*4, 5))
+		assert.True(t, ValidHeaderVersion(Mainnet, HardForkInterval*4+1, 5))
 	}
-	// Tests for Floonet
+	// Tests for Testnet
 	{
-		assert.True(t, ValidHeaderVersion(Floonet, 0, 1))
-		assert.True(t, ValidHeaderVersion(Floonet, 10, 1))
-		assert.False(t, ValidHeaderVersion(Floonet, 10, 2))
+		assert.True(t, ValidHeaderVersion(Testnet, 0, 1))
+		assert.True(t, ValidHeaderVersion(Testnet, 10, 1))
 
-		assert.True(t, ValidHeaderVersion(Floonet, FloonetFirstHardFork-1, 1))
-		assert.True(t, ValidHeaderVersion(Floonet, FloonetFirstHardFork, 2))
-		assert.True(t, ValidHeaderVersion(Floonet, FloonetFirstHardFork+1, 2))
-		assert.False(t, ValidHeaderVersion(Floonet, FloonetFirstHardFork, 1))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetFirstHardFork-1, 1))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetFirstHardFork, 2))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetFirstHardFork+1, 2))
 
-		assert.True(t, ValidHeaderVersion(Floonet, FloonetSecondHardFork-1, 2))
-		assert.True(t, ValidHeaderVersion(Floonet, FloonetSecondHardFork, 3))
-		assert.True(t, ValidHeaderVersion(Floonet, FloonetSecondHardFork+1, 3))
-		assert.False(t, ValidHeaderVersion(Floonet, FloonetSecondHardFork, 2))
-		assert.False(t, ValidHeaderVersion(Floonet, FloonetSecondHardFork, 1))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetSecondHardFork-1, 2))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetSecondHardFork, 3))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetSecondHardFork+1, 3))
 
-		assert.True(t, ValidHeaderVersion(Floonet, FloonetThirdHardFork-1, 3))
-		assert.True(t, ValidHeaderVersion(Floonet, FloonetThirdHardFork, 4))
-		assert.True(t, ValidHeaderVersion(Floonet, FloonetThirdHardFork+1, 4))
-		assert.False(t, ValidHeaderVersion(Floonet, FloonetThirdHardFork, 3))
-		assert.False(t, ValidHeaderVersion(Floonet, FloonetThirdHardFork, 2))
-		assert.False(t, ValidHeaderVersion(Floonet, FloonetThirdHardFork, 1))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetThirdHardFork-1, 3))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetThirdHardFork, 4))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetThirdHardFork+1, 4))
 
-		assert.False(t, ValidHeaderVersion(Floonet, HardForkInterval*2-1, 1))
-		assert.False(t, ValidHeaderVersion(Floonet, HardForkInterval*2-1, 2))
-		assert.True(t, ValidHeaderVersion(Floonet, HardForkInterval*2-1, 3))
-		assert.True(t, ValidHeaderVersion(Floonet, HardForkInterval*2, 3))
-		assert.True(t, ValidHeaderVersion(Floonet, HardForkInterval*2+1, 3))
-
-		// v5 not active yet
-		assert.False(t, ValidHeaderVersion(Floonet, HardForkInterval*4, 5))
-		assert.False(t, ValidHeaderVersion(Floonet, HardForkInterval*4, 4))
-		assert.False(t, ValidHeaderVersion(Floonet, HardForkInterval*4, 3))
-		assert.False(t, ValidHeaderVersion(Floonet, HardForkInterval*4, 2))
-		assert.False(t, ValidHeaderVersion(Floonet, HardForkInterval*4, 1))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetFourthHardFork-1, 4))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetFourthHardFork, 5))
+		assert.True(t, ValidHeaderVersion(Testnet, TestnetFourthHardFork+1, 5))
 	}
 }

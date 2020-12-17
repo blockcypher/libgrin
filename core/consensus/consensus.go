@@ -119,23 +119,21 @@ const MaxBlockWeight int = 40000
 // HardForkInterval every 6 months.
 const HardForkInterval uint64 = YearHeight / 2
 
-// FloonetFirstHardFork is the Floonet first hard fork height, set to happen around 2019-06-23
-const FloonetFirstHardFork uint64 = 185040
+// TestnetFirstHardFork is the Testnet first hard fork height, set to happen around 2019-06-23
+const TestnetFirstHardFork uint64 = 185040
 
-// FloonetSecondHardFork is the Floonet second hard fork height, set to happen around 2019-12-19
-const FloonetSecondHardFork uint64 = 298080
+// TestnetSecondHardFork is the Testnet second hard fork height, set to happen around 2019-12-19
+const TestnetSecondHardFork uint64 = 298080
 
-// FloonetThirdHardFork is the Floonet second hard fork height, set to happen around 2020-06-20
-const FloonetThirdHardFork uint64 = 552960
+// TestnetThirdHardFork is the Testnet third hard fork height, set to happen around 2020-06-20
+const TestnetThirdHardFork uint64 = 552960
 
-// TestingFirstHardFork is the AutomatedTesting and UserTesting HF1 height
-const TestingFirstHardFork uint64 = 3
+// TestnetFourthHardFork is the Testnet fourth hard fork height, set to happen around 2020-12-08
+const TestnetFourthHardFork uint64 = 642240
 
-// TestingSecondHardFork is the AutomatedTesting and UserTesting HF2 height
-const TestingSecondHardFork uint64 = 6
-
-// TestingThirdHardFork is the AutomatedTesting and UserTesting HF3 height
-const TestingThirdHardFork uint64 = 9
+// TestingHardForkInterval is the AutomatedTesting and UserTesting hard fork interval
+// Fork every 3 blocks
+const TestingHardForkInterval uint64 = 9
 
 // HeaderVersion compute possible block version at a given height, implements
 // 6 months interval scheduled hard forks for the first 2 years.
@@ -143,31 +141,22 @@ func HeaderVersion(chainType ChainType, height uint64) uint16 {
 	hfInterval := uint16(1 + height/HardForkInterval)
 	switch chainType {
 	case Mainnet:
-		return hfInterval
-	case Floonet:
-		if height < FloonetFirstHardFork {
+		return uint16(math.Min(5, float64(hfInterval)))
+	case Testnet:
+		if height < TestnetFirstHardFork {
 			return 1
-		} else if height < FloonetSecondHardFork {
+		} else if height < TestnetSecondHardFork {
 			return 2
-		} else if height < FloonetThirdHardFork {
+		} else if height < TestnetThirdHardFork {
 			return 3
-		} else if height < 3*HardForkInterval {
-			return 4
-		} else {
-			return hfInterval
-		}
-	case AutomatedTesting, UserTesting:
-		if height < TestingFirstHardFork {
-			return 1
-		} else if height < TestingSecondHardFork {
-			return 2
-		} else if height < TestingThirdHardFork {
-			return 3
-		} else if height < 4*HardForkInterval {
+		} else if height < TestnetFourthHardFork {
 			return 4
 		} else {
 			return 5
 		}
+	case AutomatedTesting, UserTesting:
+		testingHFInterval := uint16(1 + height/TestingHardForkInterval)
+		return uint16(math.Min(5, float64(testingHFInterval)))
 	default:
 		return hfInterval
 	}
@@ -176,7 +165,7 @@ func HeaderVersion(chainType ChainType, height uint64) uint16 {
 // ValidHeaderVersion check whether the block version is valid at a given height, implements
 // 6 months interval scheduled hard forks for the first 2 years.
 func ValidHeaderVersion(chainType ChainType, height uint64, version uint16) bool {
-	return height < 4*HardForkInterval && version == HeaderVersion(chainType, height)
+	return version == HeaderVersion(chainType, height)
 }
 
 // DifficultyAdjustWindow is the number of blocks used to calculate difficulty adjustments

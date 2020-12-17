@@ -14,6 +14,11 @@
 
 package slateversions
 
+import (
+	"bytes"
+	"encoding/json"
+)
+
 // CurrentSlateVersion is the most recent version of the slate
 const CurrentSlateVersion uint16 = 4
 
@@ -24,8 +29,34 @@ const GrinBlockHeaderVersion uint16 = 3
 type SlateVersion int
 
 const (
-	// V4 (most current)
-	V4 SlateVersion = iota
-	// V3 (3.0.0 - 4.0.0)
-	V3
+	// V4SlateVersion is v4 (most current)
+	V4SlateVersion SlateVersion = iota
 )
+
+var toStringSlateVersion = map[SlateVersion]string{
+	V4SlateVersion: "V4",
+}
+
+var toIDSlateVersion = map[string]SlateVersion{
+	"V4": V4SlateVersion,
+}
+
+// MarshalJSON marshals the enum as a quoted json string
+func (s SlateVersion) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(toStringSlateVersion[s])
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON unmarshals a quoted json string to the enum value
+func (s *SlateVersion) UnmarshalJSON(b []byte) error {
+	var j string
+	err := json.Unmarshal(b, &j)
+	if err != nil {
+		return err
+	}
+	// Note that if the string cannot be found then it will be set to the zero value, 'UnknownSlateState' in this case.
+	*s = toIDSlateVersion[j]
+	return nil
+}

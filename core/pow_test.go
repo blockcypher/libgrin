@@ -18,9 +18,9 @@ import (
 	"encoding/binary"
 	"testing"
 
-	"github.com/blockcypher/libgrin/v4/core/pow"
+	"github.com/blockcypher/libgrin/v5/core/pow"
 
-	"github.com/blockcypher/libgrin/v4/core/consensus"
+	"github.com/blockcypher/libgrin/v5/core/consensus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -82,78 +82,104 @@ func TestMainnetContext(t *testing.T) {
 	var zero []uint64
 
 	// One block before hf
-	ctx := createPoWContext(consensus.Mainnet, consensus.YearHeight/2-1, 29, 42, zero, maxSols)
+	ctx, err := createPoWContext(consensus.Mainnet, consensus.YearHeight/2-1, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckarooContext{}, ctx)
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight/2-1, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight/2-1, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
+
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 
 	// Hard fork height
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight/2, 29, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight/2, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
+
 	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight/2, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight/2, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 
 	// After hard fork
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight/2+1, 29, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight/2+1, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight/2+1, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight/2+1, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 
 	// One block before second hf
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight-1, 29, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight-1, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight-1, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight-1, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 
 	// Second hard fork height
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight, 29, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckaroomContext{}, ctx)
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 
 	// After second hard fork
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight+1, 29, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight+1, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckaroomContext{}, ctx)
-	ctx = createPoWContext(consensus.Mainnet, consensus.YearHeight+1, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Mainnet, consensus.YearHeight+1, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 }
 
-func TestFloonetContext(t *testing.T) {
+func TestTestnetContext(t *testing.T) {
 	var zero []uint64
 
 	// One block before first hf
-	ctx := createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork-1, 29, 42, zero, maxSols)
+	ctx, err := createPoWContext(consensus.Testnet, consensus.TestnetFirstHardFork-1, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckarooContext{}, ctx)
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork-1, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetFirstHardFork-1, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 
 	// First hard fork height
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork, 29, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetFirstHardFork, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetFirstHardFork, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 
 	// After first hard fork
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork+1, 29, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetFirstHardFork+1, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetFirstHardFork+1, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetFirstHardFork+1, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 
 	// One block before second hf
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetSecondHardFork-1, 29, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetSecondHardFork-1, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckaroodContext{}, ctx)
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetSecondHardFork-1, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetSecondHardFork-1, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 
 	// Second hard fork height
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetSecondHardFork, 29, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetSecondHardFork, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckaroomContext{}, ctx)
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetSecondHardFork, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetSecondHardFork, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 
 	// After second hard fork
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetSecondHardFork+1, 29, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetSecondHardFork+1, 29, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckaroomContext{}, ctx)
-	ctx = createPoWContext(consensus.Floonet, consensus.FloonetSecondHardFork+1, 31, 42, zero, maxSols)
+	ctx, err = createPoWContext(consensus.Testnet, consensus.TestnetSecondHardFork+1, 31, 42, zero, maxSols)
+	assert.NoError(t, err)
 	assert.IsType(t, &pow.CuckatooContext{}, ctx)
 }

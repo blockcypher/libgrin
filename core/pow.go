@@ -15,45 +15,42 @@
 package core
 
 import (
-	"github.com/blockcypher/libgrin/v4/core/consensus"
-	"github.com/blockcypher/libgrin/v4/core/pow"
+	"github.com/blockcypher/libgrin/v5/core/consensus"
+	"github.com/blockcypher/libgrin/v5/core/pow"
 )
 
 const maxSols uint32 = 10
 
-func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uint8, proofSize int, nonces []uint64, maxSols uint32) pow.PowContext {
-	switch {
-	// Mainnet has Cuckaroo29 for AR and Cuckatoo30+ for AF
-	case consensus.Mainnet <= chainType && edgeBits > 29:
-		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	case consensus.Mainnet <= chainType && consensus.ValidHeaderVersion(chainType, height, 4):
-		return pow.NewCuckaroozCtx(chainType, edgeBits, proofSize)
-	case consensus.Mainnet <= chainType && consensus.ValidHeaderVersion(chainType, height, 3):
-		return pow.NewCuckaroomCtx(chainType, edgeBits, proofSize)
-	case consensus.Mainnet <= chainType && consensus.ValidHeaderVersion(chainType, height, 2):
-		return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
-	case consensus.Mainnet <= chainType:
-		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
-	case consensus.Floonet <= chainType && edgeBits > 29:
-		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
-	case consensus.Floonet <= chainType && consensus.ValidHeaderVersion(chainType, height, 4):
-		return pow.NewCuckaroozCtx(chainType, edgeBits, proofSize)
-	case consensus.Floonet <= chainType && consensus.ValidHeaderVersion(chainType, height, 3):
-		return pow.NewCuckaroomCtx(chainType, edgeBits, proofSize)
-	case consensus.Floonet <= chainType && consensus.ValidHeaderVersion(chainType, height, 2):
-		return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
-	case consensus.Floonet <= chainType:
-		return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
-	default:
-		// Everything else is Cuckatoo only
-		return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
+func createPoWContext(chainType consensus.ChainType, height uint64, edgeBits uint8, proofSize int, nonces []uint64, maxSols uint32) (pow.PowContext, error) {
+	if chainType == consensus.Mainnet || chainType == consensus.Testnet {
+		// Mainnet and Testnet have Cuckatoo31+ for AF and Cuckaroo{,d,m,z}29 for AR
+		if edgeBits > 29 {
+			return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
+		}
+		switch consensus.HeaderVersion(chainType, height) {
+		case 1:
+			return pow.NewCuckarooCtx(chainType, edgeBits, proofSize)
+		case 2:
+			return pow.NewCuckaroodCtx(chainType, edgeBits, proofSize)
+		case 3:
+			return pow.NewCuckaroomCtx(chainType, edgeBits, proofSize)
+		case 4:
+			return pow.NewCuckaroozCtx(chainType, edgeBits, proofSize)
+		default:
+			return pow.NoCuckarooCtx()
+		}
 	}
+	// Everything else is Cuckatoo only
+	return pow.NewCuckatooCtx(chainType, edgeBits, proofSize, maxSols)
 }
 
 // VerifySize validates the proof of work of a given header, and that the proof of work
 // satisfies the requirements of the header.
 func VerifySize(chainType consensus.ChainType, prePoW []uint8, bh *BlockHeader) error {
-	ctx := createPoWContext(chainType, bh.Height, bh.PoW.EdgeBits(), len(bh.PoW.Proof.Nonces), bh.PoW.Proof.Nonces, maxSols)
+	ctx, err := createPoWContext(chainType, bh.Height, bh.PoW.EdgeBits(), len(bh.PoW.Proof.Nonces), bh.PoW.Proof.Nonces, maxSols)
+	if err != nil {
+		return err
+	}
 	ctx.SetHeaderNonce(prePoW, nil)
 	if err := ctx.Verify(bh.PoW.Proof); err != nil {
 		return err

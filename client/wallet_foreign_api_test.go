@@ -12,29 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package slateversions
+package client_test
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func TestUnmarshalSlateV3(t *testing.T) {
-	slateV3JSON, _ := ioutil.ReadFile("test_data/v3.slate")
-	var slateV3 SlateV3
-	err := json.Unmarshal(slateV3JSON, &slateV3)
-	assert.Nil(t, err)
-}
-
-func TestMarshalSlateV3(t *testing.T) {
-	slateV3JSON, _ := ioutil.ReadFile("test_data/v3_raw.slate")
-	var slateV3 SlateV3
-	err := json.Unmarshal(slateV3JSON, &slateV3)
-	assert.Nil(t, err)
-
-	serializedSlateV3, err := json.Marshal(slateV3)
-	assert.Equal(t, slateV3JSON, serializedSlateV3)
+func TestWalletForeignAPI(t *testing.T) {
+	// commenting this since this can't be done on CI for now
+	/*
+		url := "http://127.0.0.1:3415/v2/foreign"
+		walletForeignAPI := client.NewWalletForeignAPI(url)
+		// CheckVersion
+		{
+			versionInfo, err := walletForeignAPI.CheckVersion()
+			assert.NoError(t, err)
+			assert.NotNil(t, versionInfo)
+		}*/
 }

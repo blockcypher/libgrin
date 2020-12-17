@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/blockcypher/libgrin/v4/core/consensus"
+	"github.com/blockcypher/libgrin/v5/core/consensus"
 	"github.com/btcsuite/btcutil/bech32"
 )
 

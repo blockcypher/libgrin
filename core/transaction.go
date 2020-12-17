@@ -98,7 +98,16 @@ func (s *KernelFeatures) UnmarshalJSON(b []byte) error {
 	var j string
 	err := json.Unmarshal(b, &j)
 	if err != nil {
-		return err
+		// try to deserialize as map
+		var j2 map[string]json.RawMessage
+		err := json.Unmarshal(b, &j2)
+		if err != nil {
+			return err
+		}
+		// Hack to get the first key, TODO properly deserialize this
+		for k := range j2 {
+			j = k
+		}
 	}
 	// Note that if the string cannot be found then it will be set to the zero value, 'Created' in this case.
 	*s = toIDKernelFeatures[j]
@@ -113,11 +122,6 @@ func (s *KernelFeatures) UnmarshalJSON(b []byte) error {
 type TxKernel struct {
 	// Options for a kernel's structure or use
 	Features KernelFeatures `json:"features"`
-	// Fee originally included in the transaction this proof is for.
-	Fee Uint64 `json:"fee"`
-	// This kernel is not valid earlier than lock_height blocks
-	// The max lock_height of all *inputs* to this transaction
-	LockHeight Uint64 `json:"lock_height"`
 	// Remainder of the sum of all transaction commitments. If the transaction
 	// is well formed, amounts components should sum to zero and the excess
 	// is hence a valid public key.
