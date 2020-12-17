@@ -114,7 +114,7 @@ func TestMarshalReasonForBan(t *testing.T) {
 	assert.Equal(t, string(badhanshakeb), "\"BadHandshake\"")
 }
 
-func TestUnmarshalConnection(t *testing.T) {
+func TestUnmarshalConnectionDirection(t *testing.T) {
 	inboundb := []byte(`"Inbound"`)
 	var inbound connectionDirection
 	if err := json.Unmarshal(inboundb, &inbound); err != nil {
@@ -128,10 +128,9 @@ func TestUnmarshalConnection(t *testing.T) {
 		assert.Error(t, err)
 	}
 	assert.Equal(t, outbound, OutboundConnectionDirection)
-
 }
 
-func TestMarshalConnection(t *testing.T) {
+func TestMarshalConnectionDirection(t *testing.T) {
 	inboundb, err := json.Marshal(InboundConnectionDirection)
 	assert.Nil(t, err)
 	assert.Equal(t, string(inboundb), "\"Inbound\"")

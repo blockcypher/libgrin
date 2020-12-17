@@ -14,6 +14,13 @@
 
 package api
 
+import (
+	"bytes"
+	"encoding/json"
+
+	"github.com/blockcypher/libgrin/v4/core"
+)
+
 // BlockPrintable is the result of the Grin block API
 type BlockPrintable struct {
 	Header  BlockHeaderPrintable  `json:"header"`
@@ -59,17 +66,22 @@ type BlockHeaderPrintable struct {
 // OutputPrintable represents the output of a block
 type OutputPrintable struct {
 	// The type of output Coinbase|Transaction
-	OutputType string `json:"output_type"`
+	OutputType outputType `json:"output_type"`
 	// The homomorphic commitment representing the output's amount
 	// (as hex string)
 	Commit string `json:"commit"`
 	// Whether the output has been spent
 	Spent bool `json:"spent"`
 	// Rangeproof (as hex string)
-	Proof string `json:"proof"`
+	Proof *string `json:"proof"`
 	// Rangeproof hash (as hex string)
-	ProofHash   string `json:"proof_hash"`
-	MerkleProof string `json:"merkle_proof"`
+	ProofHash string `json:"proof_hash"`
+	// BlockHeight at which the output is found
+	BlockHeight *uint64 `json:"block_height"`
+	// Merkle Proof
+	MerkleProof *string `json:"merkle_proof"`
+	// MMR Position
+	MMRIndex uint64 `json:"mmr_index"`
 }
 
 // TxKernelsPrintables is the tx kernel
@@ -83,15 +95,88 @@ type TxKernelsPrintables struct {
 
 // The Status represents various statistics about the network
 type Status struct {
-	ProtocolVersion uint32 `json:"protocol_version"`
-	UserAgent       string `json:"user_agent"`
-	Connections     uint32 `json:"connections"`
-	Tip             struct {
-		Height          uint64 `json:"height"`
-		LastBlockPushed string `json:"last_block_pushed"`
-		PrevBlockToLast string `json:"prev_block_to_last"`
-		TotalDifficulty uint64 `json:"total_difficulty"`
-	} `json:"tip"`
-	SyncStatus string  `json:"sync_status"`
-	SyncInfo   *string `json:"sync_info"`
+	ProtocolVersion uint32  `json:"protocol_version"`
+	UserAgent       string  `json:"user_agent"`
+	Connections     uint32  `json:"connections"`
+	Tip             Tip     `json:"tip"`
+	SyncStatus      string  `json:"sync_status"`
+	SyncInfo        *string `json:"sync_info"`
+}
+
+// LocatedTxKernel is a located TxKernel
+type LocatedTxKernel struct {
+	TxKernel core.TxKernel `json:"tx_kernel"`
+	Height   uint64        `json:"height"`
+	MMRIndex uint64        `json:"mmr_index"`
+}
+
+// outputType is the type of output
+type outputType int
+
+const (
+	// CoinbaseOutputType is a coinbase output type
+	CoinbaseOutputType outputType = iota
+	// TransactionOutputType is a transaction output type
+	TransactionOutputType
+)
+
+var toStringOutputType = map[outputType]string{
+	CoinbaseOutputType:    "Coinbase",
+	TransactionOutputType: "Transaction",
+}
+
+var toIDOutputType = map[string]outputType{
+	"Coinbase":    CoinbaseOutputType,
+	"Transaction": TransactionOutputType,
+}
+
+// MarshalJSON marshals the enum as a quoted json string
+func (s outputType) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(toStringOutputType[s])
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON unmarshals a quoted json string to the enum value
+func (s *outputType) UnmarshalJSON(b []byte) error {
+	var j string
+	err := json.Unmarshal(b, &j)
+	if err != nil {
+		return err
+	}
+	// Note that if the string cannot be found then it will be set to the zero value, 'CoinbaseOutputType' in this case.
+	*s = toIDOutputType[j]
+	return nil
+}
+
+// OutputListing is for traversing all outputs in the UTXO set with the
+// transactions in the block
+type OutputListing struct {
+	// The last available output index
+	HighestIndex uint64 `json:"highest_index"`
+	// The last insertion index retrieved
+	LastRetrievedIndex uint64 `json:"last_retrieved_index"`
+	// A printable version of the outputs
+	Outputs []OutputPrintable `json:"outputs"`
+}
+
+// Tip is the state of the current fork tip
+type Tip struct {
+	/// Height of the tip (max height of the fork)
+	Height uint64 `json:"height"`
+	// Last block pushed to the fork
+	LastBlockPushed string `json:"last_block_pushed"`
+	// Block previous to last
+	PrevBlockToLast string `json:"prev_block_to_last"`
+	// Total difficulty accumulated on that fork
+	TotalDifficulty uint64 `json:"total_difficulty"`
+}
+
+// Version is the API Version Information
+type Version struct {
+	// Current node API Version (api crate version)
+	NodeVersion string `json:"node_version"`
+	// Block header version
+	BlockHeaderVersion uint16 `json:"block_header_version"`
 }

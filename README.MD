@@ -40,9 +40,10 @@ Any contribution is more than welcome. Currently libgrin has:
 
 - Minimal API types.
 - Minimal Core package which includes PoW verification.
-- Client package containing wrappers around Node API and wallet owner API.
+- Client package containing wrappers around Node API (Foreign and Owner) and wallet API (Foreign and Owner).
 - Minimal keychain types
 - Minimal libwallet
+- Minimal p2p types
 
 Missing parts:
 
