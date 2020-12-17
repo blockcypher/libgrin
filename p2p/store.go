@@ -17,13 +17,12 @@ package p2p
 import (
 	"bytes"
 	"encoding/json"
-	"net"
 )
 
 // PeerData is the data stored for any given peer we've encountered.
 type PeerData struct {
 	// Network address of the peer.
-	Addr net.IP `json:"addr"`
+	Addr string `json:"addr"`
 	// What capabilities the peer advertises. Unknown until a successful
 	// connection.
 	Capabilities Capabilities `json:"capabilities"`
@@ -36,7 +35,7 @@ type PeerData struct {
 	// The reason for the ban
 	Banreason reasonForBan `json:"ban_reason"`
 	// Time when we last connected to this peer.
-	LastConnected int64 `json:"1570129317"`
+	LastConnected int64 `json:"last_connected"`
 }
 
 // PeerState is the state of a peer

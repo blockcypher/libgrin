@@ -16,30 +16,53 @@ package client_test
 
 import (
 	"testing"
-
-	"github.com/blockcypher/libgrin/v5/client"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNodeOwnerAPI(t *testing.T) {
 	// commenting this since this can't be done on CI for now
+	/*
+		url := "http://127.0.0.1:3413/v2/owner"
+		nodeOwnerAPI := client.NewNodeOwnerAPI(url)
+		// GetStatus
 
-	url := "http://127.0.0.1:3413/v2/owner"
-	nodeOwnerAPI := client.NewNodeOwnerAPI(url)
-	// GetStatus
-	{
-		status, err := nodeOwnerAPI.GetStatus()
-		assert.NoError(t, err)
-		assert.NotNil(t, status)
-	}
-	// ValidateChain (will timeout)
-	{
-		err := nodeOwnerAPI.ValidateChain()
-		assert.NoError(t, err)
-	}
-	// CompactChain
-	{
-		err := nodeOwnerAPI.CompactChain()
-		assert.NoError(t, err)
-	}
+		{
+			status, err := nodeOwnerAPI.GetStatus()
+			assert.NoError(t, err)
+			assert.NotNil(t, status)
+		}
+
+		// ValidateChain (will timeout)
+		{
+			err := nodeOwnerAPI.ValidateChain()
+			assert.NoError(t, err)
+		}
+		// CompactChain
+		{
+			err := nodeOwnerAPI.CompactChain()
+			assert.NoError(t, err)
+		}
+		// GetPeers
+		{
+			peerAddr := "101.87.59.78:3414"
+			peersData, err := nodeOwnerAPI.GetPeers(&peerAddr)
+			assert.NoError(t, err)
+			assert.NotNil(t, peersData)
+		}
+		// GetConnectedPeers
+		{
+			connectedPeers, err := nodeOwnerAPI.GetConnectedPeers()
+			assert.NoError(t, err)
+			assert.NotNil(t, connectedPeers)
+		}
+		// BanPeer
+		{
+			err := nodeOwnerAPI.BanPeer("47.111.191.20:13414")
+			assert.NoError(t, err)
+		}
+		// UnbanPeer
+		{
+			err := nodeOwnerAPI.UnbanPeer("47.111.191.20:13414")
+			assert.NoError(t, err)
+		}
+	*/
 }

@@ -119,7 +119,8 @@ func (owner *NodeOwnerAPI) CompactChain() error {
 // GetPeers retrieves information about stored peers.
 // If None is provided, will list all stored peers.
 func (owner *NodeOwnerAPI) GetPeers(peerAddr *string) (*[]p2p.PeerData, error) {
-	paramsBytes, err := json.Marshal(peerAddr)
+	arrayParams := [1]*string{peerAddr}
+	paramsBytes, err := json.Marshal(arrayParams)
 	if err != nil {
 		return nil, err
 	}
@@ -183,8 +184,9 @@ func (owner *NodeOwnerAPI) GetConnectedPeers() (*[]p2p.PeerInfoDisplay, error) {
 }
 
 // BanPeer bans a specific peer.
-func (owner *NodeOwnerAPI) BanPeer(peerAddr *string) error {
-	paramsBytes, err := json.Marshal(peerAddr)
+func (owner *NodeOwnerAPI) BanPeer(peerAddr string) error {
+	arrayParams := [1]string{peerAddr}
+	paramsBytes, err := json.Marshal(arrayParams)
 	if err != nil {
 		return err
 	}
@@ -217,8 +219,9 @@ func (owner *NodeOwnerAPI) BanPeer(peerAddr *string) error {
 }
 
 // UnbanPeer unbans a specific peer.
-func (owner *NodeOwnerAPI) UnbanPeer(peerAddr *string) error {
-	paramsBytes, err := json.Marshal(peerAddr)
+func (owner *NodeOwnerAPI) UnbanPeer(peerAddr string) error {
+	arrayParams := [1]string{peerAddr}
+	paramsBytes, err := json.Marshal(arrayParams)
 	if err != nil {
 		return err
 	}

@@ -17,9 +17,6 @@ package p2p
 import (
 	"bytes"
 	"encoding/json"
-	"net"
-
-	"github.com/blockcypher/libgrin/v5/core/consensus"
 )
 
 // Capabilities are options for what type of interaction a peer supports
@@ -94,13 +91,13 @@ func (s *reasonForBan) UnmarshalJSON(b []byte) error {
 // PeerInfoDisplay is a flatten out PeerInfo and nested PeerLiveInfo (taking a read lock on it)
 // so we can serialize/deserialize the data for the API and the TUI.
 type PeerInfoDisplay struct {
-	Capabilities    Capabilities         `json:"capabilities"`
-	UserAgent       string               `json:"user_agent"`
-	Version         uint32               `json:"version"`
-	Addr            net.IP               `json:"addr"`
-	Direction       connectionDirection  `json:"direction"`
-	TotalDifficulty consensus.Difficulty `json:"total_difficulty"`
-	Height          uint64               `json:"height"`
+	Capabilities    Capabilities        `json:"capabilities"`
+	UserAgent       string              `json:"user_agent"`
+	Version         uint32              `json:"version"`
+	Addr            string              `json:"addr"`
+	Direction       connectionDirection `json:"direction"`
+	TotalDifficulty uint64              `json:"total_difficulty"`
+	Height          uint64              `json:"height"`
 }
 
 // Types of connection direction
