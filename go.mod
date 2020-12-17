@@ -2,13 +2,10 @@ module github.com/blockcypher/libgrin/v5
 
 go 1.14
 
-replace github.com/blockcypher/libgrin/v4 => /Users/quentin/go/src/github.com/blockcypher/libgrin
-
 require (
-	github.com/blockcypher/libgrin/v4 v4.0.0
+	github.com/blockcypher/libgrin/v5 v5.0.0
 	github.com/btcsuite/btcd v0.20.1-beta
 	github.com/btcsuite/btcutil v1.0.2
-	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.1.1
 	github.com/mitchellh/mapstructure v1.3.2
 	github.com/sethgrid/pester v1.1.0
