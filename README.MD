@@ -44,6 +44,7 @@ Any contribution is more than welcome. Currently libgrin has:
 - Minimal keychain types
 - Minimal libwallet
 - Minimal p2p types
+- Minimal pool types
 
 Missing parts:
 
