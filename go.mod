@@ -3,11 +3,9 @@ module github.com/blockcypher/libgrin/v5
 go 1.14
 
 require (
-	github.com/blockcypher/libgrin v2.0.0+incompatible // indirect
 	github.com/btcsuite/btcd v0.20.1-beta
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/google/uuid v1.1.1
-	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/mitchellh/mapstructure v1.3.2
 	github.com/sethgrid/pester v1.1.0
 	github.com/sirupsen/logrus v1.6.0

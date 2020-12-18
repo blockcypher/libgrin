@@ -1,8 +1,6 @@
 github.com/aead/siphash v1.0.1/go.mod h1:Nywa3cDsYNNK3gaciGTWPwHt0wlpNV15vwmswBAUSII=
 github.com/blockcypher/libgrin v2.0.0+incompatible h1:ESNyziuY5NjwXmYW4H8pfvZCfQvm8EtEUCIWQBN6/8s=
 github.com/blockcypher/libgrin v2.0.0+incompatible/go.mod h1:v+0kVsZz7bCDN4FZmDlKjVtU6SWvX/7EUJDadaavYz4=
-github.com/blockcypher/libgrin/v4 v4.0.0 h1:Amf5jhlfAHWuxhXDwL5gRRNdmxdL4vn5S4z6fhPAFSw=
-github.com/blockcypher/libgrin/v4 v4.0.0/go.mod h1:1rsdJFX6xnPIfVfnOJDg8hEo/VUdlfYQU6um6zK7hVw=
 github.com/blockcypher/libgrin/v5 v5.0.0/go.mod h1:M9cwSlka9QNWUuD1RtPktO4FEm/S1qi27XUdi0iCow0=
 github.com/btcsuite/btcd v0.20.1-beta h1:Ik4hyJqN8Jfyv3S4AGBOmyouMsYE3EdYODkMbQjwPGw=
 github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDuV7OomQ=
