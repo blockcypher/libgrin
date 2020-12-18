@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/blockcypher/libgrin/workflows/Continuous%20Integration/badge.svg)
 [![ISC License](http://img.shields.io/badge/license-apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/blockcypher/libgrin)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/blockcypher/libgrin/v5)
 
 libgrin is a golang Grin library for building [Grin](https://github.com/mimblewimble/grin) applications.
 Currently, it contains the basic consensus parameters, chain, slate structures and proof of work verification code.
