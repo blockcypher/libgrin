@@ -7,7 +7,7 @@
 libgrin is a golang Grin library for building [Grin](https://github.com/mimblewimble/grin) applications.
 Currently, it contains the basic consensus parameters, chain, slate structures and proof of work verification code.
 
-The `client` package contains wrappers around the Grin node API and the wallet owner API using libgrin.
+The `client` package contains wrappers around the Grin node foreign/owner API and the wallet foreign/owner API using libgrin.
 
 ## Requirements
 
