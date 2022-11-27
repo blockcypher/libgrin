@@ -15,8 +15,6 @@
 package client
 
 import (
-	"crypto/ecdsa"
-	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -25,7 +23,8 @@ import (
 	"github.com/blockcypher/libgrin/v5/libwallet"
 	"github.com/blockcypher/libgrin/v5/libwallet/slatepack"
 	"github.com/blockcypher/libgrin/v5/libwallet/slateversions"
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"github.com/google/uuid"
 
 	log "github.com/sirupsen/logrus"
@@ -46,13 +45,13 @@ func NewWalletOwnerAPI(url string) *WalletOwnerAPI {
 	return &WalletOwnerAPI{client: RPCHTTPClient{URL: url}}
 }
 
-func newKey() (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
-	priv, err := ecdsa.GenerateKey(btcec.S256(), rand.Reader)
+func newKey() (*secp256k1.PrivateKey, *secp256k1.PublicKey, error) {
+	priv, err := btcec.NewPrivateKey()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return priv, &priv.PublicKey, nil
+	return priv, priv.PubKey(), nil
 }
 
 // Init initalize the secure owner API
@@ -71,7 +70,7 @@ func (owner *WalletOwnerAPI) Init() error {
 	if err != nil {
 		return err
 	}
-	owner.ServerPublicKey, err = btcec.ParsePubKey(serverPubKey, btcec.S256())
+	owner.ServerPublicKey, err = btcec.ParsePubKey(serverPubKey)
 	if err != nil {
 		return err
 	}
